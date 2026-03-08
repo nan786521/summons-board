@@ -255,6 +255,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .monster-card {
+  position: relative;
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -747,6 +748,102 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   padding: 1px 4px; border-radius: 3px; line-height: 1.3;
 }
 .team-note { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+
+/* NEW badge for recently added characters */
+.card-new {
+  position: absolute; top: 4px; left: 4px;
+  background: linear-gradient(135deg, #e74c3c, #ff6b6b);
+  color: #fff; font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 3px;
+  letter-spacing: 0.5px; z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  animation: newPulse 2s infinite;
+}
+@keyframes newPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Dungeon Advisor modal */
+.dungeon-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); z-index: 250;
+  justify-content: center; align-items: center;
+}
+.dungeon-overlay.active { display: flex; }
+.dungeon-panel {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; max-width: 600px; width: 94%;
+  max-height: 90vh; overflow-y: auto; padding: 20px;
+}
+.dungeon-title {
+  font-size: 18px; font-weight: 700; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.dungeon-field { margin-bottom: 14px; }
+.dungeon-field-label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; }
+.dungeon-el-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.dungeon-el-btn {
+  padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  border: 2px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: 13px; font-weight: 600;
+  transition: all 0.15s;
+}
+.dungeon-el-btn:hover { border-color: var(--accent); }
+.dungeon-el-btn.active { border-color: var(--accent); background: var(--accent); color: #000; }
+.dungeon-gimmick-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.dungeon-gimmick {
+  padding: 4px 10px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text-dim); font-size: 12px; transition: all 0.15s;
+}
+.dungeon-gimmick:hover { border-color: var(--accent); color: var(--text); }
+.dungeon-gimmick.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.dungeon-result { margin-top: 16px; }
+.dungeon-result-title {
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+}
+.dungeon-no-result { font-size: 12px; color: var(--text-dim); padding: 12px 0; }
+.dungeon-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* Update log section */
+.update-log-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); z-index: 250;
+  justify-content: center; align-items: center;
+}
+.update-log-overlay.active { display: flex; }
+.update-log-panel {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; max-width: 500px; width: 92%;
+  max-height: 90vh; overflow-y: auto; padding: 20px;
+}
+.update-log-title {
+  font-size: 18px; font-weight: 700; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.update-log-item {
+  display: flex; gap: 10px; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(45,74,94,0.3);
+  cursor: pointer; transition: background 0.15s;
+}
+.update-log-item:hover { background: var(--card-hover); }
+.update-log-item img {
+  width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0;
+  border: 1px solid var(--border); object-fit: cover;
+}
+.update-log-info { flex: 1; min-width: 0; }
+.update-log-name { font-size: 13px; font-weight: 600; }
+.update-log-meta { font-size: 11px; color: var(--text-dim); }
+.update-log-empty { font-size: 13px; color: var(--text-dim); padding: 20px 0; text-align: center; }
+.new-count-badge {
+  display: inline-block; background: #e74c3c; color: #fff;
+  font-size: 10px; font-weight: 700; padding: 1px 5px;
+  border-radius: 8px; margin-left: 4px; vertical-align: middle;
+}
 
 /* View mode toggle */
 .view-toggle {
@@ -1269,12 +1366,15 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <option value="sub_asc">副隊評分 ↑</option>
     <option value="no_desc">編號 ↓</option>
     <option value="no_asc">編號 ↑</option>
+    <option value="new_first">新角色優先</option>
   </select>
   <button class="btn btn-owned" id="filterOwned">僅已持有</button>
   <button class="btn" id="filterUnowned">僅未持有</button>
   <button class="btn" id="bulkToggle">批次勾選</button>
   <button class="btn" id="statsBtn">統計</button>
   <button class="btn" id="teamBuilderBtn">組隊</button>
+  <button class="btn" id="dungeonAdvisorBtn">副本推薦</button>
+  <button class="btn" id="updateLogBtn">更新日誌</button>
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
   <div class="view-toggle">
     <button class="btn active" id="viewGrid" title="卡片模式">⊞</button>
@@ -1533,6 +1633,54 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   </div>
 </div>
 
+<!-- Dungeon Advisor Modal -->
+<div class="dungeon-overlay" id="dungeonOverlay">
+  <div class="dungeon-panel">
+    <div class="dungeon-title">副本推薦</div>
+    <div class="dungeon-field">
+      <div class="dungeon-field-label">敵方屬性</div>
+      <div class="dungeon-el-group" id="dungeonElGroup">
+        <span class="dungeon-el-btn" data-el="火" style="border-color:#e74c3c">火</span>
+        <span class="dungeon-el-btn" data-el="水" style="border-color:#3498db">水</span>
+        <span class="dungeon-el-btn" data-el="木" style="border-color:#2ecc71">木</span>
+        <span class="dungeon-el-btn" data-el="光" style="border-color:#f1c40f">光</span>
+        <span class="dungeon-el-btn" data-el="闇" style="border-color:#9b59b6">闇</span>
+      </div>
+    </div>
+    <div class="dungeon-field">
+      <div class="dungeon-field-label">副本機關（複選）</div>
+      <div class="dungeon-gimmick-group" id="dungeonGimmicks">
+        <span class="dungeon-gimmick" data-gm="護盾" title="敵方具有護盾，需要破盾能力">護盾</span>
+        <span class="dungeon-gimmick" data-gm="高防" title="敵方高防禦力，需要防護貫通">高防</span>
+        <span class="dungeon-gimmick" data-gm="先制" title="敵方有先制攻擊，需要先制耐性">先制</span>
+        <span class="dungeon-gimmick" data-gm="陷阱" title="盤面有陷阱/設置物">陷阱</span>
+        <span class="dungeon-gimmick" data-gm="高HP" title="敵方HP高，需要持續火力">高HP</span>
+        <span class="dungeon-gimmick" data-gm="多體" title="多數敵人，需要全體化攻擊">多體</span>
+        <span class="dungeon-gimmick" data-gm="封技" title="敵方會封技，需要技能使用不可耐性">封技</span>
+        <span class="dungeon-gimmick" data-gm="綁定" title="敵方會綁定，需要綁定耐性">綁定</span>
+      </div>
+    </div>
+    <div id="dungeonResult"></div>
+    <div class="dungeon-actions">
+      <button class="btn" id="dungeonCalc" style="background:var(--accent);color:#000;font-weight:600">推薦隊伍</button>
+      <button class="btn" id="dungeonClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Log Modal -->
+<div class="update-log-overlay" id="updateLogOverlay">
+  <div class="update-log-panel">
+    <div class="update-log-title">更新日誌</div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">最近新增或你尚未瀏覽過的角色</p>
+    <div id="updateLogContent"></div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn" id="updateLogMarkRead">全部標為已讀</button>
+      <button class="btn" id="updateLogClose">關閉</button>
+    </div>
+  </div>
+</div>
+
 <!-- Scroll to top -->
 <button class="scroll-top" id="scrollTop" title="回到頂部">↑</button>
 
@@ -1557,8 +1705,8 @@ let _activeAsFilters = new Set();
 let _activeTpFilters = new Set();
 let _activeTagFilters = new Set();
 let _activeRoleFilters = new Set();
-let _activeType1 = "";
-let _activeType2 = "";
+const _activeTypes = { filterType1: "", filterType2: "" };
+let _knownNos = new Set(); // known character nos (for update log)
 let _recentHistory = [];
 let _viewMode = "grid"; // "grid" | "list"
 let _currentDetailName = null;
@@ -1667,12 +1815,10 @@ const SOUL_ICONS = {
   "バインド耐性": "soul_bind.gif",
   "攻撃・スキル使用不可耐性": "soul_kougekiskill.jpg",
   "毒・溶岩耐性": "soul_doku.gif",
-  "攻撃力％強化": "soul_kougekikyouka_percent.gif",
   "攻撃力%強化": "soul_kougekikyouka_percent.gif",
   "物理ダメージスキル強化": "soul_buturi_damageskill.gif",
   "コンボダメージ増加": "soul_combo_damagezoka.gif",
   "スタンダメージ増加": "soul_stan_damagezoka.gif",
-  "HP％強化": "soul_hp_percentkyoka.gif",
   "HP%強化": "soul_hp_percentkyoka.gif",
   "TP自動獲得": "soul_tp_jidokakutoku.gif",
   "回避率強化": "soul_kaihiritsu.gif",
@@ -1682,16 +1828,18 @@ const _SOUL_ICON_KEYS = Object.keys(SOUL_ICONS);
 const _soulIconCache = new Map();
 function getSoulIcon(name) {
   if (_soulIconCache.has(name)) return _soulIconCache.get(name);
+  // Normalize full-width percent ％ → %
+  const n = name.replace(/％/g, "%");
   let result = null;
-  if (SOUL_ICONS[name]) { result = SOUL_BASE + SOUL_ICONS[name]; }
+  if (SOUL_ICONS[n]) { result = SOUL_BASE + SOUL_ICONS[n]; }
   else {
     // Try removing trailing numbers/Lv
-    const base = name.replace(/[2２Ⅱ]$/, "").replace(/ ?Lv\d+$/, "").trim();
+    const base = n.replace(/[2２Ⅱ]$/, "").replace(/ ?Lv\d+$/, "").trim();
     if (SOUL_ICONS[base]) { result = SOUL_BASE + SOUL_ICONS[base]; }
     else {
       // Try partial match for compound names
       for (const k of _SOUL_ICON_KEYS) {
-        if (name.includes(k)) { result = SOUL_BASE + SOUL_ICONS[k]; break; }
+        if (n.includes(k)) { result = SOUL_BASE + SOUL_ICONS[k]; break; }
       }
     }
   }
@@ -1956,6 +2104,14 @@ async function init() {
     buildLsCategories();
     buildSkillSearchIndex();
 
+    // Update log: detect new characters, then save all as known
+    updateNewBadge();
+    if (_knownNos.size === 0) {
+      // First visit: mark all current monsters as known (no false "NEW" flood)
+      for (const m of allMonsters) { if (m.no) _knownNos.add(m.no); }
+      saveKnownNos();
+    }
+
     bar.style.width = "100%";
     text.textContent = "完成！";
 
@@ -2020,8 +2176,8 @@ function getFiltered() {
   const search = document.getElementById("searchBox").value.trim().toLowerCase();
   const element = document.getElementById("filterElement").value;
   const rarity = document.getElementById("filterRarity").value;
-  const type1 = _activeType1;
-  const type2 = _activeType2;
+  const type1 = _activeTypes.filterType1;
+  const type2 = _activeTypes.filterType2;
   const scoreFilter = document.getElementById("filterScore").value;
   const sortBy = document.getElementById("sortBy").value;
 
@@ -2101,6 +2257,12 @@ function getFiltered() {
     case "name_asc": list.sort((a, b) => a.name.localeCompare(b.name, "ja")); break;
     case "no_desc": list.sort((a, b) => (b.no || 0) - (a.no || 0)); break;
     case "no_asc": list.sort((a, b) => (a.no || 0) - (b.no || 0)); break;
+    case "new_first": list.sort((a, b) => {
+      const aNew = isNewMonster(a) ? 1 : 0;
+      const bNew = isNewMonster(b) ? 1 : 0;
+      if (bNew !== aNew) return bNew - aNew;
+      return (b.no || 0) - (a.no || 0);
+    }); break;
   }
 
   return list;
@@ -2163,7 +2325,10 @@ function renderCard(m) {
     }
   }
 
+  const newBadge = isNewMonster(m) ? '<span class="card-new">NEW</span>' : '';
+
   return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
+    newBadge +
     '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
     iconHtml +
     elBadge +
@@ -2187,7 +2352,7 @@ function renderCard(m) {
 // Card HTML cache (keyed by name + owned state)
 const _cardHtmlCache = new Map();
 function getCachedCard(m) {
-  const key = m.name + (ownedSet.has(m.name) ? "_1" : "_0");
+  const key = m.name + (ownedSet.has(m.name) ? "_1" : "_0") + (isNewMonster(m) ? "_n" : "");
   let html = _cardHtmlCache.get(key);
   if (!html) {
     html = renderCard(m);
@@ -2742,14 +2907,12 @@ document.getElementById("searchBox").addEventListener("input", _debouncedRender)
     const tag = e.target.closest(".type-tag");
     if (!tag) return;
     const val = tag.dataset.val;
-    const isT1 = groupId === "filterType1";
-    const current = isT1 ? _activeType1 : _activeType2;
     // Toggle: same value = deselect, different = switch
-    if (current === val) {
-      if (isT1) _activeType1 = ""; else _activeType2 = "";
+    if (_activeTypes[groupId] === val) {
+      _activeTypes[groupId] = "";
       tag.classList.remove("active");
     } else {
-      if (isT1) _activeType1 = val; else _activeType2 = val;
+      _activeTypes[groupId] = val;
       tag.parentElement.querySelectorAll(".type-tag").forEach(t => t.classList.remove("active"));
       tag.classList.add("active");
     }
@@ -2872,7 +3035,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   ["filterElement", "filterRarity", "filterScore"].forEach(id => {
     document.getElementById(id).value = "";
   });
-  _activeType1 = ""; _activeType2 = "";
+  _activeTypes.filterType1 = ""; _activeTypes.filterType2 = "";
   document.querySelectorAll(".type-tag.active").forEach(t => t.classList.remove("active"));
   // Clear search and skill search mode
   document.getElementById("searchBox").value = "";
@@ -2904,8 +3067,8 @@ function updateFilterSummary() {
   const hasAny = chips.length > 0 ||
     document.getElementById("filterElement").value ||
     document.getElementById("filterRarity").value ||
-    _activeType1 ||
-    _activeType2 ||
+    _activeTypes.filterType1 ||
+    _activeTypes.filterType2 ||
     document.getElementById("filterScore").value ||
     document.getElementById("searchBox").value.trim() ||
     filterOwned !== "all";
@@ -2917,8 +3080,8 @@ function updateFilterSummary() {
     if (document.getElementById("filterElement").value) parts.push(document.getElementById("filterElement").value + "屬");
     if (document.getElementById("filterRarity").value) parts.push("★" + document.getElementById("filterRarity").value);
     // Type1 filter
-    if (_activeType1) parts.push("類型1:" + _activeType1);
-    if (_activeType2) parts.push("類型2:" + _activeType2);
+    if (_activeTypes.filterType1) parts.push("類型1:" + _activeTypes.filterType1);
+    if (_activeTypes.filterType2) parts.push("類型2:" + _activeTypes.filterType2);
     // Score filter
     const scoreVal = document.getElementById("filterScore").value;
     if (scoreVal) parts.push("評分:" + (scoreVal === "low" ? "≤6.9" : scoreVal));
@@ -3215,18 +3378,16 @@ function updateFilterCounts() {
   document.querySelectorAll("#filterRarity option[value]").forEach(o => {
     if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
   });
-  document.querySelectorAll("#filterType1 .type-tag").forEach(tag => {
-    const v = tag.dataset.val;
-    let countEl = tag.querySelector(".tag-count");
-    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
-    countEl.textContent = t1Counts[v] || 0;
-  });
-  document.querySelectorAll("#filterType2 .type-tag").forEach(tag => {
-    const v = tag.dataset.val;
-    let countEl = tag.querySelector(".tag-count");
-    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
-    countEl.textContent = t2Counts[v] || 0;
-  });
+  function setTagCounts(selector, counts) {
+    document.querySelectorAll(selector).forEach(tag => {
+      const v = tag.dataset.val;
+      let countEl = tag.querySelector(".tag-count");
+      if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
+      countEl.textContent = counts[v] || 0;
+    });
+  }
+  setTagCounts("#filterType1 .type-tag", t1Counts);
+  setTagCounts("#filterType2 .type-tag", t2Counts);
 }
 
 // === Feature 6: Skill search mode ===
@@ -3499,9 +3660,261 @@ document.getElementById("tbSavedTeams").addEventListener("click", e => {
   }
 });
 
+// === Feature: Dungeon Advisor ===
+const ELEMENT_COUNTER = {"火":"水","水":"木","木":"火","光":"闇","闇":"光"};
+const GIMMICK_TAGS = {
+  "護盾": ["破壞", "護盾破壞"],
+  "高防": ["防護貫通", "貫通"],
+  "先制": ["先制"],
+  "陷阱": ["設置", "陷阱", "誘爆"],
+  "高HP": ["傷害", "攻擊", "殺手", "連鎖"],
+  "多體": ["全體化", "全體"],
+  "封技": ["使用不可耐性", "封技"],
+  "綁定": ["バインド", "綁定耐性"],
+};
+
+document.getElementById("dungeonAdvisorBtn").addEventListener("click", () => {
+  document.getElementById("dungeonOverlay").classList.add("active");
+});
+document.getElementById("dungeonClose").addEventListener("click", () => {
+  document.getElementById("dungeonOverlay").classList.remove("active");
+});
+document.getElementById("dungeonOverlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove("active");
+});
+
+// Element buttons — radio
+document.getElementById("dungeonElGroup").addEventListener("click", e => {
+  const btn = e.target.closest(".dungeon-el-btn");
+  if (!btn) return;
+  const wasActive = btn.classList.contains("active");
+  btn.parentElement.querySelectorAll(".dungeon-el-btn").forEach(b => b.classList.remove("active"));
+  if (!wasActive) btn.classList.add("active");
+});
+// Gimmick buttons — multi-select
+document.getElementById("dungeonGimmicks").addEventListener("click", e => {
+  const btn = e.target.closest(".dungeon-gimmick");
+  if (!btn) return;
+  btn.classList.toggle("active");
+});
+
+document.getElementById("dungeonCalc").addEventListener("click", () => {
+  const elBtn = document.querySelector("#dungeonElGroup .dungeon-el-btn.active");
+  const enemyEl = elBtn ? elBtn.dataset.el : "";
+  const gimmicks = [...document.querySelectorAll("#dungeonGimmicks .dungeon-gimmick.active")].map(g => g.dataset.gm);
+  const counterEl = ELEMENT_COUNTER[enemyEl] || "";
+
+  // Score each owned character
+  const owned = allMonsters.filter(m => ownedSet.has(m.name) && m.sub_score >= 5);
+  if (owned.length === 0) {
+    document.getElementById("dungeonResult").innerHTML = '<div class="dungeon-no-result">尚未標記任何持有角色，請先在圖鑑中標記已持有的角色</div>';
+    return;
+  }
+
+  function scoreDungeon(m) {
+    let s = m.sub_score * 10;
+    // Counter element bonus
+    if (counterEl && m.element === counterEl) s += 25;
+    else if (enemyEl && m.element === enemyEl) s -= 10; // same element penalty
+    // Gimmick matching
+    for (const gm of gimmicks) {
+      const keywords = GIMMICK_TAGS[gm] || [];
+      if (m.tags && m.tags.some(t => keywords.some(k => t.includes(k)))) s += 15;
+      // Also check ability data for soul/potential resistances
+      const ab = abilityMap.get(String(m.no || m.name));
+      if (ab && ab.abilities) {
+        for (const a of ab.abilities) {
+          if (keywords.some(k => (a.name && a.name.includes(k)) || (a.effect && a.effect.includes(k)))) { s += 8; break; }
+        }
+      }
+    }
+    return s;
+  }
+
+  // Pick leader (highest leader_score among owned, prefer counter element)
+  const leaderCands = owned.filter(m => m.leader_score >= 8).sort((a, b) => {
+    const aEl = counterEl && a.element === counterEl ? 20 : 0;
+    const bEl = counterEl && b.element === counterEl ? 20 : 0;
+    return (b.leader_score + bEl) - (a.leader_score + aEl);
+  });
+  const leader = leaderCands[0] || owned.sort((a, b) => b.leader_score - a.leader_score)[0];
+
+  // Pick 3 subs
+  const subs = owned
+    .filter(m => m.name !== leader.name)
+    .map(m => ({ m, score: scoreDungeon(m) }))
+    .sort((a, b) => b.score - a.score);
+
+  // Ensure role diversity for boss content
+  const team = [];
+  const usedNames = new Set();
+  // Try to fill: attacker, support/buffer, defender
+  const rolePriority = gimmicks.length > 0 ? ["攻", "輔", "防"] : ["攻", "攻", "輔"];
+  for (const role of rolePriority) {
+    let best = null, bestScore = -1;
+    for (const c of subs) {
+      if (usedNames.has(c.m.name)) continue;
+      const roles = [];
+      if (c.m.tags) {
+        if (c.m.tags.some(t => ["傷害","攻擊","貫通","殺手"].some(k => t.includes(k)))) roles.push("攻");
+        if (c.m.tags.some(t => ["提升","強化"].some(k => t.includes(k)))) roles.push("輔");
+        if (c.m.tags.some(t => ["減輕","護盾","格擋","回復"].some(k => t.includes(k)))) roles.push("防");
+      }
+      if (!roles.length) roles.push("泛");
+      if (roles.includes(role) && c.score > bestScore) { bestScore = c.score; best = c; }
+    }
+    if (best) { team.push({ ...best, role }); usedNames.add(best.m.name); }
+  }
+  // Fill remaining slots
+  for (const c of subs) {
+    if (team.length >= 3) break;
+    if (!usedNames.has(c.m.name)) {
+      const roles = [];
+      if (c.m.tags) {
+        if (c.m.tags.some(t => ["傷害","攻擊","貫通","殺手"].some(k => t.includes(k)))) roles.push("攻");
+        if (c.m.tags.some(t => ["提升","強化"].some(k => t.includes(k)))) roles.push("輔");
+        if (c.m.tags.some(t => ["減輕","護盾","格擋","回復"].some(k => t.includes(k)))) roles.push("防");
+      }
+      team.push({ ...c, role: roles[0] || "泛" });
+      usedNames.add(c.m.name);
+    }
+  }
+
+  // Render result
+  const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999","L":"#f1c40f"};
+  function renderDgSlot(m, roleLabel) {
+    const cls = "team-slot" + (ownedSet.has(m.name) ? " is-owned" : "") + (roleLabel === "L" ? " is-leader" : "");
+    const elBadge = m.element
+      ? '<span class="team-slot-badge ' + elClass(m.element) + '" style="background:var(--el-' +
+        (m.element === "火" ? "fire" : m.element === "水" ? "water" : m.element === "木" ? "wood" :
+         m.element === "光" ? "light" : "dark") + ');color:' +
+        (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
+      : "";
+    const rc = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
+    const rtc = roleLabel === "L" ? "#000" : "#fff";
+    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '" onclick="document.getElementById(\'dungeonOverlay\').classList.remove(\'active\');showDetail(\'' + escAttr(m.name).replace(/'/g, "\\'") + '\')">' +
+      (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
+      elBadge +
+      '<span class="team-slot-role" style="background:' + rc + ';color:' + rtc + '">' + roleLabel + '</span>' +
+      '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
+      '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
+    '</div>';
+  }
+
+  let html = '<div class="dungeon-result-title">推薦隊伍</div>';
+  if (counterEl) html += '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">剋屬：' + counterEl + '屬</div>';
+  html += '<div class="team-slots">';
+  html += renderDgSlot(leader, "L");
+  for (const c of team) html += renderDgSlot(c.m, c.role);
+  html += '</div>';
+
+  // Show gimmick coverage
+  if (gimmicks.length > 0) {
+    html += '<div style="margin-top:10px;font-size:11px;color:var(--text-dim)">';
+    const allTeam = [leader, ...team.map(c => c.m)];
+    for (const gm of gimmicks) {
+      const keywords = GIMMICK_TAGS[gm] || [];
+      const covered = allTeam.some(m => m.tags && m.tags.some(t => keywords.some(k => t.includes(k))));
+      html += '<div>' + (covered ? "✓" : "✗") + ' ' + gm + (covered ? " — 已覆蓋" : " — 未覆蓋，注意！") + '</div>';
+    }
+    html += '</div>';
+  }
+
+  document.getElementById("dungeonResult").innerHTML = html;
+});
+
+// === Feature: Update Log (New Character Tracking) ===
+const KNOWN_NOS_KEY = "sb_known_nos";
+const NEW_THRESHOLD = 50; // show top N newest as potentially new
+
+function loadKnownNos() {
+  try {
+    const data = localStorage.getItem(KNOWN_NOS_KEY);
+    if (data) _knownNos = new Set(JSON.parse(data));
+  } catch {}
+}
+
+function saveKnownNos() {
+  localStorage.setItem(KNOWN_NOS_KEY, JSON.stringify([..._knownNos]));
+}
+
+function getNewMonsters() {
+  if (_knownNos.size === 0) return []; // first visit: no "new" ones
+  return allMonsters
+    .filter(m => m.no && !_knownNos.has(m.no))
+    .sort((a, b) => b.no - a.no);
+}
+
+function isNewMonster(m) {
+  if (_knownNos.size === 0) return false;
+  return m.no && !_knownNos.has(m.no);
+}
+
+function updateNewBadge() {
+  const count = getNewMonsters().length;
+  const btn = document.getElementById("updateLogBtn");
+  const existing = btn.querySelector(".new-count-badge");
+  if (existing) existing.remove();
+  if (count > 0) {
+    btn.insertAdjacentHTML("beforeend", '<span class="new-count-badge">' + count + '</span>');
+  }
+}
+
+function renderUpdateLog() {
+  const newOnes = getNewMonsters();
+  const container = document.getElementById("updateLogContent");
+  if (newOnes.length === 0) {
+    container.innerHTML = '<div class="update-log-empty">目前沒有新增的角色</div>';
+    return;
+  }
+  let html = '<div style="font-size:12px;color:var(--accent);margin-bottom:8px">新增 ' + newOnes.length + ' 隻角色</div>';
+  for (const m of newOnes.slice(0, 50)) {
+    const elBadge = m.element ? '<span class="el-badge ' + elClass(m.element) + '" style="display:inline-block;width:16px;height:16px;line-height:16px;font-size:9px;text-align:center;border-radius:50%;margin-right:4px">' + m.element + '</span>' : '';
+    html += '<div class="update-log-item" data-name="' + escAttr(m.name) + '">' +
+      (m.icon ? '<img src="' + m.icon + '" alt="" loading="lazy">' : '<div style="width:40px;height:40px;background:var(--bg);border-radius:6px"></div>') +
+      '<div class="update-log-info">' +
+        '<div class="update-log-name">' + elBadge + escHtml(m.name) + '</div>' +
+        '<div class="update-log-meta">No.' + m.no + ' ★' + (m.rarity || "?") + ' ' + m.type1 + '/' + m.type2 + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  container.innerHTML = html;
+
+  // Click to view detail
+  container.querySelectorAll(".update-log-item").forEach(item => {
+    item.addEventListener("click", () => {
+      document.getElementById("updateLogOverlay").classList.remove("active");
+      showDetail(item.dataset.name);
+    });
+  });
+}
+
+document.getElementById("updateLogBtn").addEventListener("click", () => {
+  renderUpdateLog();
+  document.getElementById("updateLogOverlay").classList.add("active");
+});
+document.getElementById("updateLogClose").addEventListener("click", () => {
+  document.getElementById("updateLogOverlay").classList.remove("active");
+});
+document.getElementById("updateLogOverlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove("active");
+});
+document.getElementById("updateLogMarkRead").addEventListener("click", () => {
+  // Mark all current monsters as known
+  for (const m of allMonsters) {
+    if (m.no) _knownNos.add(m.no);
+  }
+  saveKnownNos();
+  updateNewBadge();
+  renderUpdateLog();
+  _cardHtmlCache.clear();
+  renderGrid();
+});
+
 // === Init ===
 loadRecent();
 loadSavedTeams();
+loadKnownNos();
 init();
 </script>
 </body>
