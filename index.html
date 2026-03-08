@@ -737,6 +737,25 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
 </div>
 
+<div class="filter-tags" id="lsFilterRow">
+  <span style="font-size:12px;color:var(--text-dim);line-height:24px;flex-shrink:0">隊長技能：</span>
+  <span class="tag" data-ls="攻擊倍率">攻擊倍率</span>
+  <span class="tag" data-ls="HP倍率">HP倍率</span>
+  <span class="tag" data-ls="傷害減輕">傷害減輕</span>
+  <span class="tag" data-ls="回復">回復</span>
+  <span class="tag" data-ls="復活">復活</span>
+  <span class="tag" data-ls="迴避">迴避</span>
+  <span class="tag" data-ls="反擊">反擊</span>
+  <span class="tag" data-ls="連鎖">連鎖</span>
+  <span class="tag" data-ls="Combo">Combo</span>
+  <span class="tag" data-ls="HP依存">HP依存</span>
+  <span class="tag" data-ls="吸收">吸收</span>
+  <span class="tag" data-ls="暈眩">暈眩</span>
+  <span class="tag" data-ls="格擋">格擋</span>
+  <span class="tag" data-ls="固定傷害">固定傷害</span>
+  <span class="tag" data-ls="AE">AE</span>
+</div>
+
 <div class="bulk-bar" id="bulkBar">
   <span>批次模式：點擊角色可快速勾選/取消</span>
   <button class="btn" id="bulkSelectAll">全選顯示中</button>
@@ -819,9 +838,45 @@ let _teamRecCache = new Map();
 let _renderedCount = 0;
 let _currentList = [];
 let _isLoadingMore = false;
+let _lsCategories = new Map(); // monster name → Set of LS categories
+let _activeLsFilters = new Set();
 
 const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
+
+// Leader skill category definitions
+const LS_RULES = [
+  { id: "攻擊倍率", test: e => /攻擊力\d/.test(e) && e.includes("倍") },
+  { id: "HP倍率", test: e => /HP\d/.test(e) && e.includes("倍") && !e.includes("HP依存") },
+  { id: "傷害減輕", test: e => e.includes("傷害") && e.includes("減輕") && !e.includes("技能傷害") },
+  { id: "回復", test: e => e.includes("回復") },
+  { id: "復活", test: e => e.includes("復活") },
+  { id: "迴避", test: e => e.includes("迴避") },
+  { id: "反擊", test: e => e.includes("反擊") || e.includes("カウンター") },
+  { id: "連鎖", test: e => e.includes("連鎖") },
+  { id: "Combo", test: e => e.includes("コンボ") },
+  { id: "HP依存", test: e => e.includes("HP依存") },
+  { id: "吸收", test: e => e.includes("吸收") },
+  { id: "暈眩", test: e => e.includes("暈眩") || e.includes("スタン") },
+  { id: "格擋", test: e => e.includes("格擋") },
+  { id: "固定傷害", test: e => e.includes("固定傷害") },
+  { id: "AE", test: e => e.includes("AE") },
+];
+
+function buildLsCategories() {
+  _lsCategories.clear();
+  for (const m of allMonsters) {
+    const abKey = String(m.no || m.name);
+    const ab = abilityMap.get(abKey);
+    if (!ab || !ab.leader_skill || !ab.leader_skill.effect) continue;
+    const effect = ab.leader_skill.effect;
+    const cats = new Set();
+    for (const rule of LS_RULES) {
+      if (rule.test(effect)) cats.add(rule.id);
+    }
+    if (cats.size > 0) _lsCategories.set(m.name, cats);
+  }
+}
 
 // === Load data via fetch ===
 async function init() {
@@ -865,6 +920,9 @@ async function init() {
     // Load owned data
     loadOwned();
     autoLoadOwned();
+
+    // Build leader skill categories
+    buildLsCategories();
 
     bar.style.width = "100%";
     text.textContent = "完成！";
@@ -930,6 +988,14 @@ function getFiltered() {
     }
     if (filterOwned === "owned" && !ownedSet.has(m.name)) return false;
     if (filterOwned === "unowned" && ownedSet.has(m.name)) return false;
+    // Leader skill category filter
+    if (_activeLsFilters.size > 0) {
+      const cats = _lsCategories.get(m.name);
+      if (!cats) return false;
+      for (const f of _activeLsFilters) {
+        if (!cats.has(f)) return false;
+      }
+    }
     return true;
   });
 
@@ -1363,6 +1429,21 @@ document.getElementById("filterUnowned").addEventListener("click", function() {
   filterOwned = filterOwned === "unowned" ? "all" : "unowned";
   this.classList.toggle("active", filterOwned === "unowned");
   document.getElementById("filterOwned").classList.remove("active");
+  renderGrid();
+});
+
+// Leader skill filter tags
+document.getElementById("lsFilterRow").addEventListener("click", e => {
+  const tag = e.target.closest(".tag[data-ls]");
+  if (!tag) return;
+  const ls = tag.dataset.ls;
+  if (_activeLsFilters.has(ls)) {
+    _activeLsFilters.delete(ls);
+    tag.classList.remove("active");
+  } else {
+    _activeLsFilters.add(ls);
+    tag.classList.add("active");
+  }
   renderGrid();
 });
 
