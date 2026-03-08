@@ -181,6 +181,19 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .tag.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
 
+/* Type icon filter groups (official game icons) */
+.type-icon-group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.type-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text-dim); font-size: 12px; transition: all 0.15s;
+  white-space: nowrap;
+}
+.type-tag:hover { border-color: var(--accent); color: var(--text); }
+.type-tag.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.type-icon-img { width: 18px; height: 18px; vertical-align: middle; }
+
 /* 遊戲風格角色圖示 */
 .role-icon {
   display: inline-block;
@@ -1097,6 +1110,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   }
   select, .btn { font-size: 13px; padding: 8px 6px; }
   .btn-export { margin-left: 0; }
+  .type-icon-group { grid-column: 1 / -1; }
+  .type-tag { font-size: 11px; padding: 2px 6px; }
+  .type-icon-img { width: 14px; height: 14px; }
 
   .filter-group-header { padding: 4px 8px; }
   .filter-tags { padding: 2px 8px 6px; gap: 4px; }
@@ -1226,20 +1242,18 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <option value="6">★6</option>
     <option value="5">★5</option>
   </select>
-  <select id="filterType1" title="1stタイプ篩選：角色的基礎類型分類">
-    <option value="">全類型1</option>
-    <option value="攻撃">⚔ 攻撃</option>
-    <option value="HP">♥ HP</option>
-    <option value="バランス">⚖ バランス</option>
-  </select>
-  <select id="filterType2" title="2ndタイプ篩選：角色的戰鬥風格分類">
-    <option value="">全類型2</option>
-    <option value="アシスト">🤝 アシスト</option>
-    <option value="カウンター">🔄 カウンター</option>
-    <option value="スキルアタック">✦ スキルアタック</option>
-    <option value="アタック">👊 アタック</option>
-    <option value="ディフェンス">🛡 ディフェンス</option>
-  </select>
+  <div class="type-icon-group" id="filterType1">
+    <span class="type-tag" data-val="攻撃" title="攻撃タイプ：攻擊力較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_kougeki.png" alt="攻撃" class="type-icon-img">攻撃</span>
+    <span class="type-tag" data-val="HP" title="HPタイプ：HP較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_hptype.png" alt="HP" class="type-icon-img">HP</span>
+    <span class="type-tag" data-val="バランス" title="バランスタイプ：攻擊力與HP均衡的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_balance_type.png" alt="バランス" class="type-icon-img">バランス</span>
+  </div>
+  <div class="type-icon-group" id="filterType2">
+    <span class="type-tag" data-val="アシスト" title="アシストタイプ：以輔助技能為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_assist.png" alt="アシスト" class="type-icon-img">アシスト</span>
+    <span class="type-tag" data-val="カウンター" title="カウンタータイプ：以反擊為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_counter.png" alt="カウンター" class="type-icon-img">カウンター</span>
+    <span class="type-tag" data-val="スキルアタック" title="スキルアタックタイプ：以技能攻擊為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_skillattack.png" alt="スキルアタック" class="type-icon-img">スキルアタック</span>
+    <span class="type-tag" data-val="アタック" title="アタックタイプ：以物理攻擊為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_attack.png" alt="アタック" class="type-icon-img">アタック</span>
+    <span class="type-tag" data-val="ディフェンス" title="ディフェンスタイプ：以防禦為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_defense.png" alt="ディフェンス" class="type-icon-img">ディフェンス</span>
+  </div>
   <select id="filterScore">
     <option value="">全評分</option>
     <option value="10">10 分</option>
@@ -1543,6 +1557,8 @@ let _activeAsFilters = new Set();
 let _activeTpFilters = new Set();
 let _activeTagFilters = new Set();
 let _activeRoleFilters = new Set();
+let _activeType1 = "";
+let _activeType2 = "";
 let _recentHistory = [];
 let _viewMode = "grid"; // "grid" | "list"
 let _currentDetailName = null;
@@ -2004,8 +2020,8 @@ function getFiltered() {
   const search = document.getElementById("searchBox").value.trim().toLowerCase();
   const element = document.getElementById("filterElement").value;
   const rarity = document.getElementById("filterRarity").value;
-  const type1 = document.getElementById("filterType1").value;
-  const type2 = document.getElementById("filterType2").value;
+  const type1 = _activeType1;
+  const type2 = _activeType2;
   const scoreFilter = document.getElementById("filterScore").value;
   const sortBy = document.getElementById("sortBy").value;
 
@@ -2717,8 +2733,28 @@ document.getElementById("detailOverlay").addEventListener("click", e => {
 function renderAndSummary() { updateFilterSummary(); renderGrid(); }
 const _debouncedRender = debounce(renderAndSummary, 200);
 document.getElementById("searchBox").addEventListener("input", _debouncedRender);
-["filterElement", "filterRarity", "filterScore", "filterType1", "filterType2"].forEach(id => {
+["filterElement", "filterRarity", "filterScore"].forEach(id => {
   document.getElementById(id).addEventListener("change", renderAndSummary);
+});
+// Type icon tag click handlers
+["filterType1", "filterType2"].forEach(groupId => {
+  document.getElementById(groupId).addEventListener("click", e => {
+    const tag = e.target.closest(".type-tag");
+    if (!tag) return;
+    const val = tag.dataset.val;
+    const isT1 = groupId === "filterType1";
+    const current = isT1 ? _activeType1 : _activeType2;
+    // Toggle: same value = deselect, different = switch
+    if (current === val) {
+      if (isT1) _activeType1 = ""; else _activeType2 = "";
+      tag.classList.remove("active");
+    } else {
+      if (isT1) _activeType1 = val; else _activeType2 = val;
+      tag.parentElement.querySelectorAll(".type-tag").forEach(t => t.classList.remove("active"));
+      tag.classList.add("active");
+    }
+    renderAndSummary();
+  });
 });
 document.getElementById("sortBy").addEventListener("change", renderGrid);
 
@@ -2833,9 +2869,11 @@ document.getElementById("resetAll").addEventListener("click", () => {
   document.querySelectorAll(".filter-tags .tag.active").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".filter-group-count").forEach(c => c.textContent = "");
   // Clear select filters
-  ["filterElement", "filterRarity", "filterScore", "filterType1", "filterType2"].forEach(id => {
+  ["filterElement", "filterRarity", "filterScore"].forEach(id => {
     document.getElementById(id).value = "";
   });
+  _activeType1 = ""; _activeType2 = "";
+  document.querySelectorAll(".type-tag.active").forEach(t => t.classList.remove("active"));
   // Clear search and skill search mode
   document.getElementById("searchBox").value = "";
   _skillSearchMode = false;
@@ -2866,8 +2904,8 @@ function updateFilterSummary() {
   const hasAny = chips.length > 0 ||
     document.getElementById("filterElement").value ||
     document.getElementById("filterRarity").value ||
-    document.getElementById("filterType1").value ||
-    document.getElementById("filterType2").value ||
+    _activeType1 ||
+    _activeType2 ||
     document.getElementById("filterScore").value ||
     document.getElementById("searchBox").value.trim() ||
     filterOwned !== "all";
@@ -2879,11 +2917,8 @@ function updateFilterSummary() {
     if (document.getElementById("filterElement").value) parts.push(document.getElementById("filterElement").value + "屬");
     if (document.getElementById("filterRarity").value) parts.push("★" + document.getElementById("filterRarity").value);
     // Type1 filter
-    const t1Val = document.getElementById("filterType1").value;
-    if (t1Val) parts.push("類型1:" + t1Val);
-    // Type2 filter
-    const t2Val = document.getElementById("filterType2").value;
-    if (t2Val) parts.push("類型2:" + t2Val);
+    if (_activeType1) parts.push("類型1:" + _activeType1);
+    if (_activeType2) parts.push("類型2:" + _activeType2);
     // Score filter
     const scoreVal = document.getElementById("filterScore").value;
     if (scoreVal) parts.push("評分:" + (scoreVal === "low" ? "≤6.9" : scoreVal));
@@ -3180,13 +3215,17 @@ function updateFilterCounts() {
   document.querySelectorAll("#filterRarity option[value]").forEach(o => {
     if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
   });
-  const T1_ICONS = {"攻撃":"⚔","HP":"♥","バランス":"⚖"};
-  const T2_ICONS = {"アシスト":"🤝","カウンター":"🔄","スキルアタック":"✦","アタック":"👊","ディフェンス":"🛡"};
-  document.querySelectorAll("#filterType1 option[value]").forEach(o => {
-    if (o.value) o.textContent = (T1_ICONS[o.value] || "") + " " + o.value + " (" + (t1Counts[o.value] || 0) + ")";
+  document.querySelectorAll("#filterType1 .type-tag").forEach(tag => {
+    const v = tag.dataset.val;
+    let countEl = tag.querySelector(".tag-count");
+    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
+    countEl.textContent = t1Counts[v] || 0;
   });
-  document.querySelectorAll("#filterType2 option[value]").forEach(o => {
-    if (o.value) o.textContent = (T2_ICONS[o.value] || "") + " " + o.value + " (" + (t2Counts[o.value] || 0) + ")";
+  document.querySelectorAll("#filterType2 .type-tag").forEach(tag => {
+    const v = tag.dataset.val;
+    let countEl = tag.querySelector(".tag-count");
+    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
+    countEl.textContent = t2Counts[v] || 0;
   });
 }
 
