@@ -637,6 +637,174 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 .team-note { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
 
+/* View mode toggle */
+.view-toggle {
+  display: flex;
+  gap: 0;
+  margin-left: 4px;
+}
+
+.view-toggle .btn {
+  border-radius: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.view-toggle .btn:first-child { border-radius: 6px 0 0 6px; }
+.view-toggle .btn:last-child { border-radius: 0 6px 6px 0; }
+
+/* List mode */
+.grid.list-mode {
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.grid.list-mode .monster-card {
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.grid.list-mode .monster-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+}
+
+.grid.list-mode .monster-scores {
+  gap: 4px;
+}
+
+.grid.list-mode .score-badge {
+  min-width: 32px;
+}
+
+.grid.list-mode .score-value {
+  font-size: 13px;
+}
+
+.grid.list-mode .card-star {
+  font-size: 16px;
+  padding: 2px;
+}
+
+/* Tag count */
+.tag-count {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+.tag.active .tag-count {
+  color: #000;
+  opacity: 0.6;
+}
+
+/* Recent history */
+.recent-bar {
+  padding: 6px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: none;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.recent-bar.active { display: flex; }
+
+.recent-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.recent-item {
+  flex-shrink: 0;
+  width: 44px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.recent-item:hover {
+  border-color: var(--accent);
+  background: var(--card-hover);
+}
+
+.recent-item img {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+.recent-item-name {
+  font-size: 8px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* Empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.empty-state-hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* Detail nav arrows */
+.detail-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: 1px solid var(--border);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 310;
+  transition: background 0.2s;
+}
+
+.detail-nav:hover { background: rgba(79,195,247,0.4); }
+.detail-nav.prev { left: 8px; }
+.detail-nav.next { right: 8px; }
+
 /* Scroll to top */
 .scroll-top {
   position: fixed;
@@ -750,6 +918,17 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .status-bar { padding: 6px; font-size: 12px; }
 
   .scroll-top { bottom: 16px; right: 16px; width: 40px; height: 40px; font-size: 18px; }
+
+  .recent-bar { padding: 4px 8px; }
+  .recent-item { width: 38px; }
+  .recent-item img { width: 30px; height: 30px; }
+
+  .grid.list-mode .monster-icon { width: 30px; height: 30px; }
+  .grid.list-mode .monster-card { padding: 3px 6px; }
+
+  .detail-nav { width: 30px; height: 30px; font-size: 14px; }
+  .detail-nav.prev { left: 4px; }
+  .detail-nav.next { right: 4px; }
 }
 </style>
 </head>
@@ -814,6 +993,10 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <button class="btn" id="filterUnowned">僅未持有</button>
   <button class="btn" id="bulkToggle">批次勾選</button>
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
+  <div class="view-toggle">
+    <button class="btn active" id="viewGrid" title="卡片模式">⊞</button>
+    <button class="btn" id="viewList" title="列表模式">≡</button>
+  </div>
 </div>
 
 <div class="filter-group" id="lsGroup">
@@ -896,6 +1079,41 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   </div>
 </div>
 
+<div class="filter-group collapsed" id="tagGroup">
+  <div class="filter-group-header" data-toggle="tagGroup">
+    <span class="filter-group-toggle">▼</span>
+    <span class="filter-group-title">能力標籤</span>
+    <span class="filter-group-count" id="tagCount"></span>
+  </div>
+  <div class="filter-tags" id="tagFilterRow">
+    <span class="tag" data-tag="[有連鎖]">有連鎖</span>
+    <span class="tag" data-tag="[無連鎖]">無連鎖</span>
+    <span class="tag" data-tag="[速攻]">速攻</span>
+    <span class="tag" data-tag="全體化">全體化</span>
+    <span class="tag" data-tag="防護貫通">防護貫通</span>
+    <span class="tag" data-tag="飛行">飛行</span>
+    <span class="tag" data-tag="HP回復">HP回復</span>
+    <span class="tag" data-tag="復活">復活</span>
+    <span class="tag" data-tag="護盾破壞">護盾破壞</span>
+    <span class="tag" data-tag="反擊賦予">反擊賦予</span>
+    <span class="tag" data-tag="格擋賦予">格擋賦予</span>
+    <span class="tag" data-tag="物理迴避率提升">物理迴避</span>
+    <span class="tag" data-tag="陷阱">陷阱</span>
+    <span class="tag" data-tag="盤面移動">盤面移動</span>
+    <span class="tag" data-tag="傷害無效">傷害無效</span>
+    <span class="tag" data-tag="傷害吸收">傷害吸收</span>
+    <span class="tag" data-tag="束縛賦予">束縛</span>
+    <span class="tag" data-tag="中毒賦予">中毒</span>
+    <span class="tag" data-tag="誘爆傷害">誘爆</span>
+    <span class="tag" data-tag="區域效果">區域效果</span>
+  </div>
+</div>
+
+<div class="recent-bar" id="recentBar">
+  <span class="recent-label">最近瀏覽：</span>
+  <div id="recentItems" style="display:flex;gap:4px;overflow-x:auto"></div>
+</div>
+
 <div class="reset-bar" id="resetBar">
   <div class="filter-summary" id="filterSummary"></div>
   <button class="btn btn-reset" id="resetAll">清除全部篩選</button>
@@ -935,6 +1153,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 <!-- Detail Modal -->
 <div class="detail-overlay" id="detailOverlay">
+  <button class="detail-nav prev" id="detailPrev" title="上一隻 (←)">‹</button>
+  <button class="detail-nav next" id="detailNext" title="下一隻 (→)">›</button>
   <div class="detail-panel">
     <div class="detail-header" id="detailHeader">
       <img class="detail-icon" id="detailIcon" src="" alt="">
@@ -989,6 +1209,12 @@ let _tpCategories = new Map(); // monster name → Set of TP categories
 let _activeLsFilters = new Set();
 let _activeAsFilters = new Set();
 let _activeTpFilters = new Set();
+let _activeTagFilters = new Set();
+let _recentHistory = [];
+let _viewMode = "grid"; // "grid" | "list"
+let _currentDetailName = null;
+const MAX_RECENT = 10;
+const RECENT_KEY = "sb_recent_history";
 
 const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
@@ -1181,7 +1407,11 @@ async function init() {
     text.textContent = "完成！";
 
     // Render
-    requestAnimationFrame(renderGrid);
+    requestAnimationFrame(() => {
+      renderGrid();
+      updateTagCounts();
+      renderRecent();
+    });
 
   } catch (e) {
     text.textContent = "載入失敗：" + e.message;
@@ -1263,6 +1493,13 @@ function getFiltered() {
       if (!cats) return false;
       for (const f of _activeTpFilters) {
         if (!cats.has(f)) return false;
+      }
+    }
+    // Tag filter (from monster tags)
+    if (_activeTagFilters.size > 0) {
+      if (!m.tags) return false;
+      for (const f of _activeTagFilters) {
+        if (!m.tags.includes(f)) return false;
       }
     }
     return true;
@@ -1348,8 +1585,12 @@ function renderGrid() {
   grid.appendChild(fragment);
   _renderedCount = batch.length;
 
+  if (_currentList.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">( ´_ゝ`)</div><div class="empty-state-text">沒有符合條件的角色</div><div class="empty-state-hint">試試調整篩選條件或清除篩選</div></div>';
+  }
+
   document.getElementById("statusBar").textContent =
-    _currentList.length === 0 ? "沒有符合條件的角色" :
+    _currentList.length === 0 ? "" :
     _renderedCount < _currentList.length ? "往下捲動載入更多..." : "";
 }
 
@@ -1420,6 +1661,8 @@ document.getElementById("monsterGrid").addEventListener("click", e => {
 function showDetail(name) {
   const m = monsterMap.get(name);
   if (!m) return;
+  _currentDetailName = name;
+  addToRecent(name);
   const isOwned = ownedSet.has(name);
 
   document.getElementById("detailHeader").classList.toggle("owned", isOwned);
@@ -1665,26 +1908,7 @@ document.getElementById("detailOverlay").addEventListener("click", e => {
     document.getElementById("detailOverlay").classList.remove("active");
 });
 
-// === Keyboard shortcuts ===
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") {
-    const detail = document.getElementById("detailOverlay");
-    const modal = document.getElementById("modal");
-    if (detail.classList.contains("active")) {
-      detail.classList.remove("active");
-    } else if (modal.classList.contains("active")) {
-      modal.classList.remove("active");
-    }
-  }
-  // Ctrl+F / Cmd+F → focus search
-  if ((e.ctrlKey || e.metaKey) && e.key === "f") {
-    // Only intercept if not already in an input
-    if (document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
-      e.preventDefault();
-      document.getElementById("searchBox").focus();
-    }
-  }
-});
+// (keyboard shortcuts are in the extended handler below)
 
 // === Filter controls ===
 function renderAndSummary() { updateFilterSummary(); renderGrid(); }
@@ -1732,6 +1956,23 @@ setupSkillFilter("lsFilterRow", "ls", _activeLsFilters, "lsCount");
 setupSkillFilter("asFilterRow", "as", _activeAsFilters, "asCount");
 setupSkillFilter("tpFilterRow", "tp", _activeTpFilters, "tpCount");
 
+// Tag filter
+document.getElementById("tagFilterRow").addEventListener("click", e => {
+  const tag = e.target.closest(".tag[data-tag]");
+  if (!tag) return;
+  const val = tag.dataset.tag;
+  if (_activeTagFilters.has(val)) {
+    _activeTagFilters.delete(val);
+    tag.classList.remove("active");
+  } else {
+    _activeTagFilters.add(val);
+    tag.classList.add("active");
+  }
+  document.getElementById("tagCount").textContent = _activeTagFilters.size ? "(" + _activeTagFilters.size + ")" : "";
+  updateFilterSummary();
+  renderGrid();
+});
+
 // Collapse/expand filter groups
 document.querySelectorAll(".filter-group-header[data-toggle]").forEach(header => {
   header.addEventListener("click", () => {
@@ -1742,11 +1983,13 @@ document.querySelectorAll(".filter-group-header[data-toggle]").forEach(header =>
 
 // Reset all filters
 document.getElementById("resetAll").addEventListener("click", () => {
-  // Clear skill filters
+  // Clear all tag/skill filters
   _activeLsFilters.clear();
   _activeAsFilters.clear();
   _activeTpFilters.clear();
+  _activeTagFilters.clear();
   document.querySelectorAll(".filter-tags .tag.active").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".filter-group-count").forEach(c => c.textContent = "");
   // Clear select filters
   ["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore"].forEach(id => {
     document.getElementById(id).value = "";
@@ -1766,6 +2009,7 @@ function updateFilterSummary() {
   _activeLsFilters.forEach(f => chips.push("L:" + f));
   _activeAsFilters.forEach(f => chips.push("A:" + f));
   _activeTpFilters.forEach(f => chips.push("T:" + f));
+  _activeTagFilters.forEach(f => chips.push(f));
   // Update group counts
   document.getElementById("lsCount").textContent = _activeLsFilters.size ? "(" + _activeLsFilters.size + ")" : "";
   document.getElementById("asCount").textContent = _activeAsFilters.size ? "(" + _activeAsFilters.size + ")" : "";
@@ -1885,7 +2129,159 @@ async function autoLoadOwned() {
   }
 }
 
+// === View mode toggle ===
+document.getElementById("viewGrid").addEventListener("click", function() {
+  _viewMode = "grid";
+  this.classList.add("active");
+  document.getElementById("viewList").classList.remove("active");
+  document.getElementById("monsterGrid").classList.remove("list-mode");
+});
+
+document.getElementById("viewList").addEventListener("click", function() {
+  _viewMode = "list";
+  this.classList.add("active");
+  document.getElementById("viewGrid").classList.remove("active");
+  document.getElementById("monsterGrid").classList.add("list-mode");
+});
+
+// === Recent history ===
+function loadRecent() {
+  try {
+    const data = localStorage.getItem(RECENT_KEY);
+    if (data) _recentHistory = JSON.parse(data);
+  } catch {}
+}
+
+function saveRecent() {
+  localStorage.setItem(RECENT_KEY, JSON.stringify(_recentHistory));
+}
+
+function addToRecent(name) {
+  _recentHistory = _recentHistory.filter(n => n !== name);
+  _recentHistory.unshift(name);
+  if (_recentHistory.length > MAX_RECENT) _recentHistory.pop();
+  saveRecent();
+  renderRecent();
+}
+
+function renderRecent() {
+  const bar = document.getElementById("recentBar");
+  const container = document.getElementById("recentItems");
+  if (_recentHistory.length === 0) {
+    bar.classList.remove("active");
+    return;
+  }
+  bar.classList.add("active");
+  container.innerHTML = _recentHistory.map(name => {
+    const m = monsterMap.get(name);
+    if (!m) return "";
+    return '<div class="recent-item" data-name="' + escAttr(name) + '">' +
+      (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(name) + '" loading="lazy">' : '<div style="width:36px;height:36px;background:var(--bg);border-radius:6px"></div>') +
+      '<div class="recent-item-name">' + escHtml(name) + '</div></div>';
+  }).join("");
+}
+
+document.getElementById("recentItems").addEventListener("click", e => {
+  const item = e.target.closest(".recent-item");
+  if (item) showDetail(item.dataset.name);
+});
+
+// === Detail navigation (prev/next) ===
+function getDetailIndex() {
+  if (!_currentDetailName || _currentList.length === 0) return -1;
+  return _currentList.findIndex(m => m.name === _currentDetailName);
+}
+
+function navDetail(dir) {
+  const idx = getDetailIndex();
+  if (idx < 0) return;
+  const next = idx + dir;
+  if (next >= 0 && next < _currentList.length) {
+    showDetail(_currentList[next].name);
+  }
+}
+
+document.getElementById("detailPrev").addEventListener("click", e => {
+  e.stopPropagation();
+  navDetail(-1);
+});
+
+document.getElementById("detailNext").addEventListener("click", e => {
+  e.stopPropagation();
+  navDetail(1);
+});
+
+// === Detail swipe to close (mobile) ===
+(function() {
+  const overlay = document.getElementById("detailOverlay");
+  const panel = overlay.querySelector(".detail-panel");
+  let startY = 0, startTime = 0, moved = false;
+
+  panel.addEventListener("touchstart", e => {
+    if (panel.scrollTop > 0) return; // only at top
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+    moved = false;
+  }, { passive: true });
+
+  panel.addEventListener("touchmove", e => {
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 10) moved = true;
+  }, { passive: true });
+
+  panel.addEventListener("touchend", e => {
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startTime;
+    if (moved && dy > 80 && dt < 500) {
+      overlay.classList.remove("active");
+    }
+  }, { passive: true });
+})();
+
+// === Keyboard shortcuts (extended) ===
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    const detail = document.getElementById("detailOverlay");
+    const modal = document.getElementById("modal");
+    if (detail.classList.contains("active")) {
+      detail.classList.remove("active");
+    } else if (modal.classList.contains("active")) {
+      modal.classList.remove("active");
+    }
+    return;
+  }
+  // Left/right arrows for detail navigation
+  if (document.getElementById("detailOverlay").classList.contains("active")) {
+    if (e.key === "ArrowLeft") { navDetail(-1); e.preventDefault(); }
+    if (e.key === "ArrowRight") { navDetail(1); e.preventDefault(); }
+  }
+  // Ctrl+F focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+    if (document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+      e.preventDefault();
+      document.getElementById("searchBox").focus();
+    }
+  }
+});
+
+// === Tag count preview ===
+function updateTagCounts() {
+  // Count how many monsters match each tag filter option
+  document.querySelectorAll(".filter-tags .tag[data-tag]").forEach(tag => {
+    const val = tag.dataset.tag;
+    const count = allMonsters.filter(m => m.tags && m.tags.includes(val)).length;
+    let countEl = tag.querySelector(".tag-count");
+    if (!countEl) {
+      countEl = document.createElement("span");
+      countEl.className = "tag-count";
+      tag.appendChild(countEl);
+    }
+    countEl.textContent = count;
+  });
+}
+
 // === Init ===
+loadRecent();
 init();
 </script>
 </body>
