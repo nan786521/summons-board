@@ -15,7 +15,7 @@
   --card-hover: #243447;
   --border: #2d4a5e;
   --text: #e0e6ed;
-  --text-dim: #8899a6;
+  --text-dim: #9baab7;
   --accent: #4fc3f7;
   --owned-bg: #1b3a2a;
   --owned-bg-hover: #1f4533;
@@ -93,6 +93,10 @@ body {
   outline: none;
   border-color: var(--accent);
 }
+.search-box:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 select, .btn {
   padding: 8px 12px;
@@ -106,8 +110,9 @@ select, .btn {
 }
 
 select:focus, .btn:focus { outline: none; border-color: var(--accent); }
+select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.btn { transition: background 0.2s; }
+.btn { transition: background 0.2s, color 0.2s, border-color 0.2s; }
 .btn:hover { background: var(--card-hover); }
 .btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
@@ -219,7 +224,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   display: inline-block;
   padding: 2px 8px;
   margin: 1px 2px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 11px;
   background: var(--accent);
   color: #000;
@@ -249,7 +254,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border: 1px solid var(--border);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -328,6 +333,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .card-star {
   font-size: 18px; cursor: pointer; color: var(--border);
   transition: all 0.2s; user-select: none; line-height: 1; flex-shrink: 0;
+  padding: 10px; margin: -10px;
 }
 .card-star:hover { transform: scale(1.2); color: var(--score-high); }
 .monster-card.owned .card-star { color: var(--owned-border); }
@@ -370,6 +376,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .monster-info {
+  flex: 1;
   min-width: 0;
 }
 
@@ -386,6 +393,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   font-size: 10px;
   color: var(--text-dim);
   margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .monster-scores {
@@ -491,6 +501,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .bulk-bar.active { display: flex; }
+.bulk-bar.active ~ .grid .monster-card { cursor: crosshair; }
+.bulk-bar.active ~ .grid .monster-card:active { transform: scale(0.97); transition: transform 0.1s; }
 
 .bulk-bar .btn {
   background: #e67e22;
@@ -521,6 +533,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modal h2 { font-size: 18px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
@@ -537,6 +550,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   font-size: 12px;
   resize: vertical;
 }
+.modal textarea:focus { outline: none; border-color: var(--accent); }
+.modal textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .modal .btn-row {
   display: flex;
@@ -559,6 +574,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border-radius: 16px; max-width: 420px; width: 92%;
   max-height: 90vh; overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .detail-header {
   position: relative; display: flex; align-items: center;
@@ -585,10 +601,17 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .detail-art-wrap {
   width: 100%; text-align: center; background: var(--bg);
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  min-height: 120px; position: relative;
+  background: linear-gradient(135deg, var(--bg) 25%, var(--card-hover) 50%, var(--bg) 75%);
+  background-size: 200% 200%;
+  animation: shimmer 1.5s ease infinite;
 }
+.detail-art-wrap.loaded { animation: none; background: var(--bg); min-height: 0; }
 .detail-art {
   max-width: 100%; max-height: 300px; object-fit: contain; display: block; margin: 0 auto;
+  opacity: 0; transition: opacity 0.3s ease;
 }
+.detail-art.loaded { opacity: 1; }
 .detail-body { padding: 16px 20px 20px; }
 .detail-scores { display: flex; gap: 12px; margin-bottom: 16px; }
 .detail-score-box {
@@ -771,6 +794,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 16px; max-width: 600px; width: 94%;
   max-height: 90vh; overflow-y: auto; padding: 20px;
+  overscroll-behavior: contain;
 }
 .dungeon-title {
   font-size: 18px; font-weight: 700; margin-bottom: 16px;
@@ -815,6 +839,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 16px; max-width: 500px; width: 92%;
   max-height: 90vh; overflow-y: auto; padding: 20px;
+  overscroll-behavior: contain;
 }
 .update-log-title {
   font-size: 18px; font-weight: 700; margin-bottom: 16px;
@@ -879,11 +904,11 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .grid.list-mode .monster-scores {
-  gap: 4px; margin-top: 0;
+  gap: 4px; margin-top: 0; margin-left: auto; flex-shrink: 0;
 }
 
 .grid.list-mode .score-badge {
-  min-width: 32px; background: none; padding: 0;
+  min-width: 32px; background: none; padding: 0; flex: none;
 }
 
 .grid.list-mode .score-value {
@@ -891,6 +916,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .grid.list-mode .card-tags { display: none; }
+.grid.list-mode .score-label { display: none; }
+.grid.list-mode .monster-card:hover { box-shadow: 0 1px 4px rgba(79,195,247,0.15); }
 
 /* Big card mode */
 .grid.big-card-mode {
@@ -920,14 +947,14 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 .grid.big-card-mode .card-art-img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform 0.3s;
+  transition: transform 0.2s;
 }
 .grid.big-card-mode .monster-card:hover .card-art-img { transform: scale(1.05); }
 
 .grid.big-card-mode .monster-icon { display: none; }
 
 .grid.big-card-mode .card-star {
-  position: absolute; top: 6px; left: 6px; z-index: 3;
+  position: absolute; top: 8px; left: 8px; z-index: 3;
   font-size: 20px; color: rgba(255,255,255,0.5);
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
@@ -936,16 +963,26 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .grid.big-card-mode .card-new {
-  position: absolute; top: 6px; right: 6px; z-index: 3; margin-left: 0;
+  position: absolute; top: 8px; right: 8px; z-index: 3; margin-left: 0;
+}
+
+.grid.big-card-mode .monster-card.owned {
+  background: var(--owned-bg);
+}
+.grid.big-card-mode .monster-card.owned:hover {
+  background: var(--owned-bg-hover);
 }
 
 .grid.big-card-mode .monster-info {
-  padding: 8px 10px 10px;
+  padding: 8px 10px 4px;
 }
 
 .grid.big-card-mode .monster-scores {
-  margin-top: 4px; padding: 0 10px 10px;
+  margin-top: 0; padding: 0 10px 8px;
 }
+
+.grid.big-card-mode .score-label { font-size: 7px; }
+.grid.big-card-mode .score-value { font-size: 13px; }
 
 .grid.big-card-mode .monster-card.owned .card-art-wrap {
   border-bottom: 2px solid var(--owned-border);
@@ -1084,6 +1121,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 16px; max-width: 500px; width: 92%;
   max-height: 90vh; overflow-y: auto; padding: 20px;
+  overscroll-behavior: contain;
 }
 .stats-title {
   font-size: 18px; font-weight: 700; margin-bottom: 16px;
@@ -1122,6 +1160,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 16px; max-width: 520px; width: 92%;
   max-height: 90vh; overflow-y: auto; padding: 20px;
+  overscroll-behavior: contain;
 }
 .tb-title {
   font-size: 18px; font-weight: 700; margin-bottom: 12px;
@@ -1164,6 +1203,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   font-size: 14px; font-family: inherit; margin-bottom: 8px;
 }
 .tb-search:focus { outline: none; border-color: var(--accent); }
+.tb-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tb-results {
   max-height: 200px; overflow-y: auto; margin-bottom: 12px;
   border: 1px solid var(--border); border-radius: 6px;
@@ -1266,12 +1306,13 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   }
   select, .btn { font-size: 13px; padding: 8px 6px; }
   .btn-export { margin-left: 0; }
+  .view-toggle { grid-column: 1 / -1; justify-content: center; margin-left: 0; }
   .dungeon-el-btn { padding: 10px 16px; font-size: 14px; }
   .dungeon-gimmick { padding: 8px 14px; font-size: 13px; }
 
   .filter-group-header { padding: 4px 8px; }
   .filter-tags { padding: 2px 8px 6px; gap: 4px; }
-  .tag { font-size: 11px; padding: 3px 8px; }
+  .tag { font-size: 12px; padding: 6px 10px; }
   .reset-bar { padding: 4px 8px; }
 
   .grid { grid-template-columns: 1fr; padding: 8px; gap: 4px; }
@@ -1343,7 +1384,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
   .status-bar { padding: 6px; font-size: 12px; }
 
-  .scroll-top { bottom: 16px; right: 16px; width: 40px; height: 40px; font-size: 18px; }
+  .scroll-top { bottom: 16px; right: 16px; width: 44px; height: 44px; font-size: 20px; }
 
   .recent-bar { padding: 4px 8px; }
   .recent-item { width: 38px; }
@@ -1352,7 +1393,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .grid.list-mode .monster-icon { width: 30px; height: 30px; }
   .grid.list-mode .monster-card { padding: 3px 6px; }
 
-  .detail-nav { width: 30px; height: 30px; font-size: 14px; }
+  .detail-nav { width: 44px; height: 44px; font-size: 18px; }
   .detail-nav.prev { left: 4px; }
   .detail-nav.next { right: 4px; }
 
@@ -1364,6 +1405,13 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .team-builder-overlay.active { align-items: flex-end; }
   .tb-slot { width: 60px; height: 78px; }
   .tb-slot.filled img { width: 48px; height: 48px; }
+
+  .dungeon-panel { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; }
+  .dungeon-overlay.active { align-items: flex-end; }
+  .update-log-panel { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; }
+  .update-log-overlay.active { align-items: flex-end; }
+  .modal { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; }
+  .modal-overlay.active { align-items: flex-end; }
 }
 </style>
 </head>
@@ -1435,9 +1483,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <button class="btn" id="updateLogBtn">更新日誌</button>
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
   <div class="view-toggle">
-    <button class="btn" id="viewBig" title="大卡片模式">⊞</button>
-    <button class="btn active" id="viewCard" title="卡片模式">▦</button>
-    <button class="btn" id="viewList" title="列表模式">≡</button>
+    <button class="btn" id="viewBig" title="大卡片模式" aria-label="大卡片模式"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" fill="currentColor"/><rect x="9" y="1" width="6" height="6" fill="currentColor"/><rect x="1" y="9" width="6" height="6" fill="currentColor"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg></button>
+    <button class="btn active" id="viewCard" title="卡片模式" aria-label="卡片模式"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="0" y="1" width="16" height="4" rx="1" fill="currentColor"/><rect x="0" y="7" width="16" height="4" rx="1" fill="currentColor"/></svg></button>
+    <button class="btn" id="viewList" title="列表模式" aria-label="列表模式"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="0" y="2" width="16" height="2" fill="currentColor"/><rect x="0" y="7" width="16" height="2" fill="currentColor"/><rect x="0" y="12" width="16" height="2" fill="currentColor"/></svg></button>
   </div>
 </div>
 
@@ -1602,7 +1650,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 <div class="status-bar" id="statusBar"></div>
 
 <!-- Import/Export Modal -->
-<div class="modal-overlay" id="modal">
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-label="匯出匯入">
   <div class="modal">
     <h2>匯出/匯入持有資料</h2>
     <p style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">
@@ -1618,9 +1666,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- Detail Modal -->
-<div class="detail-overlay" id="detailOverlay">
-  <button class="detail-nav prev" id="detailPrev" title="上一隻 (←)">‹</button>
-  <button class="detail-nav next" id="detailNext" title="下一隻 (→)">›</button>
+<div class="detail-overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-label="角色詳情">
+  <button class="detail-nav prev" id="detailPrev" title="上一隻 (←)" aria-label="上一隻">‹</button>
+  <button class="detail-nav next" id="detailNext" title="下一隻 (→)" aria-label="下一隻">›</button>
   <div class="detail-panel">
     <div class="detail-header" id="detailHeader">
       <img class="detail-icon" id="detailIcon" src="" alt="">
@@ -1660,7 +1708,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- Stats Modal -->
-<div class="stats-overlay" id="statsOverlay">
+<div class="stats-overlay" id="statsOverlay" role="dialog" aria-modal="true" aria-label="統計">
   <div class="stats-panel">
     <div class="stats-title">持有率統計</div>
     <div id="statsContent"></div>
@@ -1671,7 +1719,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- Team Builder Modal -->
-<div class="team-builder-overlay" id="teamBuilderOverlay">
+<div class="team-builder-overlay" id="teamBuilderOverlay" role="dialog" aria-modal="true" aria-label="組隊">
   <div class="team-builder-panel">
     <div class="tb-title">
       <span>隊伍編成</span>
@@ -1696,7 +1744,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- Dungeon Advisor Modal -->
-<div class="dungeon-overlay" id="dungeonOverlay">
+<div class="dungeon-overlay" id="dungeonOverlay" role="dialog" aria-modal="true" aria-label="副本推薦">
   <div class="dungeon-panel">
     <div class="dungeon-title">副本推薦</div>
     <div class="dungeon-field">
@@ -1731,7 +1779,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <!-- Update Log Modal -->
-<div class="update-log-overlay" id="updateLogOverlay">
+<div class="update-log-overlay" id="updateLogOverlay" role="dialog" aria-modal="true" aria-label="更新日誌">
   <div class="update-log-panel">
     <div class="update-log-title">更新日誌</div>
     <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">最近新增或你尚未瀏覽過的角色</p>
@@ -2130,6 +2178,7 @@ async function init() {
     text.textContent = "解析資料...";
 
     if (!mRes.ok) throw new Error("無法載入 monsters.min.json");
+    if (!aRes.ok) console.warn("abilities.min.json 載入失敗 (HTTP " + aRes.status + ")，技能資料將不可用");
     const [mData, aData] = await Promise.all([
       mRes.json(),
       aRes.ok ? aRes.json() : null
@@ -2160,7 +2209,7 @@ async function init() {
 
     // Load owned data
     loadOwned();
-    autoLoadOwned();
+    await autoLoadOwned();
 
     // Build skill categories and search index
     buildLsCategories();
@@ -2185,6 +2234,12 @@ async function init() {
       ["lsGroup", "asGroup", "tpGroup", "roleGroup"].forEach(id => {
         document.getElementById(id).classList.add("collapsed");
       });
+    }
+
+    // Restore saved view mode before first render
+    const savedViewMode = localStorage.getItem("sb_view_mode");
+    if (savedViewMode && ["big", "card", "list"].includes(savedViewMode)) {
+      setViewMode(savedViewMode, true);
     }
 
     // Render
@@ -2396,14 +2451,14 @@ function renderCard(m) {
   const newBadge = isNewMonster(m) ? '<span class="card-new">NEW</span>' : '';
   const artUrl = getArtUrl(m);
   const artSrc = artUrl || m.icon || '';
-  const artFallback = (artUrl && m.icon) ? ' onerror="this.src=\'' + m.icon + '\'"' : '';
+  const artFallback = (artUrl && m.icon) ? ' onerror="this.src=\'' + m.icon.replace(/'/g, "\\'").replace(/"/g, "&quot;") + '\';this.onerror=null"' : '';
 
   return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
     (artSrc ? '<div class="card-art-wrap"><img class="card-art-img" src="' + artSrc + '" alt="" loading="lazy"' + artFallback + '></div>' : '') +
     '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
     newBadge +
     (m.icon ? '<img class="monster-icon" src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '') +
-    '<div class="monster-info" style="flex:1;min-width:0">' +
+    '<div class="monster-info">' +
       '<div class="monster-name">' + escHtml(m.name) + '</div>' +
       '<div class="monster-types">' +
         rarityHtml +
@@ -2454,12 +2509,19 @@ function renderGrid() {
     temp.innerHTML = getCachedCard(batch[i]);
     fragment.appendChild(temp.firstElementChild);
   }
+  // Preserve min-height during swap to prevent layout shift
+  const prevHeight = grid.offsetHeight;
+  grid.style.minHeight = prevHeight + "px";
   grid.innerHTML = "";
   grid.appendChild(fragment);
+  requestAnimationFrame(() => { grid.style.minHeight = ""; });
   _renderedCount = batch.length;
 
   if (_currentList.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">( ´_ゝ`)</div><div class="empty-state-text">沒有符合條件的角色</div><div class="empty-state-hint">試試調整篩選條件或清除篩選</div></div>';
+    const emptyHint = _skillSearchMode && document.getElementById("searchBox").value.trim()
+      ? '目前為技能搜尋模式，搜尋的是技能效果而非角色名稱'
+      : '試試調整篩選條件或清除篩選';
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">( ´_ゝ`)</div><div class="empty-state-text">沒有符合條件的角色</div><div class="empty-state-hint">' + emptyHint + '</div></div>';
   }
 
   document.getElementById("statusBar").textContent =
@@ -2601,8 +2663,12 @@ function showDetail(name) {
   const artWrap = document.getElementById("detailArtWrap");
   if (artUrl) {
     const artImg = document.getElementById("detailArt");
+    artWrap.classList.remove("loaded");
+    artImg.classList.remove("loaded");
+    artImg.src = "";
     artImg.src = artUrl;
-    artImg.onerror = function() { artWrap.style.display = "none"; };
+    artImg.onload = function() { artWrap.classList.add("loaded"); artImg.classList.add("loaded"); };
+    artImg.onerror = function() { this.onerror = null; artWrap.style.display = "none"; };
     artWrap.style.display = "";
   } else {
     artWrap.style.display = "none";
@@ -2988,7 +3054,7 @@ document.getElementById("detailOverlay").addEventListener("click", e => {
 // (keyboard shortcuts are in the extended handler below)
 
 // === Filter controls ===
-function renderAndSummary() { updateFilterSummary(); renderGrid(); }
+function renderAndSummary() { updateFilterSummary(); renderGrid(); window.scrollTo({ top: 0 }); }
 const _debouncedRender = debounce(renderAndSummary, 200);
 document.getElementById("searchBox").addEventListener("input", _debouncedRender);
 ["filterElement", "filterRarity", "filterScore"].forEach(id => {
@@ -3001,7 +3067,7 @@ document.getElementById("searchBox").addEventListener("input", _debouncedRender)
     renderAndSummary();
   });
 });
-document.getElementById("sortBy").addEventListener("change", renderGrid);
+document.getElementById("sortBy").addEventListener("change", () => { renderGrid(); window.scrollTo({ top: 0 }); });
 
 // Owned / Unowned filter buttons
 document.getElementById("filterOwned").addEventListener("click", function() {
@@ -3216,10 +3282,21 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   document.getElementById("modal").classList.add("active");
 });
 
-document.getElementById("modalCopy").addEventListener("click", () => {
+document.getElementById("modalCopy").addEventListener("click", async () => {
   const ta = document.getElementById("modalData");
+  const btn = document.getElementById("modalCopy");
   ta.select();
-  navigator.clipboard.writeText(ta.value);
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    const orig = btn.textContent;
+    btn.textContent = "已複製！";
+    btn.style.background = "var(--owned-border)";
+    btn.style.color = "#000";
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ""; btn.style.color = ""; }, 1500);
+  } catch {
+    btn.textContent = "複製失敗";
+    setTimeout(() => { btn.textContent = "複製"; }, 1500);
+  }
 });
 
 document.getElementById("modalImport").addEventListener("click", () => {
@@ -3287,8 +3364,9 @@ document.getElementById("viewList").addEventListener("click", function() {
   setViewMode("list");
 });
 
-function setViewMode(mode) {
+function setViewMode(mode, skipRender) {
   _viewMode = mode;
+  try { localStorage.setItem("sb_view_mode", mode); } catch {}
   const grid = document.getElementById("monsterGrid");
   grid.classList.remove("list-mode", "big-card-mode");
   if (mode === "list") grid.classList.add("list-mode");
@@ -3297,7 +3375,7 @@ function setViewMode(mode) {
   const btnId = mode === "big" ? "viewBig" : mode === "list" ? "viewList" : "viewCard";
   document.getElementById(btnId).classList.add("active");
   _cardHtmlCache.clear();
-  renderGrid();
+  if (!skipRender) renderGrid();
 }
 
 // === Recent history ===
@@ -3405,6 +3483,11 @@ document.addEventListener("keydown", e => {
     const ul = document.getElementById("updateLogOverlay");
     if (detail.classList.contains("active")) {
       detail.classList.remove("active");
+      history.replaceState(null, "", location.pathname + location.search);
+    } else if (bulkMode) {
+      bulkMode = false;
+      document.getElementById("bulkToggle").classList.remove("active");
+      document.getElementById("bulkBar").classList.remove("active");
     } else if (dg.classList.contains("active")) {
       dg.classList.remove("active");
     } else if (ul.classList.contains("active")) {
@@ -3480,14 +3563,6 @@ function updateFilterCounts() {
   document.querySelectorAll("#filterRarity option[value]").forEach(o => {
     if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
   });
-  function setTagCounts(selector, counts) {
-    document.querySelectorAll(selector).forEach(tag => {
-      const v = tag.dataset.val;
-      let countEl = tag.querySelector(".tag-count");
-      if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
-      countEl.textContent = counts[v] || 0;
-    });
-  }
   document.querySelectorAll("#filterType1 option[value]").forEach(o => {
     if (o.value) o.textContent = o.value + " (" + (t1Counts[o.value] || 0) + ")";
   });
@@ -3916,7 +3991,7 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
       : "";
     const rc = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
     const rtc = roleLabel === "L" ? "#000" : "#fff";
-    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '" onclick="document.getElementById(\'dungeonOverlay\').classList.remove(\'active\');showDetail(\'' + escAttr(m.name).replace(/'/g, "\\'") + '\')">' +
+    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '" data-dg-click="1">' +
       (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
       elBadge +
       '<span class="team-slot-role" style="background:' + rc + ';color:' + rtc + '">' + roleLabel + '</span>' +
@@ -3945,6 +4020,12 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
   }
 
   document.getElementById("dungeonResult").innerHTML = html;
+  document.querySelectorAll("#dungeonResult [data-dg-click]").forEach(slot => {
+    slot.addEventListener("click", () => {
+      document.getElementById("dungeonOverlay").classList.remove("active");
+      showDetail(slot.dataset.name);
+    });
+  });
 });
 
 // === Feature: Update Log (New Character Tracking) ===
