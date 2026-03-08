@@ -311,6 +311,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   padding: 4px 0; font-size: 12px; border-bottom: 1px solid rgba(45,74,94,0.3);
 }
 .soul-item:last-child { border-bottom: none; }
+.soul-icon { width: 24px; height: 24px; flex-shrink: 0; border-radius: 4px; vertical-align: middle; }
 .soul-name { color: var(--accent); font-weight: 500; white-space: nowrap; }
 .soul-effect { color: var(--text-dim); flex: 1; }
 
@@ -1631,6 +1632,48 @@ function translateSoul(name) {
     .replace(/獲得/g, "獲取").replace(/回復/g, "回復");
 }
 
+// Soul icon mapping (from official sb.gungho.jp)
+const SOUL_BASE = "https://sb.gungho.jp/member/info/img/icon_soul/";
+const SOUL_ICONS = {
+  "攻撃力強化": "soul_kougekikyouka.gif",
+  "HP強化": "soul_hpkyouka.gif",
+  "スタンダメージ軽減": "soul_stan.gif",
+  "HP回復": "soul_hpkaifuku.gif",
+  "ダメージ軽減": "soul_damagekeigen.gif",
+  "防御力強化": "soul_bougyoryoku.gif",
+  "物理ダメージ回避率強化": "soul_kaihiritsu.gif",
+  "スキルブースト": "soul_skillboost.gif",
+  "ダメージスキル強化": "soul_damageskill.gif",
+  "反撃攻撃力強化": "soul_hangeki.gif",
+  "獲得TPアップ": "soul_tpup.gif",
+  "先制攻撃耐性": "soul_sensei.gif",
+  "スキル使用不可耐性": "soul_skillfuka.gif",
+  "バインド耐性": "soul_bind.gif",
+  "攻撃・スキル使用不可耐性": "soul_kougekiskill.jpg",
+  "毒・溶岩耐性": "soul_doku.gif",
+  "攻撃力％強化": "soul_kougekikyouka_percent.gif",
+  "攻撃力%強化": "soul_kougekikyouka_percent.gif",
+  "物理ダメージスキル強化": "soul_buturi_damageskill.gif",
+  "コンボダメージ増加": "soul_combo_damagezoka.gif",
+  "スタンダメージ増加": "soul_stan_damagezoka.gif",
+  "HP％強化": "soul_hp_percentkyoka.gif",
+  "HP%強化": "soul_hp_percentkyoka.gif",
+  "TP自動獲得": "soul_tp_jidokakutoku.gif",
+  "回避率強化": "soul_kaihiritsu.gif",
+};
+// Variant matching: 攻撃力強化2 → 攻撃力強化, HP依存ダメージスキル強化 → ダメージスキル強化
+function getSoulIcon(name) {
+  if (SOUL_ICONS[name]) return SOUL_BASE + SOUL_ICONS[name];
+  // Try removing trailing numbers/Lv
+  const base = name.replace(/[2２Ⅱ]$/, "").replace(/ ?Lv\d+$/, "").trim();
+  if (SOUL_ICONS[base]) return SOUL_BASE + SOUL_ICONS[base];
+  // Try partial match for compound names
+  for (const k of Object.keys(SOUL_ICONS)) {
+    if (name.includes(k)) return SOUL_BASE + SOUL_ICONS[k];
+  }
+  return null;
+}
+
 // Awakening dungeon data by element
 const AWAKEN_DATA = {
   "火": {
@@ -2394,7 +2437,9 @@ function showDetail(name) {
     ab.recommended_souls.forEach(s => {
       const soulName = translateSoul(s.name);
       const soulEffect = translateSoul(s.effect);
-      soulHtml += '<div class="soul-item"><span class="soul-name">' + escHtml(soulName) + '</span><span class="soul-effect">' + escHtml(soulEffect) + '</span></div>';
+      const iconUrl = getSoulIcon(s.name);
+      const iconHtml = iconUrl ? '<img class="soul-icon" src="' + iconUrl + '" alt="" loading="lazy">' : '';
+      soulHtml += '<div class="soul-item">' + iconHtml + '<span class="soul-name">' + escHtml(soulName) + '</span><span class="soul-effect">' + escHtml(soulEffect) + '</span></div>';
     });
     soulEl.innerHTML = soulHtml;
     soulEl.style.display = "";
