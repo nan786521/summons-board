@@ -805,6 +805,144 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .detail-nav.prev { left: 8px; }
 .detail-nav.next { right: 8px; }
 
+/* Stats modal */
+.stats-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); z-index: 250;
+  justify-content: center; align-items: center;
+}
+.stats-overlay.active { display: flex; }
+.stats-panel {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; max-width: 500px; width: 92%;
+  max-height: 90vh; overflow-y: auto; padding: 20px;
+}
+.stats-title {
+  font-size: 18px; font-weight: 700; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.stats-section { margin-bottom: 20px; }
+.stats-section-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--accent); }
+.stats-bar-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 12px;
+}
+.stats-bar-label { width: 50px; text-align: right; flex-shrink: 0; color: var(--text-dim); }
+.stats-bar-track { flex: 1; height: 18px; background: var(--bg); border-radius: 4px; position: relative; overflow: hidden; }
+.stats-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; min-width: 2px; }
+.stats-bar-text {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; font-weight: 600; color: var(--text); text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+.stats-summary {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;
+}
+.stats-box {
+  text-align: center; padding: 10px; background: var(--bg); border-radius: 8px;
+}
+.stats-box-num { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stats-box-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+/* Team builder modal */
+.team-builder-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); z-index: 250;
+  justify-content: center; align-items: center;
+}
+.team-builder-overlay.active { display: flex; }
+.team-builder-panel {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; max-width: 520px; width: 92%;
+  max-height: 90vh; overflow-y: auto; padding: 20px;
+}
+.tb-title {
+  font-size: 18px; font-weight: 700; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.tb-slots {
+  display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.tb-slot {
+  width: 72px; height: 90px; border: 2px dashed var(--border); border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.tb-slot:hover { border-color: var(--accent); background: var(--card-hover); }
+.tb-slot.filled { border-style: solid; }
+.tb-slot.filled img {
+  width: 56px; height: 56px; border-radius: 6px; object-fit: cover;
+}
+.tb-slot-label {
+  font-size: 8px; color: var(--text-dim); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 68px; text-align: center;
+}
+.tb-slot-role {
+  position: absolute; top: 2px; left: 4px;
+  font-size: 8px; background: var(--accent); color: #000;
+  padding: 1px 4px; border-radius: 3px; font-weight: 700;
+}
+.tb-slot-remove {
+  position: absolute; top: -6px; right: -6px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #c0392b; color: #fff; border: none;
+  font-size: 12px; cursor: pointer; display: none;
+  align-items: center; justify-content: center; line-height: 1;
+}
+.tb-slot.filled .tb-slot-remove { display: flex; }
+.tb-search {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--bg); color: var(--text);
+  font-size: 14px; font-family: inherit; margin-bottom: 8px;
+}
+.tb-search:focus { outline: none; border-color: var(--accent); }
+.tb-results {
+  max-height: 200px; overflow-y: auto; margin-bottom: 12px;
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.tb-result-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  cursor: pointer; transition: background 0.15s; font-size: 13px;
+}
+.tb-result-item:hover { background: var(--card-hover); }
+.tb-result-item img { width: 32px; height: 32px; border-radius: 4px; object-fit: cover; }
+.tb-saved-list { margin-top: 16px; }
+.tb-saved-title {
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+}
+.tb-saved-team {
+  display: flex; align-items: center; gap: 6px; padding: 8px;
+  background: var(--bg); border-radius: 8px; margin-bottom: 6px;
+  cursor: pointer; transition: background 0.15s;
+}
+.tb-saved-team:hover { background: var(--card-hover); }
+.tb-saved-team img {
+  width: 36px; height: 36px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border);
+}
+.tb-saved-name {
+  flex: 1; font-size: 12px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tb-saved-delete {
+  width: 24px; height: 24px; border-radius: 4px;
+  background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+  cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+}
+.tb-saved-delete:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+.tb-empty { font-size: 12px; color: var(--text-dim); text-align: center; padding: 12px; }
+
+/* Skill search toggle */
+.search-mode-toggle {
+  font-size: 11px; padding: 4px 10px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--bg); color: var(--text-dim);
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.search-mode-toggle:hover { border-color: var(--accent); color: var(--text); }
+.search-mode-toggle.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
 /* Scroll to top */
 .scroll-top {
   position: fixed;
@@ -850,9 +988,14 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     gap: 6px;
   }
   .search-box {
-    grid-column: 1 / -1;
+    grid-column: 1;
     min-width: 0;
     font-size: 16px;
+  }
+  .search-mode-toggle {
+    grid-column: 2;
+    font-size: 12px;
+    padding: 8px 6px;
   }
   select, .btn { font-size: 13px; padding: 8px 6px; }
   .btn-export { margin-left: 0; }
@@ -929,6 +1072,15 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .detail-nav { width: 30px; height: 30px; font-size: 14px; }
   .detail-nav.prev { left: 4px; }
   .detail-nav.next { right: 4px; }
+
+  .stats-panel { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; }
+  .stats-overlay.active { align-items: flex-end; }
+  .stats-title { font-size: 16px; }
+
+  .team-builder-panel { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; }
+  .team-builder-overlay.active { align-items: flex-end; }
+  .tb-slot { width: 60px; height: 78px; }
+  .tb-slot.filled img { width: 48px; height: 48px; }
 }
 </style>
 </head>
@@ -945,6 +1097,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 <div class="controls">
   <input type="text" class="search-box" id="searchBox" placeholder="搜尋角色名稱或編號...">
+  <button class="search-mode-toggle" id="searchModeToggle" title="切換技能效果搜尋">技能搜尋</button>
   <select id="filterElement">
     <option value="">全屬性</option>
     <option value="火">火</option>
@@ -992,6 +1145,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <button class="btn btn-owned" id="filterOwned">僅已持有</button>
   <button class="btn" id="filterUnowned">僅未持有</button>
   <button class="btn" id="bulkToggle">批次勾選</button>
+  <button class="btn" id="statsBtn">統計</button>
+  <button class="btn" id="teamBuilderBtn">組隊</button>
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
   <div class="view-toggle">
     <button class="btn active" id="viewGrid" title="卡片模式">⊞</button>
@@ -1187,6 +1342,42 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   </div>
 </div>
 
+<!-- Stats Modal -->
+<div class="stats-overlay" id="statsOverlay">
+  <div class="stats-panel">
+    <div class="stats-title">持有率統計</div>
+    <div id="statsContent"></div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn" id="statsClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Team Builder Modal -->
+<div class="team-builder-overlay" id="teamBuilderOverlay">
+  <div class="team-builder-panel">
+    <div class="tb-title">
+      <span>隊伍編成</span>
+      <button class="btn" id="tbSave" style="font-size:12px;padding:4px 12px">儲存隊伍</button>
+    </div>
+    <div class="tb-slots" id="tbSlots">
+      <div class="tb-slot" data-idx="0"><span class="tb-slot-role">L</span><span class="tb-slot-label">隊長</span></div>
+      <div class="tb-slot" data-idx="1"><span class="tb-slot-label">隊員 1</span></div>
+      <div class="tb-slot" data-idx="2"><span class="tb-slot-label">隊員 2</span></div>
+      <div class="tb-slot" data-idx="3"><span class="tb-slot-label">隊員 3</span></div>
+    </div>
+    <input type="text" class="tb-search" id="tbSearch" placeholder="搜尋角色加入隊伍...">
+    <div class="tb-results" id="tbResults" style="display:none"></div>
+    <div class="tb-saved-list">
+      <div class="tb-saved-title">已儲存隊伍</div>
+      <div id="tbSavedTeams"></div>
+    </div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn" id="tbClose">關閉</button>
+    </div>
+  </div>
+</div>
+
 <!-- Scroll to top -->
 <button class="scroll-top" id="scrollTop" title="回到頂部">↑</button>
 
@@ -1213,6 +1404,12 @@ let _activeTagFilters = new Set();
 let _recentHistory = [];
 let _viewMode = "grid"; // "grid" | "list"
 let _currentDetailName = null;
+let _skillSearchMode = false; // false=name search, true=skill effect search
+let _skillSearchIndex = []; // built after init
+let _tbSlots = [null, null, null, null]; // team builder slots
+let _tbSelectedIdx = 0; // which slot is being filled
+let _savedTeams = []; // saved teams from localStorage
+const TEAMS_KEY = "sb_saved_teams";
 const MAX_RECENT = 10;
 const RECENT_KEY = "sb_recent_history";
 
@@ -1400,8 +1597,9 @@ async function init() {
     loadOwned();
     autoLoadOwned();
 
-    // Build skill categories
+    // Build skill categories and search index
     buildLsCategories();
+    buildSkillSearchIndex();
 
     bar.style.width = "100%";
     text.textContent = "完成！";
@@ -1454,9 +1652,17 @@ function getFiltered() {
   const scoreFilter = document.getElementById("filterScore").value;
   const sortBy = document.getElementById("sortBy").value;
 
-  let list = (search ? _searchIndex.filter(idx =>
-    idx.nameLower.includes(search) || idx.noStr.includes(search)
-  ).map(idx => idx.m) : allMonsters).filter(m => {
+  let list;
+  if (search && _skillSearchMode) {
+    const matchNames = new Set(_skillSearchIndex.filter(idx => idx.textLower.includes(search)).map(idx => idx.m.name));
+    list = allMonsters.filter(m => matchNames.has(m.name));
+  } else if (search) {
+    list = _searchIndex.filter(idx => idx.nameLower.includes(search) || idx.noStr.includes(search)).map(idx => idx.m);
+  } else {
+    list = allMonsters;
+  }
+
+  list = list.filter(m => {
     if (element && m.element !== element) return false;
     if (rarity && m.rarity !== parseInt(rarity)) return false;
     if (type1 && m.type1 !== type1) return false;
@@ -1994,8 +2200,11 @@ document.getElementById("resetAll").addEventListener("click", () => {
   ["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore"].forEach(id => {
     document.getElementById(id).value = "";
   });
-  // Clear search
+  // Clear search and skill search mode
   document.getElementById("searchBox").value = "";
+  _skillSearchMode = false;
+  document.getElementById("searchModeToggle").classList.remove("active");
+  document.getElementById("searchBox").placeholder = "搜尋角色名稱或編號...";
   // Clear owned filter
   filterOwned = "all";
   document.getElementById("filterOwned").classList.remove("active");
@@ -2243,8 +2452,14 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     const detail = document.getElementById("detailOverlay");
     const modal = document.getElementById("modal");
+    const stats = document.getElementById("statsOverlay");
+    const tb = document.getElementById("teamBuilderOverlay");
     if (detail.classList.contains("active")) {
       detail.classList.remove("active");
+    } else if (stats.classList.contains("active")) {
+      stats.classList.remove("active");
+    } else if (tb.classList.contains("active")) {
+      tb.classList.remove("active");
     } else if (modal.classList.contains("active")) {
       modal.classList.remove("active");
     }
@@ -2280,8 +2495,256 @@ function updateTagCounts() {
   });
 }
 
+// === Feature 6: Skill search mode ===
+document.getElementById("searchModeToggle").addEventListener("click", function() {
+  _skillSearchMode = !_skillSearchMode;
+  this.classList.toggle("active", _skillSearchMode);
+  const box = document.getElementById("searchBox");
+  box.placeholder = _skillSearchMode ? "搜尋技能效果（如：防護貫通、全體化）..." : "搜尋角色名稱或編號...";
+  if (box.value.trim()) renderAndSummary();
+});
+
+function buildSkillSearchIndex() {
+  _skillSearchIndex = [];
+  for (const m of allMonsters) {
+    const abKey = String(m.no || m.name);
+    const ab = abilityMap.get(abKey);
+    let text = "";
+    if (ab) {
+      if (ab.leader_skill) text += (ab.leader_skill.name || "") + " " + (ab.leader_skill.effect || "") + " ";
+      if (ab.active_skill) text += (ab.active_skill.name || "") + " " + (ab.active_skill.effect || "") + " ";
+      if (ab.tp_skill) text += (ab.tp_skill.name || "") + " " + (ab.tp_skill.effect || "") + " ";
+      if (ab.abilities) ab.abilities.forEach(a => { text += (a.name || "") + " " + (a.effect || "") + " "; });
+    }
+    if (m.tags) text += m.tags.join(" ");
+    _skillSearchIndex.push({ textLower: text.toLowerCase(), m });
+  }
+}
+
+// === Feature 4: Stats modal ===
+document.getElementById("statsBtn").addEventListener("click", () => {
+  renderStats();
+  document.getElementById("statsOverlay").classList.add("active");
+});
+document.getElementById("statsClose").addEventListener("click", () => {
+  document.getElementById("statsOverlay").classList.remove("active");
+});
+document.getElementById("statsOverlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.target.classList.remove("active");
+});
+
+function renderStats() {
+  const total = allMonsters.length;
+  const owned = allMonsters.filter(m => ownedSet.has(m.name));
+  const ownedCount = owned.length;
+  const pct = total > 0 ? (ownedCount / total * 100).toFixed(1) : 0;
+
+  // By element
+  const elements = ["火", "水", "木", "光", "闇"];
+  const elColors = { "火": "var(--el-fire)", "水": "var(--el-water)", "木": "var(--el-wood)", "光": "var(--el-light)", "闇": "var(--el-dark)" };
+  const elStats = elements.map(el => {
+    const t = allMonsters.filter(m => m.element === el).length;
+    const o = owned.filter(m => m.element === el).length;
+    return { label: el, total: t, owned: o, color: elColors[el] };
+  });
+
+  // By type1
+  const types1 = ["攻撃", "HP", "バランス"];
+  const t1Colors = { "攻撃": "var(--type-atk)", "HP": "var(--type-hp)", "バランス": "var(--type-bal)" };
+  const t1Stats = types1.map(t => {
+    const tot = allMonsters.filter(m => m.type1 === t).length;
+    const o = owned.filter(m => m.type1 === t).length;
+    return { label: t, total: tot, owned: o, color: t1Colors[t] };
+  });
+
+  // By rarity
+  const rarities = [7, 6, 5];
+  const rColors = { 7: "#f1c40f", 6: "#e67e22", 5: "#95a5a6" };
+  const rStats = rarities.map(r => {
+    const tot = allMonsters.filter(m => m.rarity === r).length;
+    const o = owned.filter(m => m.rarity === r).length;
+    return { label: "★" + r, total: tot, owned: o, color: rColors[r] };
+  });
+
+  function renderBars(stats) {
+    const maxTotal = Math.max(...stats.map(s => s.total), 1);
+    return stats.map(s => {
+      const p = s.total > 0 ? (s.owned / s.total * 100).toFixed(0) : 0;
+      const w = (s.total / maxTotal * 100).toFixed(0);
+      return '<div class="stats-bar-row">' +
+        '<span class="stats-bar-label">' + s.label + '</span>' +
+        '<div class="stats-bar-track" style="width:' + w + '%">' +
+        '<div class="stats-bar-fill" style="width:' + p + '%;background:' + s.color + '"></div>' +
+        '<span class="stats-bar-text">' + s.owned + '/' + s.total + ' (' + p + '%)</span>' +
+        '</div></div>';
+    }).join("");
+  }
+
+  document.getElementById("statsContent").innerHTML =
+    '<div class="stats-summary">' +
+    '<div class="stats-box"><div class="stats-box-num">' + total + '</div><div class="stats-box-label">全角色</div></div>' +
+    '<div class="stats-box"><div class="stats-box-num" style="color:var(--owned-border)">' + ownedCount + '</div><div class="stats-box-label">已持有</div></div>' +
+    '<div class="stats-box"><div class="stats-box-num">' + pct + '%</div><div class="stats-box-label">持有率</div></div>' +
+    '</div>' +
+    '<div class="stats-section"><div class="stats-section-title">依屬性</div>' + renderBars(elStats) + '</div>' +
+    '<div class="stats-section"><div class="stats-section-title">依類型</div>' + renderBars(t1Stats) + '</div>' +
+    '<div class="stats-section"><div class="stats-section-title">依稀有度</div>' + renderBars(rStats) + '</div>';
+}
+
+// === Feature 7: Team builder ===
+function loadSavedTeams() {
+  try {
+    const data = localStorage.getItem(TEAMS_KEY);
+    if (data) _savedTeams = JSON.parse(data);
+  } catch {}
+}
+
+function saveSavedTeams() {
+  localStorage.setItem(TEAMS_KEY, JSON.stringify(_savedTeams));
+}
+
+document.getElementById("teamBuilderBtn").addEventListener("click", () => {
+  renderTbSlots();
+  renderSavedTeams();
+  document.getElementById("teamBuilderOverlay").classList.add("active");
+});
+
+document.getElementById("tbClose").addEventListener("click", () => {
+  document.getElementById("teamBuilderOverlay").classList.remove("active");
+});
+
+document.getElementById("teamBuilderOverlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.target.classList.remove("active");
+});
+
+function renderTbSlots() {
+  const container = document.getElementById("tbSlots");
+  container.innerHTML = _tbSlots.map((name, i) => {
+    const m = name ? monsterMap.get(name) : null;
+    if (m) {
+      return '<div class="tb-slot filled" data-idx="' + i + '">' +
+        (i === 0 ? '<span class="tb-slot-role">L</span>' : '') +
+        '<button class="tb-slot-remove" data-ridx="' + i + '">×</button>' +
+        '<img src="' + (m.icon || '') + '" alt="' + escAttr(m.name) + '">' +
+        '<span class="tb-slot-label">' + escHtml(m.name) + '</span></div>';
+    }
+    return '<div class="tb-slot" data-idx="' + i + '">' +
+      (i === 0 ? '<span class="tb-slot-role">L</span>' : '') +
+      '<span class="tb-slot-label">' + (i === 0 ? "隊長" : "隊員 " + i) + '</span></div>';
+  }).join("");
+}
+
+document.getElementById("tbSlots").addEventListener("click", e => {
+  const remove = e.target.closest(".tb-slot-remove");
+  if (remove) {
+    _tbSlots[parseInt(remove.dataset.ridx)] = null;
+    renderTbSlots();
+    return;
+  }
+  const slot = e.target.closest(".tb-slot");
+  if (slot) {
+    _tbSelectedIdx = parseInt(slot.dataset.idx);
+    document.getElementById("tbSearch").focus();
+  }
+});
+
+const _tbSearchDebounced = debounce(function() {
+  const q = document.getElementById("tbSearch").value.trim().toLowerCase();
+  const results = document.getElementById("tbResults");
+  if (!q) { results.style.display = "none"; return; }
+  const used = new Set(_tbSlots.filter(Boolean));
+  const matches = allMonsters.filter(m =>
+    !used.has(m.name) && (m.name.toLowerCase().includes(q) || (m.no && String(m.no).includes(q)))
+  ).slice(0, 20);
+  if (matches.length === 0) {
+    results.innerHTML = '<div class="tb-empty">沒有符合的角色</div>';
+  } else {
+    results.innerHTML = matches.map(m =>
+      '<div class="tb-result-item" data-name="' + escAttr(m.name) + '">' +
+      (m.icon ? '<img src="' + m.icon + '" loading="lazy">' : '<div style="width:32px;height:32px;background:var(--bg);border-radius:4px"></div>') +
+      '<span>' + (m.no ? 'No.' + m.no + ' ' : '') + escHtml(m.name) + '</span>' +
+      '<span style="margin-left:auto;font-size:11px;color:var(--text-dim)">L:' + m.leader_score + ' S:' + m.sub_score + '</span>' +
+      '</div>'
+    ).join("");
+  }
+  results.style.display = "";
+}, 200);
+
+document.getElementById("tbSearch").addEventListener("input", _tbSearchDebounced);
+
+document.getElementById("tbResults").addEventListener("click", e => {
+  const item = e.target.closest(".tb-result-item");
+  if (!item) return;
+  _tbSlots[_tbSelectedIdx] = item.dataset.name;
+  // Advance to next empty slot
+  for (let i = 0; i < 4; i++) {
+    const next = (_tbSelectedIdx + 1 + i) % 4;
+    if (!_tbSlots[next]) { _tbSelectedIdx = next; break; }
+  }
+  document.getElementById("tbSearch").value = "";
+  document.getElementById("tbResults").style.display = "none";
+  renderTbSlots();
+});
+
+document.getElementById("tbSave").addEventListener("click", () => {
+  const names = _tbSlots.filter(Boolean);
+  if (names.length === 0) { alert("請先加入至少一個角色"); return; }
+  const teamName = names.map(n => {
+    const m = monsterMap.get(n);
+    return m ? m.name.slice(0, 4) : n.slice(0, 4);
+  }).join("・");
+  _savedTeams.push({ name: teamName, members: [..._tbSlots] });
+  saveSavedTeams();
+  renderSavedTeams();
+  // Clear current slots
+  _tbSlots = [null, null, null, null];
+  _tbSelectedIdx = 0;
+  renderTbSlots();
+});
+
+function renderSavedTeams() {
+  const container = document.getElementById("tbSavedTeams");
+  if (_savedTeams.length === 0) {
+    container.innerHTML = '<div class="tb-empty">尚未儲存隊伍</div>';
+    return;
+  }
+  container.innerHTML = _savedTeams.map((team, i) => {
+    const icons = team.members.map(name => {
+      if (!name) return '';
+      const m = monsterMap.get(name);
+      return m && m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(name) + '" loading="lazy">' : '';
+    }).join("");
+    return '<div class="tb-saved-team" data-tidx="' + i + '">' +
+      icons +
+      '<span class="tb-saved-name">' + escHtml(team.name) + '</span>' +
+      '<button class="tb-saved-delete" data-didx="' + i + '" title="刪除">×</button>' +
+      '</div>';
+  }).join("");
+}
+
+document.getElementById("tbSavedTeams").addEventListener("click", e => {
+  const del = e.target.closest(".tb-saved-delete");
+  if (del) {
+    e.stopPropagation();
+    _savedTeams.splice(parseInt(del.dataset.didx), 1);
+    saveSavedTeams();
+    renderSavedTeams();
+    return;
+  }
+  const team = e.target.closest(".tb-saved-team");
+  if (team) {
+    const idx = parseInt(team.dataset.tidx);
+    const t = _savedTeams[idx];
+    _tbSlots = [...t.members];
+    _tbSelectedIdx = _tbSlots.findIndex(s => s === null);
+    if (_tbSelectedIdx < 0) _tbSelectedIdx = 0;
+    renderTbSlots();
+  }
+});
+
 // === Init ===
 loadRecent();
+loadSavedTeams();
 init();
 </script>
 </body>
