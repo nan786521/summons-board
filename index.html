@@ -180,6 +180,20 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .tag:hover { border-color: var(--accent); color: var(--text); }
 .tag.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
+/* 遊戲風格角色圖示 */
+.role-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-right: 3px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+}
+.tag.active .role-icon { filter: brightness(0) drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
+
 /* Reset bar */
 .reset-bar {
   padding: 6px 20px;
@@ -301,6 +315,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 /* Similar characters section */
 .similar-section { margin-top: 16px; }
+.similar-section .team-slots {
+  flex-wrap: wrap; overflow-x: visible;
+}
 .similar-title {
   font-size: 13px; font-weight: 600; color: var(--accent);
   margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
@@ -1336,20 +1353,20 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <span class="filter-group-count" id="roleCount"></span>
   </div>
   <div class="filter-tags" id="roleFilterRow">
-    <span class="tag" data-role="連鎖">🔗 連鎖</span>
-    <span class="tag" data-role="無連鎖">⛓ 無連鎖</span>
-    <span class="tag" data-role="速攻">⚡ 速攻</span>
-    <span class="tag" data-role="全體">💥 全體化</span>
-    <span class="tag" data-role="貫通">🎯 貫通</span>
-    <span class="tag" data-role="破盾">💔 護盾破壞</span>
-    <span class="tag" data-role="防貫">🗡 防護貫通</span>
-    <span class="tag" data-role="格擋">🛡 格擋</span>
-    <span class="tag" data-role="減傷">🧱 傷害減輕</span>
-    <span class="tag" data-role="回復">💚 回復</span>
-    <span class="tag" data-role="復活">✨ 復活</span>
-    <span class="tag" data-role="設置">🪤 設置/陷阱</span>
-    <span class="tag" data-role="移動">🏃 盤面移動</span>
-    <span class="tag" data-role="誘爆">💣 誘爆</span>
+    <span class="tag" data-role="連鎖"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;circle cx=%228%22 cy=%228%22 r=%225%22 fill=%22none%22 stroke=%22%23f4c542%22 stroke-width=%222%22/&gt;&lt;circle cx=%2216%22 cy=%2216%22 r=%225%22 fill=%22none%22 stroke=%22%23f4c542%22 stroke-width=%222%22/&gt;&lt;line x1=%2212%22 y1=%228%22 x2=%2212%22 y2=%2216%22 stroke=%22%23f4c542%22 stroke-width=%222%22/&gt;&lt;/svg&gt;')"></i>連鎖</span>
+    <span class="tag" data-role="無連鎖"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;circle cx=%228%22 cy=%228%22 r=%225%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22/&gt;&lt;circle cx=%2216%22 cy=%2216%22 r=%225%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22/&gt;&lt;line x1=%224%22 y1=%2220%22 x2=%2220%22 y2=%224%22 stroke=%22%23e44%22 stroke-width=%222.5%22/&gt;&lt;/svg&gt;')"></i>無連鎖</span>
+    <span class="tag" data-role="速攻"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;polygon points=%2213,2 3,14 10,14 9,22 19,10 12,10%22 fill=%22%23f4c542%22/&gt;&lt;/svg&gt;')"></i>速攻</span>
+    <span class="tag" data-role="全體"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;circle cx=%2212%22 cy=%2212%22 r=%229%22 fill=%22none%22 stroke=%22%23e88%22 stroke-width=%222%22/&gt;&lt;circle cx=%2212%22 cy=%2212%22 r=%225%22 fill=%22none%22 stroke=%22%23e88%22 stroke-width=%222%22/&gt;&lt;circle cx=%2212%22 cy=%2212%22 r=%221.5%22 fill=%22%23e44%22/&gt;&lt;/svg&gt;')"></i>全體化</span>
+    <span class="tag" data-role="貫通"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;line x1=%224%22 y1=%2212%22 x2=%2220%22 y2=%2212%22 stroke=%22%234af%22 stroke-width=%222.5%22/&gt;&lt;polygon points=%2220,12 15,8 15,16%22 fill=%22%234af%22/&gt;&lt;line x1=%2216%22 y1=%226%22 x2=%2216%22 y2=%2218%22 stroke=%22%234af%22 stroke-width=%221.5%22 stroke-dasharray=%222,2%22/&gt;&lt;/svg&gt;')"></i>貫通</span>
+    <span class="tag" data-role="破盾"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;path d=%22M12,3 L4,7 L4,13 C4,17.4 7.6,21 12,22 C16.4,21 20,17.4 20,13 L20,7 Z%22 fill=%22none%22 stroke=%22%23e66%22 stroke-width=%222%22/&gt;&lt;line x1=%228%22 y1=%228%22 x2=%2216%22 y2=%2216%22 stroke=%22%23e44%22 stroke-width=%222.5%22/&gt;&lt;line x1=%2216%22 y1=%228%22 x2=%228%22 y2=%2216%22 stroke=%22%23e44%22 stroke-width=%222.5%22/&gt;&lt;/svg&gt;')"></i>破盾</span>
+    <span class="tag" data-role="防貫"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;path d=%22M12,3 L4,7 L4,13 C4,17.4 7.6,21 12,22 C16.4,21 20,17.4 20,13 L20,7 Z%22 fill=%22none%22 stroke=%22%234af%22 stroke-width=%222%22/&gt;&lt;line x1=%226%22 y1=%2212%22 x2=%2218%22 y2=%2212%22 stroke=%22%234af%22 stroke-width=%222%22/&gt;&lt;polygon points=%2218,12 14,9 14,15%22 fill=%22%234af%22/&gt;&lt;/svg&gt;')"></i>防護貫通</span>
+    <span class="tag" data-role="格擋"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;path d=%22M12,3 L4,7 L4,13 C4,17.4 7.6,21 12,22 C16.4,21 20,17.4 20,13 L20,7 Z%22 fill=%22%234a5%22 stroke=%22%236c8%22 stroke-width=%222%22/&gt;&lt;text x=%2212%22 y=%2215%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-size=%2210%22 font-weight=%22bold%22&gt;G&lt;/text&gt;&lt;/svg&gt;')"></i>格擋</span>
+    <span class="tag" data-role="減傷"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;path d=%22M12,3 L4,7 L4,13 C4,17.4 7.6,21 12,22 C16.4,21 20,17.4 20,13 L20,7 Z%22 fill=%22%2355a%22 stroke=%22%2277c%22 stroke-width=%222%22/&gt;&lt;text x=%2212%22 y=%2216%22 text-anchor=%22middle%22 fill=%22%23ddf%22 font-size=%2212%22 font-weight=%22bold%22&gt;▼&lt;/text&gt;&lt;/svg&gt;')"></i>減傷</span>
+    <span class="tag" data-role="回復"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;rect x=%2210%22 y=%225%22 width=%224%22 height=%2214%22 rx=%221%22 fill=%22%234c6%22/&gt;&lt;rect x=%225%22 y=%2210%22 width=%2214%22 height=%224%22 rx=%221%22 fill=%22%234c6%22/&gt;&lt;/svg&gt;')"></i>回復</span>
+    <span class="tag" data-role="復活"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;path d=%22M12,4 C8,4 5,7 5,11 C5,16 12,21 12,21 C12,21 19,16 19,11 C19,7 16,4 12,4 Z%22 fill=%22%23f4c542%22/&gt;&lt;path d=%22M9,11 L12,8 L15,11 L13,11 L13,15 L11,15 L11,11 Z%22 fill=%22%23fff%22/&gt;&lt;/svg&gt;')"></i>復活</span>
+    <span class="tag" data-role="設置"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;polygon points=%2212,4 3,20 21,20%22 fill=%22none%22 stroke=%22%23e90%22 stroke-width=%222%22/&gt;&lt;text x=%2212%22 y=%2218%22 text-anchor=%22middle%22 fill=%22%23e90%22 font-size=%2212%22 font-weight=%22bold%22&gt;!&lt;/text&gt;&lt;/svg&gt;')"></i>設置</span>
+    <span class="tag" data-role="移動"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;polygon points=%2212,3 8,9 16,9%22 fill=%22%234af%22/&gt;&lt;polygon points=%2212,21 8,15 16,15%22 fill=%22%234af%22/&gt;&lt;polygon points=%223,12 9,8 9,16%22 fill=%22%234af%22/&gt;&lt;polygon points=%2221,12 15,8 15,16%22 fill=%22%234af%22/&gt;&lt;/svg&gt;')"></i>移動</span>
+    <span class="tag" data-role="誘爆"><i class="role-icon" style="background-image:url('data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22&gt;&lt;circle cx=%2212%22 cy=%2213%22 r=%228%22 fill=%22%23333%22 stroke=%22%23e44%22 stroke-width=%222%22/&gt;&lt;line x1=%2214%22 y1=%225%22 x2=%2216%22 y2=%222%22 stroke=%22%23e90%22 stroke-width=%222%22/&gt;&lt;circle cx=%2217%22 cy=%222%22 r=%222%22 fill=%22%23f60%22/&gt;&lt;/svg&gt;')"></i>誘爆</span>
   </div>
 </div>
 
@@ -2499,7 +2516,7 @@ function buildTeamRec(leader) {
     m.name !== leader.name && ownedSet.has(m.name) && m.sub_score >= 7
   );
 
-  function scoreSub(m, leader, teamType) {
+  function scoreSub(m, leader, teamType, targetRole) {
     let s = m.sub_score * 10;
     if (leader.element && m.element === leader.element) s += 15;
     if (hasChain(leader) && hasChain(m)) s += 10;
@@ -2509,32 +2526,59 @@ function buildTeamRec(leader) {
       if (hasChain(m)) s += 10;
       if (hasDmg(m)) s += 8;
     } else {
-      if (hasDmg(m)) s += 10;
-      if (hasBuff(m)) s += 12;
-      if (hasDef(m)) s += 10;
-      if (hasSupport(m)) s += 8;
+      // 只加目標角色的獎勵分，避免多角色角色累加所有獎勵
+      if (targetRole === "攻" && hasDmg(m)) s += 10;
+      else if (targetRole === "輔" && hasBuff(m)) s += 12;
+      else if (targetRole === "防" && hasDef(m)) s += 10;
+      else if (targetRole === "援" && hasSupport(m)) s += 8;
+      else {
+        // 無指定角色時給予最高匹配的單一獎勵
+        if (hasDmg(m)) s += 10;
+        else if (hasBuff(m)) s += 12;
+        else if (hasDef(m)) s += 10;
+        else if (hasSupport(m)) s += 8;
+      }
     }
     return s;
   }
 
+  function getRoles(m) {
+    const roles = [];
+    if (hasDmg(m)) roles.push("攻");
+    if (hasBuff(m)) roles.push("輔");
+    if (hasDef(m)) roles.push("防");
+    if (hasSupport(m)) roles.push("援");
+    return roles.length ? roles : ["泛"];
+  }
+
   function pickTeam(leader, candidates, teamType) {
-    const scored = candidates.map(m => ({
-      m, score: scoreSub(m, leader, teamType),
-      role: hasDmg(m) ? "攻" : hasBuff(m) ? "輔" : hasDef(m) ? "防" : hasSupport(m) ? "援" : "泛"
-    }));
-    scored.sort((a, b) => b.score - a.score);
+    const neededRoles = teamType === "farm"
+      ? ["攻", "攻", "攻"]
+      : ["攻", "輔", "防"];
     const team = [];
-    const usedRoles = new Set();
-    for (const c of scored) {
-      if (team.length >= 3) break;
-      if (!usedRoles.has(c.role) || team.length < 1) {
-        team.push(c);
-        usedRoles.add(c.role);
+    const used = new Set();
+    // 第一輪：每個角色位找最適合的角色
+    for (const role of neededRoles) {
+      let best = null, bestScore = -1;
+      for (const m of candidates) {
+        if (used.has(m.name)) continue;
+        const roles = getRoles(m);
+        if (!roles.includes(role)) continue;
+        const sc = scoreSub(m, leader, teamType, role);
+        if (sc > bestScore) { bestScore = sc; best = m; }
       }
+      if (best) { team.push({ m: best, score: bestScore, role }); used.add(best.name); }
     }
-    for (const c of scored) {
-      if (team.length >= 3) break;
-      if (!team.includes(c)) team.push(c);
+    // 第二輪：補齊到 3 人
+    if (team.length < 3) {
+      const rest = candidates
+        .filter(m => !used.has(m.name))
+        .map(m => ({ m, score: scoreSub(m, leader, teamType), role: getRoles(m)[0] }))
+        .sort((a, b) => b.score - a.score);
+      for (const c of rest) {
+        if (team.length >= 3) break;
+        team.push(c);
+      }
     }
     return team;
   }
