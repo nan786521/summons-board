@@ -751,7 +751,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 /* NEW badge for recently added characters */
 .card-new {
-  position: absolute; top: 4px; left: 4px;
+  position: absolute; top: 4px; right: 4px;
   background: linear-gradient(135deg, #e74c3c, #ff6b6b);
   color: #fff; font-size: 9px; font-weight: 700;
   padding: 1px 5px; border-radius: 3px;
@@ -827,7 +827,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 .update-log-item {
   display: flex; gap: 10px; align-items: center;
-  padding: 8px 0; border-bottom: 1px solid rgba(45,74,94,0.3);
+  padding: 10px 0; border-bottom: 1px solid var(--border);
   cursor: pointer; transition: background 0.15s;
 }
 .update-log-item:hover { background: var(--card-hover); }
@@ -1210,6 +1210,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .type-icon-group { grid-column: 1 / -1; }
   .type-tag { font-size: 11px; padding: 2px 6px; }
   .type-icon-img { width: 14px; height: 14px; }
+  .dungeon-el-btn { padding: 10px 16px; font-size: 14px; }
+  .dungeon-gimmick { padding: 8px 14px; font-size: 13px; }
 
   .filter-group-header { padding: 4px 8px; }
   .filter-tags { padding: 2px 8px 6px; gap: 4px; }
@@ -1340,9 +1342,9 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <option value="5">★5</option>
   </select>
   <div class="type-icon-group" id="filterType1">
-    <span class="type-tag" data-val="攻撃" title="攻撃タイプ：攻擊力較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_kougeki.png" alt="攻撃" class="type-icon-img">攻撃</span>
-    <span class="type-tag" data-val="HP" title="HPタイプ：HP較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_hptype.png" alt="HP" class="type-icon-img">HP</span>
-    <span class="type-tag" data-val="バランス" title="バランスタイプ：攻擊力與HP均衡的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_balance_type.png" alt="バランス" class="type-icon-img">バランス</span>
+    <span class="type-tag" data-val="攻撃" title="攻撃タイプ：攻擊力較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_offensive.png" alt="攻撃" class="type-icon-img">攻撃</span>
+    <span class="type-tag" data-val="HP" title="HPタイプ：HP較高的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_hitpoint.png" alt="HP" class="type-icon-img">HP</span>
+    <span class="type-tag" data-val="バランス" title="バランスタイプ：攻擊力與HP均衡的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_balance.png" alt="バランス" class="type-icon-img">バランス</span>
   </div>
   <div class="type-icon-group" id="filterType2">
     <span class="type-tag" data-val="アシスト" title="アシストタイプ：以輔助技能為主的角色"><img src="https://sb.gungho.jp/member/info/2015/06-update-3100/img/icon_assist.png" alt="アシスト" class="type-icon-img">アシスト</span>
@@ -2509,6 +2511,12 @@ function showDetail(name) {
   if (!m) return;
   _currentDetailName = name;
   addToRecent(name);
+  // Auto-mark as viewed for update log
+  if (m.no && _knownNos.size > 0 && !_knownNos.has(m.no)) {
+    _knownNos.add(m.no);
+    saveKnownNos();
+    updateNewBadge();
+  }
   const isOwned = ownedSet.has(name);
 
   document.getElementById("detailHeader").classList.toggle("owned", isOwned);
@@ -3305,8 +3313,14 @@ document.addEventListener("keydown", e => {
     const modal = document.getElementById("modal");
     const stats = document.getElementById("statsOverlay");
     const tb = document.getElementById("teamBuilderOverlay");
+    const dg = document.getElementById("dungeonOverlay");
+    const ul = document.getElementById("updateLogOverlay");
     if (detail.classList.contains("active")) {
       detail.classList.remove("active");
+    } else if (dg.classList.contains("active")) {
+      dg.classList.remove("active");
+    } else if (ul.classList.contains("active")) {
+      ul.classList.remove("active");
     } else if (stats.classList.contains("active")) {
       stats.classList.remove("active");
     } else if (tb.classList.contains("active")) {
@@ -3673,7 +3687,13 @@ const GIMMICK_TAGS = {
   "綁定": ["バインド", "綁定耐性"],
 };
 
+function resetDungeonAdvisor() {
+  document.querySelectorAll("#dungeonElGroup .dungeon-el-btn.active").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll("#dungeonGimmicks .dungeon-gimmick.active").forEach(b => b.classList.remove("active"));
+  document.getElementById("dungeonResult").innerHTML = "";
+}
 document.getElementById("dungeonAdvisorBtn").addEventListener("click", () => {
+  resetDungeonAdvisor();
   document.getElementById("dungeonOverlay").classList.add("active");
 });
 document.getElementById("dungeonClose").addEventListener("click", () => {
@@ -3707,8 +3727,15 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
   // Score each owned character
   const owned = allMonsters.filter(m => ownedSet.has(m.name) && m.sub_score >= 5);
   if (owned.length === 0) {
-    document.getElementById("dungeonResult").innerHTML = '<div class="dungeon-no-result">尚未標記任何持有角色，請先在圖鑑中標記已持有的角色</div>';
+    const totalOwned = allMonsters.filter(m => ownedSet.has(m.name)).length;
+    const msg = totalOwned === 0
+      ? '尚未標記任何持有角色，請先在圖鑑中點擊☆標記已持有的角色'
+      : '持有角色中沒有副隊評分 ≥ 5 的角色（目前持有 ' + totalOwned + ' 隻）';
+    document.getElementById("dungeonResult").innerHTML = '<div class="dungeon-no-result">' + msg + '</div>';
     return;
+  }
+  if (owned.length < 4) {
+    document.getElementById("dungeonResult").innerHTML += '<div style="font-size:11px;color:#e67e22;margin-bottom:8px">提示：可用角色僅 ' + owned.length + ' 隻，建議至少 4 隻以獲得完整推薦</div>';
   }
 
   function scoreDungeon(m) {
