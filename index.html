@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サモンズボード 圖鑑工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0f1923;
+  --card-bg: #1a2634;
+  --card-hover: #243447;
+  --border: #2d4a5e;
+  --text: #e0e6ed;
+  --text-dim: #8899a6;
+  --accent: #4fc3f7;
+  --owned-bg: #1b3a2a;
+  --owned-border: #2ecc71;
+  --score-high: #f1c40f;
+  --score-mid: #e67e22;
+  --score-low: #95a5a6;
+  --type-atk: #e74c3c;
+  --type-hp: #2ecc71;
+  --type-bal: #3498db;
+  --el-fire: #e74c3c;
+  --el-water: #3498db;
+  --el-wood: #2ecc71;
+  --el-light: #f1c40f;
+  --el-dark: #9b59b6;
+}
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1a2634 0%, #2d4a5e 100%);
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h1 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.header-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+
+.header-stats span { white-space: nowrap; }
+.header-stats .owned-count { color: var(--owned-border); font-weight: 700; }
+
+/* Controls */
+.controls {
+  padding: 12px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+select, .btn {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+select:focus, .btn:focus { outline: none; border-color: var(--accent); }
+
+.btn { transition: background 0.2s; }
+.btn:hover { background: var(--card-hover); }
+.btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+.btn-owned {
+  background: var(--owned-bg);
+  border-color: var(--owned-border);
+  color: var(--owned-border);
+}
+
+.btn-export { margin-left: auto; }
+
+/* Filter Tags */
+.filter-tags {
+  padding: 8px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+
+.tag:hover { border-color: var(--accent); color: var(--text); }
+.tag.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* Monster Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 8px;
+  padding: 12px 20px;
+}
+
+.monster-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monster-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg);
+  object-fit: cover;
+}
+
+.monster-card.owned .monster-icon {
+  border-color: var(--owned-border);
+}
+
+.el-badge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.el-fire { background: var(--el-fire); color: #fff; }
+.el-water { background: var(--el-water); color: #fff; }
+.el-wood { background: var(--el-wood); color: #fff; }
+.el-light { background: var(--el-light); color: #000; }
+.el-dark { background: var(--el-dark); color: #fff; }
+
+.rarity {
+  font-size: 11px;
+  color: var(--score-high);
+  white-space: nowrap;
+}
+
+.monster-card:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+}
+
+.monster-card.owned {
+  background: var(--owned-bg);
+  border-color: var(--owned-border);
+}
+
+.monster-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.monster-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monster-types {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.monster-scores {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.score-badge {
+  text-align: center;
+  min-width: 40px;
+}
+
+.score-label {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.score-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.score-value.high { color: var(--score-high); }
+.score-value.mid { color: var(--score-mid); }
+.score-value.low { color: var(--score-low); }
+
+.type-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.type-atk { background: rgba(231,76,60,0.2); color: #e74c3c; }
+.type-hp { background: rgba(46,204,113,0.2); color: #2ecc71; }
+.type-bal { background: rgba(52,152,219,0.2); color: #3498db; }
+
+/* Status bar */
+.status-bar {
+  padding: 8px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* Loading spinner */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.loading-progress {
+  width: 200px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+/* Bulk mode */
+.bulk-bar {
+  padding: 8px 20px;
+  background: #2d1f0e;
+  border-bottom: 1px solid #e67e22;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.bulk-bar.active { display: flex; }
+
+.bulk-bar .btn {
+  background: #e67e22;
+  border-color: #e67e22;
+  color: #000;
+  font-weight: 500;
+}
+
+/* Import/Export Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal h2 { font-size: 18px; margin-bottom: 12px; }
+
+.modal textarea {
+  width: 100%;
+  height: 200px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.modal .btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+
+/* Detail Modal */
+.detail-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); z-index: 300;
+  justify-content: center; align-items: center;
+}
+.detail-overlay.active { display: flex; }
+.detail-panel {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; max-width: 420px; width: 92%;
+  max-height: 90vh; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.detail-header {
+  position: relative; display: flex; align-items: center;
+  gap: 16px; padding: 20px;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--card-bg) 100%);
+}
+.detail-icon {
+  width: 96px; height: 96px; border-radius: 12px;
+  border: 3px solid var(--border); object-fit: cover; flex-shrink: 0;
+}
+.detail-header.owned .detail-icon {
+  border-color: var(--owned-border); box-shadow: 0 0 12px rgba(46,204,113,0.3);
+}
+.detail-title { flex: 1; min-width: 0; }
+.detail-name { font-size: 20px; font-weight: 700; word-break: break-all; }
+.detail-sub-info { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+.detail-star {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 32px; cursor: pointer; color: var(--border);
+  transition: all 0.2s; line-height: 1; user-select: none;
+}
+.detail-star:hover { transform: scale(1.2); }
+.detail-star.owned { color: var(--owned-border); text-shadow: 0 0 8px rgba(46,204,113,0.5); }
+.detail-body { padding: 16px 20px 20px; }
+.detail-scores { display: flex; gap: 12px; margin-bottom: 16px; }
+.detail-score-box {
+  flex: 1; text-align: center; padding: 12px;
+  border-radius: 10px; background: var(--bg);
+}
+.detail-score-label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+.detail-score-num { font-size: 28px; font-weight: 700; }
+.detail-info-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 6px 12px; font-size: 13px;
+}
+.detail-info-grid dt { color: var(--text-dim); text-align: right; }
+.detail-info-grid dd { font-weight: 500; }
+.detail-actions { margin-top: 16px; display: flex; gap: 8px; }
+.detail-actions .btn { flex: 1; text-align: center; }
+.btn-gw { background: #e67e22; border-color: #e67e22; color: #fff; }
+.btn-gw:hover { background: #d35400; }
+.card-star {
+  font-size: 22px; cursor: pointer; color: var(--border);
+  flex-shrink: 0; transition: all 0.15s; user-select: none;
+  line-height: 1; padding: 4px;
+}
+.card-star:hover { transform: scale(1.2); }
+.monster-card.owned .card-star { color: var(--owned-border); }
+
+
+.detail-tags {
+  margin-top: 12px;
+}
+.detail-tags-title {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.detail-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.detail-tag.chain { border-color: #e67e22; color: #e67e22; }
+.detail-tag.buff { border-color: #3498db; color: #3498db; }
+.detail-tag.dmg { border-color: #e74c3c; color: #e74c3c; }
+.detail-tag.def { border-color: #9b59b6; color: #9b59b6; }
+
+/* Ability Section */
+.detail-abilities { margin-top: 16px; }
+.ability-section {
+  margin-bottom: 12px; padding: 10px 12px;
+  background: var(--bg); border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+.ability-section.ls { border-left-color: #f1c40f; }
+.ability-section.as { border-left-color: #e74c3c; }
+.ability-section.tp { border-left-color: #9b59b6; }
+.ability-section.pot { border-left-color: #2ecc71; }
+.ability-label {
+  font-size: 11px; font-weight: 700; color: var(--text-dim);
+  margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ability-name {
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  margin-bottom: 2px;
+}
+.ability-section.ls .ability-name { color: #f1c40f; }
+.ability-section.as .ability-name { color: #e74c3c; }
+.ability-section.tp .ability-name { color: #9b59b6; }
+.ability-effect {
+  font-size: 12px; line-height: 1.6; color: var(--text);
+  word-break: break-word; overflow-wrap: break-word;
+}
+.ability-meta {
+  font-size: 11px; color: var(--text-dim); margin-top: 4px;
+}
+.ability-stats {
+  display: flex; gap: 12px; margin-bottom: 12px;
+}
+.ability-stat-box {
+  flex: 1; text-align: center; padding: 8px;
+  background: var(--bg); border-radius: 8px;
+}
+.ability-stat-label { font-size: 10px; color: var(--text-dim); }
+.ability-stat-value { font-size: 18px; font-weight: 700; color: var(--accent); }
+.pot-item {
+  padding: 4px 0; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.pot-item:last-child { border-bottom: none; }
+.pot-level { font-weight: 700; color: #2ecc71; font-size: 11px; }
+
+/* Team Recommendation */
+.team-rec { margin-top: 16px; }
+.team-rec-title {
+  font-size: 14px; font-weight: 700; margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.team-label {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  margin: 10px 0 6px; display: flex; align-items: center; gap: 6px;
+}
+.team-label-icon { font-size: 14px; }
+.team-slots {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+}
+.team-slot {
+  position: relative; flex-shrink: 0; width: 72px; text-align: center;
+  cursor: pointer; border-radius: 8px; padding: 4px;
+  border: 1px solid transparent; transition: all 0.15s;
+}
+.team-slot:hover { border-color: var(--accent); background: var(--card-hover); }
+.team-slot img {
+  width: 56px; height: 56px; border-radius: 8px;
+  border: 2px solid var(--border); object-fit: cover;
+  display: block; margin: 0 auto;
+}
+.team-slot.is-owned img { border-color: var(--owned-border); }
+.team-slot.is-leader img { border-color: var(--accent); box-shadow: 0 0 8px rgba(79,195,247,0.4); }
+.team-slot-name {
+  font-size: 9px; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text-dim);
+}
+.team-slot-score { font-size: 9px; color: var(--score-high); }
+.team-slot-badge {
+  position: absolute; top: 2px; left: 6px;
+  width: 14px; height: 14px; font-size: 8px; line-height: 14px;
+  border-radius: 50%; text-align: center; font-weight: 700;
+}
+.team-slot-role {
+  position: absolute; top: 2px; right: 6px;
+  font-size: 8px; background: rgba(0,0,0,0.7); color: #fff;
+  padding: 1px 3px; border-radius: 3px;
+}
+.team-note { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.scroll-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-top:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header { padding: 10px 12px; }
+  .header h1 { font-size: 16px; }
+  .header-stats { gap: 8px; font-size: 12px; }
+
+  .controls {
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .search-box {
+    grid-column: 1 / -1;
+    min-width: 0;
+    font-size: 16px;
+  }
+  select, .btn { font-size: 13px; padding: 8px 6px; }
+  .btn-export { margin-left: 0; }
+
+  .filter-tags { padding: 6px 8px; gap: 4px; }
+  .tag { font-size: 11px; padding: 3px 8px; }
+
+  .grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
+  .monster-card { padding: 6px 8px; gap: 6px; }
+  .monster-icon { width: 48px; height: 48px; border-radius: 6px; }
+  .monster-name { font-size: 13px; }
+  .monster-types { font-size: 10px; }
+  .score-badge { min-width: 32px; }
+  .score-value { font-size: 14px; }
+  .score-label { font-size: 8px; }
+  .card-star { font-size: 18px; padding: 2px; }
+
+  .bulk-bar { padding: 6px 8px; font-size: 12px; }
+
+  .modal { padding: 16px; }
+  .modal h2 { font-size: 16px; }
+  .modal textarea { height: 150px; }
+
+  .detail-panel { width: 100%; max-width: 100%; border-radius: 12px 12px 0 0; max-height: 95vh; }
+  .detail-overlay.active { align-items: flex-end; }
+  .detail-header { padding: 14px; gap: 12px; }
+  .detail-icon { width: 72px; height: 72px; border-radius: 10px; }
+  .detail-name { font-size: 17px; }
+  .detail-sub-info { font-size: 11px; }
+  .detail-star { font-size: 26px; top: 10px; right: 10px; }
+  .detail-body { padding: 12px 14px 16px; }
+  .detail-scores { gap: 8px; margin-bottom: 12px; }
+  .detail-score-box { padding: 8px 4px; }
+  .detail-score-num { font-size: 22px; }
+  .detail-score-label { font-size: 10px; }
+  .detail-info-grid { font-size: 12px; gap: 4px 8px; }
+  .detail-tags { margin-top: 8px; }
+  .detail-tag { font-size: 10px; padding: 2px 6px; }
+
+  .ability-stats { gap: 6px; margin-bottom: 8px; }
+  .ability-stat-box { padding: 6px 2px; }
+  .ability-stat-value { font-size: 15px; }
+  .ability-stat-label { font-size: 9px; }
+  .ability-section { padding: 8px 10px; margin-bottom: 8px; }
+  .ability-label { font-size: 10px; }
+  .ability-name { font-size: 12px; }
+  .ability-effect { font-size: 11px; line-height: 1.5; word-break: break-word; }
+  .ability-meta { font-size: 10px; }
+  .pot-item { font-size: 11px; }
+  .pot-level { font-size: 10px; }
+
+  .team-rec-title { font-size: 13px; }
+  .team-slots { gap: 4px; }
+  .team-slot { width: 60px; }
+  .team-slot img { width: 48px; height: 48px; }
+  .team-slot-name { font-size: 8px; }
+
+  .detail-actions { gap: 6px; }
+  .detail-actions .btn { padding: 10px 8px; font-size: 13px; }
+
+  .status-bar { padding: 6px; font-size: 12px; }
+
+  .scroll-top { bottom: 16px; right: 16px; width: 40px; height: 40px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>サモンズボード 圖鑑工具</h1>
+  <div class="header-stats">
+    <span>全 <strong id="totalCount">0</strong> 角色</span>
+    <span>已持有: <span class="owned-count" id="ownedCount">0</span></span>
+    <span>顯示: <strong id="filteredCount">0</strong></span>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="text" class="search-box" id="searchBox" placeholder="搜尋角色名稱或編號...">
+  <select id="filterElement">
+    <option value="">全屬性</option>
+    <option value="火">火</option>
+    <option value="水">水</option>
+    <option value="木">木</option>
+    <option value="光">光</option>
+    <option value="闇">闇</option>
+  </select>
+  <select id="filterRarity">
+    <option value="">全稀有度</option>
+    <option value="7">★7</option>
+    <option value="6">★6</option>
+    <option value="5">★5</option>
+  </select>
+  <select id="filterType1">
+    <option value="">全類型1</option>
+    <option value="攻撃">攻撃</option>
+    <option value="HP">HP</option>
+    <option value="バランス">バランス</option>
+  </select>
+  <select id="filterType2">
+    <option value="">全類型2</option>
+    <option value="アシスト">アシスト</option>
+    <option value="カウンター">カウンター</option>
+    <option value="スキルアタック">スキルアタック</option>
+    <option value="アタック">アタック</option>
+    <option value="ディフェンス">ディフェンス</option>
+  </select>
+  <select id="filterScore">
+    <option value="">全評分</option>
+    <option value="10">10 分</option>
+    <option value="9">9.0~9.5</option>
+    <option value="8">8.0~8.9</option>
+    <option value="7">7.0~7.9</option>
+    <option value="low">6.9 以下</option>
+  </select>
+  <select id="sortBy">
+    <option value="leader_desc">隊長評分 ↓</option>
+    <option value="sub_desc">副隊評分 ↓</option>
+    <option value="name_asc">名稱 A→Z</option>
+    <option value="sub_asc">副隊評分 ↑</option>
+    <option value="no_desc">編號 ↓</option>
+    <option value="no_asc">編號 ↑</option>
+  </select>
+  <button class="btn btn-owned" id="filterOwned">僅已持有</button>
+  <button class="btn" id="filterUnowned">僅未持有</button>
+  <button class="btn" id="bulkToggle">批次勾選</button>
+  <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
+</div>
+
+<div class="bulk-bar" id="bulkBar">
+  <span>批次模式：點擊角色可快速勾選/取消</span>
+  <button class="btn" id="bulkSelectAll">全選顯示中</button>
+  <button class="btn" id="bulkDeselectAll">全取消顯示中</button>
+  <button class="btn" id="bulkDone">完成</button>
+</div>
+
+<div class="grid" id="monsterGrid">
+  <div class="loading" style="grid-column:1/-1">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">載入角色資料中...</div>
+    <div class="loading-progress"><div class="loading-progress-bar" id="loadingBar"></div></div>
+  </div>
+</div>
+<div class="status-bar" id="statusBar"></div>
+
+<!-- Import/Export Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>匯出/匯入持有資料</h2>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">
+      持有資料會自動存在瀏覽器 localStorage。你也可以匯出備份或在其他裝置匯入。
+    </p>
+    <textarea id="modalData" readonly></textarea>
+    <div class="btn-row">
+      <button class="btn" id="modalCopy">複製</button>
+      <button class="btn" id="modalImport">匯入（貼上後按此）</button>
+      <button class="btn" id="modalClose">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-panel">
+    <div class="detail-header" id="detailHeader">
+      <img class="detail-icon" id="detailIcon" src="" alt="">
+      <div class="detail-title">
+        <div class="detail-name" id="detailName"></div>
+        <div class="detail-sub-info" id="detailSubInfo"></div>
+      </div>
+      <div class="detail-star" id="detailStar">☆</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-scores">
+        <div class="detail-score-box">
+          <div class="detail-score-label">隊長評分</div>
+          <div class="detail-score-num" id="detailLeader"></div>
+        </div>
+        <div class="detail-score-box">
+          <div class="detail-score-label">副隊評分</div>
+          <div class="detail-score-num" id="detailSubScore"></div>
+        </div>
+      </div>
+      <dl class="detail-info-grid" id="detailInfo"></dl>
+      <div class="detail-tags" id="detailTags"></div>
+      <div class="detail-abilities" id="detailAbilities"></div>
+      <div class="team-rec" id="teamRec" style="display:none"></div>
+      <div class="detail-actions">
+        <a class="btn btn-gw" id="detailGwLink" href="#" target="_blank">前往 GameWith</a>
+        <button class="btn" id="detailClose">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" title="回到頂部">↑</button>
+
+<script>
+// === State ===
+let allMonsters = [];
+let monsterMap = new Map();
+let ownedSet = new Set();
+let bulkMode = false;
+let filterOwned = "all"; // "all" | "owned" | "unowned"
+let abilityMap = new Map();
+let _searchIndex = [];
+let _teamRecCache = new Map();
+let _renderedCount = 0;
+let _currentList = [];
+let _isLoadingMore = false;
+
+const STORAGE_KEY = "sb_owned_monsters";
+const BATCH_SIZE = 100;
+
+// === Load data via fetch ===
+async function init() {
+  const bar = document.getElementById("loadingBar");
+  const text = document.getElementById("loadingText");
+
+  try {
+    // Load monsters
+    text.textContent = "載入角色資料...";
+    bar.style.width = "20%";
+    const mRes = await fetch("monsters.json");
+    if (!mRes.ok) throw new Error("無法載入 monsters.json");
+    const mData = await mRes.json();
+
+    bar.style.width = "50%";
+    text.textContent = "載入技能資料...";
+
+    // Load abilities
+    const aRes = await fetch("abilities.json");
+    if (aRes.ok) {
+      const aData = await aRes.json();
+      for (const [key, val] of Object.entries(aData)) {
+        abilityMap.set(key, val);
+      }
+    }
+
+    bar.style.width = "80%";
+    text.textContent = "建立索引...";
+
+    // Process monsters
+    allMonsters = Array.isArray(mData) ? mData : Object.values(mData);
+    monsterMap = new Map(allMonsters.map(m => [m.name, m]));
+    _searchIndex = allMonsters.map(m => ({
+      nameLower: m.name.toLowerCase(),
+      noStr: m.no ? String(m.no) : "",
+      m
+    }));
+
+    document.getElementById("totalCount").textContent = allMonsters.length;
+
+    // Load owned data
+    loadOwned();
+    autoLoadOwned();
+
+    bar.style.width = "100%";
+    text.textContent = "完成！";
+
+    // Render
+    setTimeout(() => renderGrid(), 100);
+
+  } catch (e) {
+    text.textContent = "載入失敗：" + e.message;
+    bar.style.width = "0%";
+  }
+}
+
+// === Owned persistence ===
+function loadOwned() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) ownedSet = new Set(JSON.parse(data));
+  } catch {}
+  updateOwnedCount();
+}
+
+function saveOwned() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...ownedSet]));
+  updateOwnedCount();
+}
+
+function updateOwnedCount() {
+  document.getElementById("ownedCount").textContent = ownedSet.size;
+}
+
+function toggleOwned(name) {
+  if (ownedSet.has(name)) ownedSet.delete(name);
+  else ownedSet.add(name);
+  _teamRecCache.clear();
+  saveOwned();
+}
+
+// === Filtering & Sorting ===
+function getFiltered() {
+  const search = document.getElementById("searchBox").value.trim().toLowerCase();
+  const element = document.getElementById("filterElement").value;
+  const rarity = document.getElementById("filterRarity").value;
+  const type1 = document.getElementById("filterType1").value;
+  const type2 = document.getElementById("filterType2").value;
+  const scoreFilter = document.getElementById("filterScore").value;
+  const sortBy = document.getElementById("sortBy").value;
+
+  let list = (search ? _searchIndex.filter(idx =>
+    idx.nameLower.includes(search) || idx.noStr.includes(search)
+  ).map(idx => idx.m) : allMonsters).filter(m => {
+    if (element && m.element !== element) return false;
+    if (rarity && m.rarity !== parseInt(rarity)) return false;
+    if (type1 && m.type1 !== type1) return false;
+    if (type2 && m.type2 !== type2) return false;
+    if (scoreFilter) {
+      const s = m.sub_score;
+      if (scoreFilter === "10" && s < 10) return false;
+      if (scoreFilter === "9" && (s < 9 || s >= 10)) return false;
+      if (scoreFilter === "8" && (s < 8 || s >= 9)) return false;
+      if (scoreFilter === "7" && (s < 7 || s >= 8)) return false;
+      if (scoreFilter === "low" && s >= 7) return false;
+    }
+    if (filterOwned === "owned" && !ownedSet.has(m.name)) return false;
+    if (filterOwned === "unowned" && ownedSet.has(m.name)) return false;
+    return true;
+  });
+
+  // Sort
+  switch (sortBy) {
+    case "sub_desc": list.sort((a, b) => b.sub_score - a.sub_score); break;
+    case "sub_asc": list.sort((a, b) => a.sub_score - b.sub_score); break;
+    case "leader_desc": list.sort((a, b) => b.leader_score - a.leader_score); break;
+    case "name_asc": list.sort((a, b) => a.name.localeCompare(b.name, "ja")); break;
+    case "no_desc": list.sort((a, b) => (b.no || 0) - (a.no || 0)); break;
+    case "no_asc": list.sort((a, b) => (a.no || 0) - (b.no || 0)); break;
+  }
+
+  return list;
+}
+
+// === Render ===
+function scoreClass(s) {
+  if (s >= 9) return "high";
+  if (s >= 7) return "mid";
+  return "low";
+}
+
+function typeClass(t) {
+  if (t === "攻撃") return "type-atk";
+  if (t === "HP") return "type-hp";
+  if (t === "バランス") return "type-bal";
+  return "";
+}
+
+function elClass(e) {
+  const map = {"火":"el-fire","水":"el-water","木":"el-wood","光":"el-light","闇":"el-dark"};
+  return map[e] || "";
+}
+
+function renderCard(m) {
+  const isOwned = ownedSet.has(m.name);
+  const iconHtml = m.icon
+    ? '<img class="monster-icon" src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">'
+    : '<div class="monster-icon"></div>';
+  const elBadge = m.element
+    ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>'
+    : "";
+  const rarityHtml = m.rarity ? '<span class="rarity">★' + m.rarity + '</span>' : "";
+
+  return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
+    '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
+    iconHtml +
+    elBadge +
+    '<div class="monster-info">' +
+      '<div class="monster-name">' + (m.no ? '<span style="color:var(--text-dim);font-size:11px">No.' + m.no + '</span> ' : '') + escHtml(m.name) + '</div>' +
+      '<div class="monster-types">' +
+        rarityHtml +
+        ' <span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span>' +
+        ' / ' + m.type2 +
+      '</div>' +
+    '</div>' +
+    '<div class="monster-scores">' +
+      '<div class="score-badge"><div class="score-label">隊長</div><div class="score-value ' + scoreClass(m.leader_score) + '">' + m.leader_score + '</div></div>' +
+      '<div class="score-badge"><div class="score-label">副隊</div><div class="score-value ' + scoreClass(m.sub_score) + '">' + m.sub_score + '</div></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderGrid() {
+  _currentList = getFiltered();
+  _renderedCount = 0;
+  const grid = document.getElementById("monsterGrid");
+
+  document.getElementById("filteredCount").textContent = _currentList.length;
+
+  // Render first batch
+  const batch = _currentList.slice(0, BATCH_SIZE);
+  grid.innerHTML = batch.map(m => renderCard(m)).join("");
+  _renderedCount = batch.length;
+
+  document.getElementById("statusBar").textContent =
+    _currentList.length === 0 ? "沒有符合條件的角色" :
+    _renderedCount < _currentList.length ? "往下捲動載入更多..." : "";
+}
+
+function loadMore() {
+  if (_isLoadingMore || _renderedCount >= _currentList.length) return;
+  _isLoadingMore = true;
+
+  const grid = document.getElementById("monsterGrid");
+  const batch = _currentList.slice(_renderedCount, _renderedCount + BATCH_SIZE);
+  const fragment = document.createDocumentFragment();
+  const temp = document.createElement("div");
+
+  batch.forEach(m => {
+    temp.innerHTML = renderCard(m);
+    fragment.appendChild(temp.firstElementChild);
+  });
+
+  grid.appendChild(fragment);
+  _renderedCount += batch.length;
+
+  document.getElementById("statusBar").textContent =
+    _renderedCount < _currentList.length ? "往下捲動載入更多..." : "";
+
+  _isLoadingMore = false;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function escAttr(s) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+// === Infinite scroll ===
+const scrollObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) loadMore();
+}, { rootMargin: "400px" });
+
+// Observe the status bar as scroll sentinel
+scrollObserver.observe(document.getElementById("statusBar"));
+
+// === Scroll to top ===
+const scrollTopBtn = document.getElementById("scrollTop");
+window.addEventListener("scroll", () => {
+  scrollTopBtn.classList.toggle("visible", window.scrollY > 400);
+}, { passive: true });
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// === Events ===
+document.getElementById("monsterGrid").addEventListener("click", e => {
+  const star = e.target.closest(".card-star");
+  if (star) {
+    e.stopPropagation();
+    const name = star.dataset.star;
+    toggleOwned(name);
+    const card = star.closest(".monster-card");
+    card.classList.toggle("owned");
+    star.textContent = ownedSet.has(name) ? "★" : "☆";
+    return;
+  }
+  const card = e.target.closest(".monster-card");
+  if (!card) return;
+  showDetail(card.dataset.name);
+});
+
+function showDetail(name) {
+  const m = monsterMap.get(name);
+  if (!m) return;
+  const isOwned = ownedSet.has(name);
+
+  document.getElementById("detailHeader").classList.toggle("owned", isOwned);
+  document.getElementById("detailIcon").src = m.icon || "";
+  document.getElementById("detailName").textContent = m.name;
+
+  const noText = m.no ? "No." + m.no : "";
+  const elText = m.element ? m.element + "屬性" : "";
+  const rarText = m.rarity ? "★" + m.rarity : "";
+  document.getElementById("detailSubInfo").textContent = [noText, elText, rarText].filter(Boolean).join(" / ");
+
+  const star = document.getElementById("detailStar");
+  star.textContent = isOwned ? "★" : "☆";
+  star.classList.toggle("owned", isOwned);
+  star.dataset.name = name;
+
+  const ls = document.getElementById("detailLeader");
+  ls.textContent = m.leader_score;
+  ls.className = "detail-score-num " + scoreClass(m.leader_score);
+
+  const ss = document.getElementById("detailSubScore");
+  ss.textContent = m.sub_score;
+  ss.className = "detail-score-num " + scoreClass(m.sub_score);
+
+  document.getElementById("detailInfo").innerHTML =
+    (m.no ? '<dt>編號</dt><dd>No.' + m.no + '</dd>' : '') +
+    '<dt>類型1</dt><dd><span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span></dd>' +
+    '<dt>類型2</dt><dd>' + (m.type2 || "無") + '</dd>' +
+    '<dt>屬性</dt><dd>' + (m.element ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>' : "—") + '</dd>' +
+    '<dt>稀有度</dt><dd>' + (m.rarity ? "★".repeat(Math.min(m.rarity, 7)) : "—") + '</dd>' +
+    '<dt>狀態</dt><dd style="color:' + (isOwned ? 'var(--owned-border)' : 'var(--text-dim)') + '">' + (isOwned ? "已持有" : "未持有") + '</dd>';
+
+  // Tags
+  const tagsEl = document.getElementById("detailTags");
+  if (m.tags && m.tags.length > 0) {
+    const tagHtml = m.tags.map(t => {
+      let cls = "detail-tag";
+      if (t.includes("連鎖") || t.includes("速攻")) cls += " chain";
+      else if (t.includes("提升") || t.includes("強化") || t.includes("增益")) cls += " buff";
+      else if (t.includes("傷害") || t.includes("攻擊") || t.includes("貫通") || t.includes("破壞")) cls += " dmg";
+      else if (t.includes("減輕") || t.includes("防") || t.includes("護盾") || t.includes("格擋") || t.includes("回復")) cls += " def";
+      return '<span class="' + cls + '">' + t + '</span>';
+    }).join("");
+    tagsEl.innerHTML = '<div class="detail-tags-title">技能・能力</div>' + tagHtml;
+    tagsEl.style.display = "";
+  } else {
+    tagsEl.style.display = "none";
+  }
+
+  // Ability info
+  const abEl = document.getElementById("detailAbilities");
+  const abKey = String(m.no || m.name);
+  const ab = abilityMap.get(abKey);
+  if (ab) {
+    let html = "";
+    if (ab.hp || ab.atk) {
+      html += '<div class="ability-stats">';
+      if (ab.hp) html += '<div class="ability-stat-box"><div class="ability-stat-label">HP</div><div class="ability-stat-value">' + ab.hp.toLocaleString() + '</div></div>';
+      if (ab.atk) html += '<div class="ability-stat-box"><div class="ability-stat-label">ATK</div><div class="ability-stat-value">' + ab.atk + '</div></div>';
+      if (ab.soul_slots) html += '<div class="ability-stat-box"><div class="ability-stat-label">ソウル枠</div><div class="ability-stat-value">' + ab.soul_slots + '</div></div>';
+      html += '</div>';
+    }
+    if (ab.leader_skill) {
+      html += '<div class="ability-section ls"><div class="ability-label">隊長技能</div>';
+      if (ab.leader_skill.name) html += '<div class="ability-name">' + ab.leader_skill.name + '</div>';
+      html += '<div class="ability-effect">' + ab.leader_skill.effect + '</div></div>';
+    }
+    if (ab.active_skill) {
+      html += '<div class="ability-section as"><div class="ability-label">主動技能</div>';
+      if (ab.active_skill.name) html += '<div class="ability-name">' + ab.active_skill.name + '</div>';
+      html += '<div class="ability-effect">' + ab.active_skill.effect + '</div>';
+      if (ab.active_skill.turn) html += '<div class="ability-meta">回合: ' + ab.active_skill.turn + '</div>';
+      html += '</div>';
+    }
+    if (ab.tp_skill) {
+      html += '<div class="ability-section tp"><div class="ability-label">TP 技能' + (ab.tp_skill.tp_cost ? ' (' + ab.tp_skill.tp_cost + 'TP)' : '') + '</div>';
+      if (ab.tp_skill.name) html += '<div class="ability-name">' + ab.tp_skill.name + '</div>';
+      html += '<div class="ability-effect">' + ab.tp_skill.effect + '</div></div>';
+    }
+    if (ab.abilities && ab.abilities.length) {
+      html += '<div class="ability-section"><div class="ability-label">能力</div>';
+      ab.abilities.forEach(a => {
+        html += '<div class="ability-effect"><strong>' + a.name + '</strong>: ' + a.effect + '</div>';
+      });
+      html += '</div>';
+    }
+    if (ab.potentials && ab.potentials.length) {
+      html += '<div class="ability-section pot"><div class="ability-label">潛在效果</div>';
+      ab.potentials.forEach(p => {
+        html += '<div class="pot-item"><span class="pot-level">' + p.level + '</span> ' + p.effect + '</div>';
+      });
+      html += '</div>';
+    }
+    abEl.innerHTML = html;
+    abEl.style.display = "";
+  } else {
+    abEl.innerHTML = "";
+    abEl.style.display = "none";
+  }
+
+  // Team recommendation (9+ score only)
+  const teamRecEl = document.getElementById("teamRec");
+  const maxScore = Math.max(m.leader_score, m.sub_score);
+  if (maxScore >= 9) {
+    teamRecEl.style.display = "";
+    teamRecEl.innerHTML = buildTeamRec(m);
+    teamRecEl.querySelectorAll(".team-slot[data-name]").forEach(slot => {
+      slot.addEventListener("click", () => showDetail(slot.dataset.name));
+    });
+  } else {
+    teamRecEl.style.display = "none";
+  }
+
+  const gwLink = document.getElementById("detailGwLink");
+  gwLink.href = m.url || "#";
+  gwLink.style.display = m.url ? "" : "none";
+
+  document.getElementById("detailOverlay").classList.add("active");
+}
+
+function buildTeamRec(leader) {
+  const cached = _teamRecCache.get(leader.name);
+  if (cached) return cached;
+
+  function hasTags(m, keywords) {
+    if (!m.tags) return false;
+    return m.tags.some(t => keywords.some(k => t.includes(k)));
+  }
+  function hasChain(m) { return hasTags(m, ["有連鎖"]); }
+  function hasSpeed(m) { return hasTags(m, ["速攻"]); }
+  function hasAoe(m) { return hasTags(m, ["全體化"]); }
+  function hasDmg(m) { return hasTags(m, ["傷害", "攻擊", "貫通", "殺手"]); }
+  function hasBuff(m) { return hasTags(m, ["提升", "強化"]); }
+  function hasDef(m) { return hasTags(m, ["減輕", "護盾", "格擋", "回復"]); }
+  function hasSupport(m) { return hasTags(m, ["柵", "設置", "移動", "誘爆"]); }
+
+  const candidates = allMonsters.filter(m =>
+    m.name !== leader.name && ownedSet.has(m.name) && m.sub_score >= 7
+  );
+
+  function scoreSub(m, leader, teamType) {
+    let s = m.sub_score * 10;
+    if (leader.element && m.element === leader.element) s += 15;
+    if (hasChain(leader) && hasChain(m)) s += 10;
+    if (teamType === "farm") {
+      if (hasSpeed(m)) s += 20;
+      if (hasAoe(m)) s += 15;
+      if (hasChain(m)) s += 10;
+      if (hasDmg(m)) s += 8;
+    } else {
+      if (hasDmg(m)) s += 10;
+      if (hasBuff(m)) s += 12;
+      if (hasDef(m)) s += 10;
+      if (hasSupport(m)) s += 8;
+    }
+    return s;
+  }
+
+  function pickTeam(leader, candidates, teamType) {
+    const scored = candidates.map(m => ({
+      m, score: scoreSub(m, leader, teamType),
+      role: hasDmg(m) ? "攻" : hasBuff(m) ? "輔" : hasDef(m) ? "防" : hasSupport(m) ? "援" : "泛"
+    }));
+    scored.sort((a, b) => b.score - a.score);
+    const team = [];
+    const usedRoles = new Set();
+    for (const c of scored) {
+      if (team.length >= 3) break;
+      if (!usedRoles.has(c.role) || team.length < 1) {
+        team.push(c);
+        usedRoles.add(c.role);
+      }
+    }
+    for (const c of scored) {
+      if (team.length >= 3) break;
+      if (!team.includes(c)) team.push(c);
+    }
+    return team;
+  }
+
+  const farmTeam = pickTeam(leader, candidates, "farm");
+  const manualTeam = pickTeam(leader, candidates, "manual");
+
+  function renderSlot(m, isLeader) {
+    const owned = ownedSet.has(m.name);
+    const cls = "team-slot" + (isLeader ? " is-leader" : "") + (owned ? " is-owned" : "");
+    const elBadge = m.element
+      ? '<span class="team-slot-badge ' + elClass(m.element) + '" style="background:var(--el-' +
+        (m.element === "火" ? "fire" : m.element === "水" ? "water" : m.element === "木" ? "wood" :
+         m.element === "光" ? "light" : "dark") + ');color:' +
+        (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
+      : "";
+    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '">' +
+      (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
+      elBadge +
+      (isLeader ? '<span class="team-slot-role">L</span>' : '') +
+      '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
+      '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
+      '</div>';
+  }
+
+  function renderTeam(team, leader, label, icon) {
+    if (team.length === 0) return '<div class="team-note">持有角色不足，無法推薦</div>';
+    let html = '<div class="team-label"><span class="team-label-icon">' + icon + '</span>' + label + '</div>';
+    html += '<div class="team-slots">';
+    html += renderSlot(leader, true);
+    for (const c of team) html += renderSlot(c.m, false);
+    html += '</div>';
+    return html;
+  }
+
+  let html = '<div class="team-rec-title">推薦隊伍</div>';
+  html += renderTeam(farmTeam, leader, "周回隊伍（速攻・全體）", "⚡");
+  html += renderTeam(manualTeam, leader, "手動隊伍（攻守均衡）", "🎯");
+  html += '<div class="team-note">※ 根據持有角色、屬性相性及技能標籤自動推薦，點擊頭像可查看詳情</div>';
+  _teamRecCache.set(leader.name, html);
+  return html;
+}
+
+// === Detail modal events ===
+document.getElementById("detailStar").addEventListener("click", function() {
+  const name = this.dataset.name;
+  toggleOwned(name);
+  const isOwned = ownedSet.has(name);
+  this.textContent = isOwned ? "★" : "☆";
+  this.classList.toggle("owned", isOwned);
+  document.getElementById("detailHeader").classList.toggle("owned", isOwned);
+  showDetail(name);
+  const card = document.querySelector('.monster-card[data-name="' + CSS.escape(name) + '"]');
+  if (card) {
+    card.classList.toggle("owned", isOwned);
+    const cs = card.querySelector(".card-star");
+    if (cs) cs.textContent = isOwned ? "★" : "☆";
+  }
+});
+
+document.getElementById("detailClose").addEventListener("click", () => {
+  document.getElementById("detailOverlay").classList.remove("active");
+});
+
+document.getElementById("detailOverlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget)
+    document.getElementById("detailOverlay").classList.remove("active");
+});
+
+// === Keyboard shortcuts ===
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    const detail = document.getElementById("detailOverlay");
+    const modal = document.getElementById("modal");
+    if (detail.classList.contains("active")) {
+      detail.classList.remove("active");
+    } else if (modal.classList.contains("active")) {
+      modal.classList.remove("active");
+    }
+  }
+  // Ctrl+F / Cmd+F → focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+    // Only intercept if not already in an input
+    if (document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+      e.preventDefault();
+      document.getElementById("searchBox").focus();
+    }
+  }
+});
+
+// === Filter controls ===
+const _debouncedRender = debounce(renderGrid, 200);
+document.getElementById("searchBox").addEventListener("input", _debouncedRender);
+["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore", "sortBy"].forEach(id => {
+  document.getElementById(id).addEventListener("change", renderGrid);
+});
+
+// Owned / Unowned filter buttons
+document.getElementById("filterOwned").addEventListener("click", function() {
+  filterOwned = filterOwned === "owned" ? "all" : "owned";
+  this.classList.toggle("active", filterOwned === "owned");
+  document.getElementById("filterUnowned").classList.remove("active");
+  renderGrid();
+});
+
+document.getElementById("filterUnowned").addEventListener("click", function() {
+  filterOwned = filterOwned === "unowned" ? "all" : "unowned";
+  this.classList.toggle("active", filterOwned === "unowned");
+  document.getElementById("filterOwned").classList.remove("active");
+  renderGrid();
+});
+
+// Bulk mode
+document.getElementById("bulkToggle").addEventListener("click", function() {
+  bulkMode = !bulkMode;
+  this.classList.toggle("active", bulkMode);
+  document.getElementById("bulkBar").classList.toggle("active", bulkMode);
+});
+
+document.getElementById("bulkSelectAll").addEventListener("click", () => {
+  _currentList.forEach(m => ownedSet.add(m.name));
+  saveOwned();
+  renderGrid();
+});
+
+document.getElementById("bulkDeselectAll").addEventListener("click", () => {
+  _currentList.forEach(m => ownedSet.delete(m.name));
+  saveOwned();
+  renderGrid();
+});
+
+document.getElementById("bulkDone").addEventListener("click", () => {
+  bulkMode = false;
+  document.getElementById("bulkToggle").classList.remove("active");
+  document.getElementById("bulkBar").classList.remove("active");
+});
+
+// Export/Import
+document.getElementById("exportBtn").addEventListener("click", () => {
+  document.getElementById("modalData").value = JSON.stringify([...ownedSet], null, 2);
+  document.getElementById("modalData").readOnly = false;
+  document.getElementById("modal").classList.add("active");
+});
+
+document.getElementById("modalCopy").addEventListener("click", () => {
+  const ta = document.getElementById("modalData");
+  ta.select();
+  navigator.clipboard.writeText(ta.value);
+});
+
+document.getElementById("modalImport").addEventListener("click", () => {
+  try {
+    const data = JSON.parse(document.getElementById("modalData").value);
+    if (Array.isArray(data)) {
+      ownedSet = new Set(data);
+      saveOwned();
+      renderGrid();
+      alert("已匯入 " + ownedSet.size + " 個持有角色");
+      document.getElementById("modal").classList.remove("active");
+    } else {
+      alert("格式錯誤：需要 JSON 陣列");
+    }
+  } catch (e) {
+    alert("JSON 解析失敗：" + e.message);
+  }
+});
+
+document.getElementById("modalClose").addEventListener("click", () => {
+  document.getElementById("modal").classList.remove("active");
+});
+
+document.getElementById("modal").addEventListener("click", e => {
+  if (e.target === e.currentTarget) {
+    document.getElementById("modal").classList.remove("active");
+  }
+});
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+// === Auto-load owned data ===
+async function autoLoadOwned() {
+  const existing = localStorage.getItem(STORAGE_KEY);
+  if (!existing) {
+    try {
+      const res = await fetch("owned.json");
+      if (res.ok) {
+        const data = await res.json();
+        const names = Array.isArray(data) ? data :
+          Object.values(data).map(v => typeof v === "string" ? v : v.name).filter(Boolean);
+        ownedSet = new Set(names);
+        saveOwned();
+        console.log("Auto-loaded " + ownedSet.size + " owned monsters from owned.json");
+      }
+    } catch {}
+  }
+}
+
+// === Init ===
+init();
+</script>
+</body>
+</html>
