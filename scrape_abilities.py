@@ -143,6 +143,16 @@ def parse_detail_page(html):
         if abilities:
             result["abilities"] = abilities
 
+    # === 入手方法 (Acquisition) ===
+    obtain_match = re.search(
+        r"入手方法(.*?)(?:スキル上げ|の評価|の使い方|<h[23]>)",
+        html, re.DOTALL
+    )
+    if obtain_match:
+        obtain_text = clean_html(obtain_match.group(1)).strip()
+        if obtain_text:
+            result["obtain"] = obtain_text
+
     # === 潛在效果 ===
     # Pattern 1: inline text after 特性の効果一覧 or 潜在効果
     # Format: 潜在効果初期(開眼)...潜在Lv1【効果A】...【効果B】...潜在Lv2...

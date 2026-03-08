@@ -1617,7 +1617,8 @@ function expandAbility(c) {
     active_skill: c.k || null,
     tp_skill: c.t || null,
     potentials: c.p || null,
-    abilities: c.b || null
+    abilities: c.b || null,
+    obtain: c.o || null
   };
 }
 
@@ -1968,8 +1969,13 @@ function showDetail(name) {
   ss.textContent = m.sub_score;
   ss.className = "detail-score-num " + scoreClass(m.sub_score);
 
+  const abKey2 = String(m.no || m.name);
+  const ab2 = abilityMap.get(abKey2);
+  const obtainText = ab2 && ab2.obtain ? ab2.obtain : null;
+
   document.getElementById("detailInfo").innerHTML =
     (m.no ? '<dt>編號</dt><dd>No.' + m.no + '</dd>' : '') +
+    (obtainText ? '<dt>取得方法</dt><dd>' + escHtml(obtainText) + '</dd>' : '') +
     '<dt>類型1</dt><dd><span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span></dd>' +
     '<dt>類型2</dt><dd>' + (m.type2 || "無") + '</dd>' +
     '<dt>屬性</dt><dd>' + (m.element ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>' : "—") + '</dd>' +
