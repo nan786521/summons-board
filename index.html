@@ -119,13 +119,51 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .btn-export { margin-left: auto; }
 
 /* Filter Tags */
-.filter-tags {
-  padding: 8px 20px;
+.filter-group {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border);
+}
+
+.filter-group-header {
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-group-title {
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.filter-group-toggle {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+
+.filter-group.collapsed .filter-group-toggle {
+  transform: rotate(-90deg);
+}
+
+.filter-group-count {
+  font-size: 11px;
+  color: var(--accent);
+  margin-left: 4px;
+}
+
+.filter-tags {
+  padding: 4px 20px 8px;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.filter-group.collapsed .filter-tags {
+  display: none;
 }
 
 .tag {
@@ -141,6 +179,44 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 .tag:hover { border-color: var(--accent); color: var(--text); }
 .tag.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* Reset bar */
+.reset-bar {
+  padding: 6px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.reset-bar.active { display: flex; }
+
+.reset-bar .filter-summary {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.reset-bar .filter-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 1px 2px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: var(--accent);
+  color: #000;
+}
+
+.btn-reset {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 12px;
+}
+
+.btn-reset:hover { background: #e74c3c; }
 
 /* Monster Grid */
 .grid {
@@ -613,8 +689,10 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   select, .btn { font-size: 13px; padding: 8px 6px; }
   .btn-export { margin-left: 0; }
 
-  .filter-tags { padding: 6px 8px; gap: 4px; }
+  .filter-group-header { padding: 4px 8px; }
+  .filter-tags { padding: 2px 8px 6px; gap: 4px; }
   .tag { font-size: 11px; padding: 3px 8px; }
+  .reset-bar { padding: 4px 8px; }
 
   .grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
   .monster-card { padding: 6px 8px; gap: 6px; }
@@ -738,46 +816,89 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <button class="btn btn-export" id="exportBtn">匯出/匯入</button>
 </div>
 
-<div class="filter-tags" id="lsFilterRow">
-  <span style="font-size:12px;color:var(--text-dim);line-height:24px;flex-shrink:0">隊長技能：</span>
-  <span class="tag" data-ls="攻擊倍率">攻擊倍率</span>
-  <span class="tag" data-ls="HP倍率">HP倍率</span>
-  <span class="tag" data-ls="傷害減輕">傷害減輕</span>
-  <span class="tag" data-ls="回復">回復</span>
-  <span class="tag" data-ls="復活">復活</span>
-  <span class="tag" data-ls="迴避">迴避</span>
-  <span class="tag" data-ls="反擊">反擊</span>
-  <span class="tag" data-ls="連鎖">連鎖</span>
-  <span class="tag" data-ls="Combo">Combo</span>
-  <span class="tag" data-ls="HP依存">HP依存</span>
-  <span class="tag" data-ls="吸收">吸收</span>
-  <span class="tag" data-ls="暈眩">暈眩</span>
-  <span class="tag" data-ls="格擋">格擋</span>
-  <span class="tag" data-ls="固定傷害">固定傷害</span>
-  <span class="tag" data-ls="AE">AE</span>
+<div class="filter-group" id="lsGroup">
+  <div class="filter-group-header" data-toggle="lsGroup">
+    <span class="filter-group-toggle">▼</span>
+    <span class="filter-group-title">隊長技能</span>
+    <span class="filter-group-count" id="lsCount"></span>
+  </div>
+  <div class="filter-tags" id="lsFilterRow">
+    <span class="tag" data-ls="攻擊倍率">攻擊倍率</span>
+    <span class="tag" data-ls="HP倍率">HP倍率</span>
+    <span class="tag" data-ls="傷害減輕">傷害減輕</span>
+    <span class="tag" data-ls="回復">回復</span>
+    <span class="tag" data-ls="復活">復活</span>
+    <span class="tag" data-ls="迴避">迴避</span>
+    <span class="tag" data-ls="反擊">反擊</span>
+    <span class="tag" data-ls="連鎖">連鎖</span>
+    <span class="tag" data-ls="Combo">Combo</span>
+    <span class="tag" data-ls="HP依存">HP依存</span>
+    <span class="tag" data-ls="吸收">吸收</span>
+    <span class="tag" data-ls="暈眩">暈眩</span>
+    <span class="tag" data-ls="格擋">格擋</span>
+    <span class="tag" data-ls="固定傷害">固定傷害</span>
+    <span class="tag" data-ls="AE">AE</span>
+  </div>
 </div>
 
-<div class="filter-tags" id="asFilterRow">
-  <span style="font-size:12px;color:var(--text-dim);line-height:24px;flex-shrink:0">主動技能：</span>
-  <span class="tag" data-as="貫通">貫通</span>
-  <span class="tag" data-as="護盾">護盾</span>
-  <span class="tag" data-as="傷害">傷害</span>
-  <span class="tag" data-as="連鎖">連鎖</span>
-  <span class="tag" data-as="全體化">全體化</span>
-  <span class="tag" data-as="回復">回復</span>
-  <span class="tag" data-as="設置/陷阱">設置/陷阱</span>
-  <span class="tag" data-as="移動">移動</span>
-  <span class="tag" data-as="復活">復活</span>
-  <span class="tag" data-as="反擊">反擊</span>
-  <span class="tag" data-as="毒">毒</span>
-  <span class="tag" data-as="誘爆">誘爆</span>
-  <span class="tag" data-as="柵">柵</span>
-  <span class="tag" data-as="迴避">迴避</span>
-  <span class="tag" data-as="減輕">減輕</span>
-  <span class="tag" data-as="格擋">格擋</span>
-  <span class="tag" data-as="AE">AE</span>
-  <span class="tag" data-as="解除/無效">解除/無效</span>
-  <span class="tag" data-as="暈眩">暈眩</span>
+<div class="filter-group" id="asGroup">
+  <div class="filter-group-header" data-toggle="asGroup">
+    <span class="filter-group-toggle">▼</span>
+    <span class="filter-group-title">主動技能</span>
+    <span class="filter-group-count" id="asCount"></span>
+  </div>
+  <div class="filter-tags" id="asFilterRow">
+    <span class="tag" data-as="貫通">貫通</span>
+    <span class="tag" data-as="護盾">護盾</span>
+    <span class="tag" data-as="傷害">傷害</span>
+    <span class="tag" data-as="連鎖">連鎖</span>
+    <span class="tag" data-as="全體化">全體化</span>
+    <span class="tag" data-as="回復">回復</span>
+    <span class="tag" data-as="設置/陷阱">設置/陷阱</span>
+    <span class="tag" data-as="移動">移動</span>
+    <span class="tag" data-as="復活">復活</span>
+    <span class="tag" data-as="反擊">反擊</span>
+    <span class="tag" data-as="毒">毒</span>
+    <span class="tag" data-as="誘爆">誘爆</span>
+    <span class="tag" data-as="柵">柵</span>
+    <span class="tag" data-as="迴避">迴避</span>
+    <span class="tag" data-as="減輕">減輕</span>
+    <span class="tag" data-as="格擋">格擋</span>
+    <span class="tag" data-as="AE">AE</span>
+    <span class="tag" data-as="解除/無效">解除/無效</span>
+    <span class="tag" data-as="暈眩">暈眩</span>
+  </div>
+</div>
+
+<div class="filter-group" id="tpGroup">
+  <div class="filter-group-header" data-toggle="tpGroup">
+    <span class="filter-group-toggle">▼</span>
+    <span class="filter-group-title">TP 技能</span>
+    <span class="filter-group-count" id="tpCount"></span>
+  </div>
+  <div class="filter-tags" id="tpFilterRow">
+    <span class="tag" data-tp="全體化">全體化</span>
+    <span class="tag" data-tp="回復">回復</span>
+    <span class="tag" data-tp="傷害">傷害</span>
+    <span class="tag" data-tp="貫通">貫通</span>
+    <span class="tag" data-tp="移動">移動</span>
+    <span class="tag" data-tp="連鎖">連鎖</span>
+    <span class="tag" data-tp="AE">AE</span>
+    <span class="tag" data-tp="護盾">護盾</span>
+    <span class="tag" data-tp="設置/陷阱">設置/陷阱</span>
+    <span class="tag" data-tp="反擊">反擊</span>
+    <span class="tag" data-tp="復活">復活</span>
+    <span class="tag" data-tp="迴避">迴避</span>
+    <span class="tag" data-tp="解除/無效">解除/無效</span>
+    <span class="tag" data-tp="格擋">格擋</span>
+    <span class="tag" data-tp="減輕">減輕</span>
+    <span class="tag" data-tp="暈眩">暈眩</span>
+  </div>
+</div>
+
+<div class="reset-bar" id="resetBar">
+  <div class="filter-summary" id="filterSummary"></div>
+  <button class="btn btn-reset" id="resetAll">清除全部篩選</button>
 </div>
 
 <div class="bulk-bar" id="bulkBar">
@@ -864,8 +985,10 @@ let _currentList = [];
 let _isLoadingMore = false;
 let _lsCategories = new Map(); // monster name → Set of LS categories
 let _asCategories = new Map(); // monster name → Set of AS categories
+let _tpCategories = new Map(); // monster name → Set of TP categories
 let _activeLsFilters = new Set();
 let _activeAsFilters = new Set();
+let _activeTpFilters = new Set();
 
 const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
@@ -891,6 +1014,30 @@ const LS_RULES = [
   { id: "AE", test: e => e.includes("AE") },
 ];
 
+// Shared skill matching rules (used by AS and TP)
+const SKILL_RULES = [
+  { id: "貫通", test: e => e.includes("貫通") },
+  { id: "護盾", test: e => e.includes("護盾") || e.includes("バリア") },
+  { id: "傷害", test: e => (e.includes("傷害") && (e.includes("倍") || e.includes("威力"))) },
+  { id: "連鎖", test: e => e.includes("連鎖") },
+  { id: "全體化", test: e => e.includes("全體") },
+  { id: "回復", test: e => e.includes("回復") },
+  { id: "設置/陷阱", test: e => e.includes("設置") || e.includes("トラップ") },
+  { id: "移動", test: e => e.includes("移動") },
+  { id: "復活", test: e => e.includes("復活") },
+  { id: "反擊", test: e => e.includes("反擊") || e.includes("カウンター") },
+  { id: "毒", test: e => e.includes("毒") },
+  { id: "誘爆", test: e => e.includes("誘爆") },
+  { id: "柵", test: e => e.includes("柵") },
+  { id: "迴避", test: e => e.includes("迴避") },
+  { id: "減輕", test: e => e.includes("減輕") },
+  { id: "格擋", test: e => e.includes("格擋") },
+  { id: "AE", test: e => e.includes("AE") },
+  { id: "解除/無效", test: e => e.includes("解除") || e.includes("無效") },
+  { id: "暈眩", test: e => e.includes("暈眩") || e.includes("スタン") },
+  { id: "提升/強化", test: e => e.includes("提升") || e.includes("強化") },
+];
+
 // Active skill category definitions
 const AS_RULES = [
   { id: "貫通", test: e => e.includes("貫通") },
@@ -914,30 +1061,33 @@ const AS_RULES = [
   { id: "暈眩", test: e => e.includes("暈眩") || e.includes("スタン") },
 ];
 
+function classifyEffect(effect, rules) {
+  const cats = new Set();
+  for (const rule of rules) {
+    if (rule.test(effect)) cats.add(rule.id);
+  }
+  return cats.size > 0 ? cats : null;
+}
+
 function buildLsCategories() {
   _lsCategories.clear();
   _asCategories.clear();
+  _tpCategories.clear();
   for (const m of allMonsters) {
     const abKey = String(m.no || m.name);
     const ab = abilityMap.get(abKey);
     if (!ab) continue;
-    // Leader skill
     if (ab.leader_skill && ab.leader_skill.effect) {
-      const effect = ab.leader_skill.effect;
-      const cats = new Set();
-      for (const rule of LS_RULES) {
-        if (rule.test(effect)) cats.add(rule.id);
-      }
-      if (cats.size > 0) _lsCategories.set(m.name, cats);
+      const cats = classifyEffect(ab.leader_skill.effect, LS_RULES);
+      if (cats) _lsCategories.set(m.name, cats);
     }
-    // Active skill
     if (ab.active_skill && ab.active_skill.effect) {
-      const effect = ab.active_skill.effect;
-      const cats = new Set();
-      for (const rule of AS_RULES) {
-        if (rule.test(effect)) cats.add(rule.id);
-      }
-      if (cats.size > 0) _asCategories.set(m.name, cats);
+      const cats = classifyEffect(ab.active_skill.effect, AS_RULES);
+      if (cats) _asCategories.set(m.name, cats);
+    }
+    if (ab.tp_skill && ab.tp_skill.effect) {
+      const cats = classifyEffect(ab.tp_skill.effect, SKILL_RULES);
+      if (cats) _tpCategories.set(m.name, cats);
     }
   }
 }
@@ -1104,6 +1254,14 @@ function getFiltered() {
       const cats = _asCategories.get(m.name);
       if (!cats) return false;
       for (const f of _activeAsFilters) {
+        if (!cats.has(f)) return false;
+      }
+    }
+    // TP skill category filter
+    if (_activeTpFilters.size > 0) {
+      const cats = _tpCategories.get(m.name);
+      if (!cats) return false;
+      for (const f of _activeTpFilters) {
         if (!cats.has(f)) return false;
       }
     }
@@ -1529,56 +1687,115 @@ document.addEventListener("keydown", e => {
 });
 
 // === Filter controls ===
-const _debouncedRender = debounce(renderGrid, 200);
+function renderAndSummary() { updateFilterSummary(); renderGrid(); }
+const _debouncedRender = debounce(renderAndSummary, 200);
 document.getElementById("searchBox").addEventListener("input", _debouncedRender);
-["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore", "sortBy"].forEach(id => {
-  document.getElementById(id).addEventListener("change", renderGrid);
+["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore"].forEach(id => {
+  document.getElementById(id).addEventListener("change", renderAndSummary);
 });
+document.getElementById("sortBy").addEventListener("change", renderGrid);
 
 // Owned / Unowned filter buttons
 document.getElementById("filterOwned").addEventListener("click", function() {
   filterOwned = filterOwned === "owned" ? "all" : "owned";
   this.classList.toggle("active", filterOwned === "owned");
   document.getElementById("filterUnowned").classList.remove("active");
-  renderGrid();
+  renderAndSummary();
 });
 
 document.getElementById("filterUnowned").addEventListener("click", function() {
   filterOwned = filterOwned === "unowned" ? "all" : "unowned";
   this.classList.toggle("active", filterOwned === "unowned");
   document.getElementById("filterOwned").classList.remove("active");
+  renderAndSummary();
+});
+
+// Generic skill filter handler
+function setupSkillFilter(rowId, attrName, filterSet, countId) {
+  document.getElementById(rowId).addEventListener("click", e => {
+    const tag = e.target.closest(".tag[data-" + attrName + "]");
+    if (!tag) return;
+    const val = tag.dataset[attrName];
+    if (filterSet.has(val)) {
+      filterSet.delete(val);
+      tag.classList.remove("active");
+    } else {
+      filterSet.add(val);
+      tag.classList.add("active");
+    }
+    updateFilterSummary();
+    renderGrid();
+  });
+}
+
+setupSkillFilter("lsFilterRow", "ls", _activeLsFilters, "lsCount");
+setupSkillFilter("asFilterRow", "as", _activeAsFilters, "asCount");
+setupSkillFilter("tpFilterRow", "tp", _activeTpFilters, "tpCount");
+
+// Collapse/expand filter groups
+document.querySelectorAll(".filter-group-header[data-toggle]").forEach(header => {
+  header.addEventListener("click", () => {
+    const group = document.getElementById(header.dataset.toggle);
+    group.classList.toggle("collapsed");
+  });
+});
+
+// Reset all filters
+document.getElementById("resetAll").addEventListener("click", () => {
+  // Clear skill filters
+  _activeLsFilters.clear();
+  _activeAsFilters.clear();
+  _activeTpFilters.clear();
+  document.querySelectorAll(".filter-tags .tag.active").forEach(t => t.classList.remove("active"));
+  // Clear select filters
+  ["filterElement", "filterRarity", "filterType1", "filterType2", "filterScore"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  // Clear search
+  document.getElementById("searchBox").value = "";
+  // Clear owned filter
+  filterOwned = "all";
+  document.getElementById("filterOwned").classList.remove("active");
+  document.getElementById("filterUnowned").classList.remove("active");
+  updateFilterSummary();
   renderGrid();
 });
 
-// Leader skill filter tags
-document.getElementById("lsFilterRow").addEventListener("click", e => {
-  const tag = e.target.closest(".tag[data-ls]");
-  if (!tag) return;
-  const ls = tag.dataset.ls;
-  if (_activeLsFilters.has(ls)) {
-    _activeLsFilters.delete(ls);
-    tag.classList.remove("active");
-  } else {
-    _activeLsFilters.add(ls);
-    tag.classList.add("active");
-  }
-  renderGrid();
-});
+function updateFilterSummary() {
+  const chips = [];
+  _activeLsFilters.forEach(f => chips.push("L:" + f));
+  _activeAsFilters.forEach(f => chips.push("A:" + f));
+  _activeTpFilters.forEach(f => chips.push("T:" + f));
+  // Update group counts
+  document.getElementById("lsCount").textContent = _activeLsFilters.size ? "(" + _activeLsFilters.size + ")" : "";
+  document.getElementById("asCount").textContent = _activeAsFilters.size ? "(" + _activeAsFilters.size + ")" : "";
+  document.getElementById("tpCount").textContent = _activeTpFilters.size ? "(" + _activeTpFilters.size + ")" : "";
 
-// Active skill filter tags
-document.getElementById("asFilterRow").addEventListener("click", e => {
-  const tag = e.target.closest(".tag[data-as]");
-  if (!tag) return;
-  const as_ = tag.dataset.as;
-  if (_activeAsFilters.has(as_)) {
-    _activeAsFilters.delete(as_);
-    tag.classList.remove("active");
+  const bar = document.getElementById("resetBar");
+  const hasAny = chips.length > 0 ||
+    document.getElementById("filterElement").value ||
+    document.getElementById("filterRarity").value ||
+    document.getElementById("filterType1").value ||
+    document.getElementById("filterType2").value ||
+    document.getElementById("filterScore").value ||
+    document.getElementById("searchBox").value.trim() ||
+    filterOwned !== "all";
+
+  if (hasAny) {
+    const summary = document.getElementById("filterSummary");
+    const parts = [];
+    if (document.getElementById("searchBox").value.trim()) parts.push("搜尋");
+    if (document.getElementById("filterElement").value) parts.push(document.getElementById("filterElement").value + "屬");
+    if (document.getElementById("filterRarity").value) parts.push("★" + document.getElementById("filterRarity").value);
+    if (filterOwned === "owned") parts.push("已持有");
+    if (filterOwned === "unowned") parts.push("未持有");
+    chips.forEach(c => parts.push(c));
+    summary.innerHTML = parts.map(p => '<span class="filter-chip">' + p + '</span>').join(" ");
+    bar.classList.add("active");
   } else {
-    _activeAsFilters.add(as_);
-    tag.classList.add("active");
+    bar.classList.remove("active");
   }
-  renderGrid();
-});
+}
 
 // Bulk mode
 document.getElementById("bulkToggle").addEventListener("click", function() {
