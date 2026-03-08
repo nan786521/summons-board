@@ -160,6 +160,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 8px;
+  contain: layout style;
 }
 
 .monster-icon {
@@ -868,6 +869,8 @@ let _activeAsFilters = new Set();
 
 const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
+const ICON_PREFIX = "https://img.gamewith.jp/article_tools/summonsboard/gacha/";
+const URL_PREFIX = "https://gamewith.jp/summonsboard/article/show/";
 
 // Leader skill category definitions
 const LS_RULES = [
@@ -939,36 +942,66 @@ function buildLsCategories() {
   }
 }
 
-// === Load data via fetch ===
+// Expand compact monster entry to full format
+function expandMonster(c) {
+  return {
+    name: c.n,
+    no: c.o || 0,
+    element: c.e || "",
+    rarity: c.r || 0,
+    type1: c.t1 || "",
+    type2: c.t2 || "",
+    leader_score: c.ls || 0,
+    sub_score: c.ss || 0,
+    icon: c.i ? (c.i.startsWith("http") ? c.i : ICON_PREFIX + c.i) : "",
+    url: c.u ? (c.u.startsWith("http") ? c.u : URL_PREFIX + c.u) : "",
+    tags: c.g || []
+  };
+}
+
+// Expand compact ability entry
+function expandAbility(c) {
+  return {
+    hp: c.h || 0,
+    atk: c.a || 0,
+    soul_slots: c.s || 0,
+    leader_skill: c.l || null,
+    active_skill: c.k || null,
+    tp_skill: c.t || null,
+    potentials: c.p || null,
+    abilities: c.b || null
+  };
+}
+
+// === Load data via fetch (parallel) ===
 async function init() {
   const bar = document.getElementById("loadingBar");
   const text = document.getElementById("loadingText");
 
   try {
-    // Load monsters
-    text.textContent = "載入角色資料...";
-    bar.style.width = "20%";
-    const mRes = await fetch("monsters.json");
-    if (!mRes.ok) throw new Error("無法載入 monsters.json");
-    const mData = await mRes.json();
+    text.textContent = "載入資料...";
+    bar.style.width = "10%";
+
+    // Parallel fetch both files
+    const [mRes, aRes] = await Promise.all([
+      fetch("monsters.min.json"),
+      fetch("abilities.min.json")
+    ]);
 
     bar.style.width = "50%";
-    text.textContent = "載入技能資料...";
+    text.textContent = "解析資料...";
 
-    // Load abilities
-    const aRes = await fetch("abilities.json");
-    if (aRes.ok) {
-      const aData = await aRes.json();
-      for (const [key, val] of Object.entries(aData)) {
-        abilityMap.set(key, val);
-      }
-    }
+    if (!mRes.ok) throw new Error("無法載入 monsters.min.json");
+    const [mData, aData] = await Promise.all([
+      mRes.json(),
+      aRes.ok ? aRes.json() : null
+    ]);
 
-    bar.style.width = "80%";
+    bar.style.width = "70%";
     text.textContent = "建立索引...";
 
-    // Process monsters
-    allMonsters = Array.isArray(mData) ? mData : Object.values(mData);
+    // Expand compact monsters
+    allMonsters = mData.map(expandMonster);
     monsterMap = new Map(allMonsters.map(m => [m.name, m]));
     _searchIndex = allMonsters.map(m => ({
       nameLower: m.name.toLowerCase(),
@@ -976,20 +1009,29 @@ async function init() {
       m
     }));
 
+    // Expand compact abilities
+    if (aData) {
+      for (const [key, val] of Object.entries(aData)) {
+        abilityMap.set(key, expandAbility(val));
+      }
+    }
+
+    bar.style.width = "85%";
+
     document.getElementById("totalCount").textContent = allMonsters.length;
 
     // Load owned data
     loadOwned();
     autoLoadOwned();
 
-    // Build leader skill categories
+    // Build skill categories
     buildLsCategories();
 
     bar.style.width = "100%";
     text.textContent = "完成！";
 
     // Render
-    setTimeout(() => renderGrid(), 100);
+    requestAnimationFrame(renderGrid);
 
   } catch (e) {
     text.textContent = "載入失敗：" + e.message;
@@ -1136,9 +1178,16 @@ function renderGrid() {
 
   document.getElementById("filteredCount").textContent = _currentList.length;
 
-  // Render first batch
+  // Render first batch using DocumentFragment
   const batch = _currentList.slice(0, BATCH_SIZE);
-  grid.innerHTML = batch.map(m => renderCard(m)).join("");
+  const fragment = document.createDocumentFragment();
+  const temp = document.createElement("div");
+  for (let i = 0; i < batch.length; i++) {
+    temp.innerHTML = renderCard(batch[i]);
+    fragment.appendChild(temp.firstElementChild);
+  }
+  grid.innerHTML = "";
+  grid.appendChild(fragment);
   _renderedCount = batch.length;
 
   document.getElementById("statusBar").textContent =
@@ -1151,17 +1200,17 @@ function loadMore() {
   _isLoadingMore = true;
 
   const grid = document.getElementById("monsterGrid");
-  const batch = _currentList.slice(_renderedCount, _renderedCount + BATCH_SIZE);
+  const end = Math.min(_renderedCount + BATCH_SIZE, _currentList.length);
   const fragment = document.createDocumentFragment();
   const temp = document.createElement("div");
 
-  batch.forEach(m => {
-    temp.innerHTML = renderCard(m);
+  for (let i = _renderedCount; i < end; i++) {
+    temp.innerHTML = renderCard(_currentList[i]);
     fragment.appendChild(temp.firstElementChild);
-  });
+  }
 
   grid.appendChild(fragment);
-  _renderedCount += batch.length;
+  _renderedCount = end;
 
   document.getElementById("statusBar").textContent =
     _renderedCount < _currentList.length ? "往下捲動載入更多..." : "";
