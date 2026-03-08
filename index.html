@@ -756,6 +756,29 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   <span class="tag" data-ls="AE">AE</span>
 </div>
 
+<div class="filter-tags" id="asFilterRow">
+  <span style="font-size:12px;color:var(--text-dim);line-height:24px;flex-shrink:0">主動技能：</span>
+  <span class="tag" data-as="貫通">貫通</span>
+  <span class="tag" data-as="護盾">護盾</span>
+  <span class="tag" data-as="傷害">傷害</span>
+  <span class="tag" data-as="連鎖">連鎖</span>
+  <span class="tag" data-as="全體化">全體化</span>
+  <span class="tag" data-as="回復">回復</span>
+  <span class="tag" data-as="設置/陷阱">設置/陷阱</span>
+  <span class="tag" data-as="移動">移動</span>
+  <span class="tag" data-as="復活">復活</span>
+  <span class="tag" data-as="反擊">反擊</span>
+  <span class="tag" data-as="毒">毒</span>
+  <span class="tag" data-as="誘爆">誘爆</span>
+  <span class="tag" data-as="柵">柵</span>
+  <span class="tag" data-as="迴避">迴避</span>
+  <span class="tag" data-as="減輕">減輕</span>
+  <span class="tag" data-as="格擋">格擋</span>
+  <span class="tag" data-as="AE">AE</span>
+  <span class="tag" data-as="解除/無效">解除/無效</span>
+  <span class="tag" data-as="暈眩">暈眩</span>
+</div>
+
 <div class="bulk-bar" id="bulkBar">
   <span>批次模式：點擊角色可快速勾選/取消</span>
   <button class="btn" id="bulkSelectAll">全選顯示中</button>
@@ -839,7 +862,9 @@ let _renderedCount = 0;
 let _currentList = [];
 let _isLoadingMore = false;
 let _lsCategories = new Map(); // monster name → Set of LS categories
+let _asCategories = new Map(); // monster name → Set of AS categories
 let _activeLsFilters = new Set();
+let _activeAsFilters = new Set();
 
 const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
@@ -863,18 +888,54 @@ const LS_RULES = [
   { id: "AE", test: e => e.includes("AE") },
 ];
 
+// Active skill category definitions
+const AS_RULES = [
+  { id: "貫通", test: e => e.includes("貫通") },
+  { id: "護盾", test: e => e.includes("護盾") || e.includes("バリア") },
+  { id: "傷害", test: e => (e.includes("傷害") && (e.includes("倍") || e.includes("威力"))) },
+  { id: "連鎖", test: e => e.includes("連鎖") },
+  { id: "全體化", test: e => e.includes("全體") },
+  { id: "回復", test: e => e.includes("回復") },
+  { id: "設置/陷阱", test: e => e.includes("設置") || e.includes("トラップ") },
+  { id: "移動", test: e => e.includes("移動") },
+  { id: "復活", test: e => e.includes("復活") },
+  { id: "反擊", test: e => e.includes("反擊") || e.includes("カウンター") },
+  { id: "毒", test: e => e.includes("毒") },
+  { id: "誘爆", test: e => e.includes("誘爆") },
+  { id: "柵", test: e => e.includes("柵") },
+  { id: "迴避", test: e => e.includes("迴避") },
+  { id: "減輕", test: e => e.includes("減輕") },
+  { id: "格擋", test: e => e.includes("格擋") },
+  { id: "AE", test: e => e.includes("AE") },
+  { id: "解除/無效", test: e => e.includes("解除") || e.includes("無效") },
+  { id: "暈眩", test: e => e.includes("暈眩") || e.includes("スタン") },
+];
+
 function buildLsCategories() {
   _lsCategories.clear();
+  _asCategories.clear();
   for (const m of allMonsters) {
     const abKey = String(m.no || m.name);
     const ab = abilityMap.get(abKey);
-    if (!ab || !ab.leader_skill || !ab.leader_skill.effect) continue;
-    const effect = ab.leader_skill.effect;
-    const cats = new Set();
-    for (const rule of LS_RULES) {
-      if (rule.test(effect)) cats.add(rule.id);
+    if (!ab) continue;
+    // Leader skill
+    if (ab.leader_skill && ab.leader_skill.effect) {
+      const effect = ab.leader_skill.effect;
+      const cats = new Set();
+      for (const rule of LS_RULES) {
+        if (rule.test(effect)) cats.add(rule.id);
+      }
+      if (cats.size > 0) _lsCategories.set(m.name, cats);
     }
-    if (cats.size > 0) _lsCategories.set(m.name, cats);
+    // Active skill
+    if (ab.active_skill && ab.active_skill.effect) {
+      const effect = ab.active_skill.effect;
+      const cats = new Set();
+      for (const rule of AS_RULES) {
+        if (rule.test(effect)) cats.add(rule.id);
+      }
+      if (cats.size > 0) _asCategories.set(m.name, cats);
+    }
   }
 }
 
@@ -993,6 +1054,14 @@ function getFiltered() {
       const cats = _lsCategories.get(m.name);
       if (!cats) return false;
       for (const f of _activeLsFilters) {
+        if (!cats.has(f)) return false;
+      }
+    }
+    // Active skill category filter
+    if (_activeAsFilters.size > 0) {
+      const cats = _asCategories.get(m.name);
+      if (!cats) return false;
+      for (const f of _activeAsFilters) {
         if (!cats.has(f)) return false;
       }
     }
@@ -1442,6 +1511,21 @@ document.getElementById("lsFilterRow").addEventListener("click", e => {
     tag.classList.remove("active");
   } else {
     _activeLsFilters.add(ls);
+    tag.classList.add("active");
+  }
+  renderGrid();
+});
+
+// Active skill filter tags
+document.getElementById("asFilterRow").addEventListener("click", e => {
+  const tag = e.target.closest(".tag[data-as]");
+  if (!tag) return;
+  const as_ = tag.dataset.as;
+  if (_activeAsFilters.has(as_)) {
+    _activeAsFilters.delete(as_);
+    tag.classList.remove("active");
+  } else {
+    _activeAsFilters.add(as_);
     tag.classList.add("active");
   }
   renderGrid();
