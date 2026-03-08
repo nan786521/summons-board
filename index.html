@@ -1446,44 +1446,49 @@ const URL_PREFIX = "https://gamewith.jp/summonsboard/article/show/";
 // Awakening dungeon data by element
 const AWAKEN_DATA = {
   "火": {
-    revolt: "ファイアレヴォルト",
+    revolt: "火焰革命石",
+    revoltJa: "ファイアレヴォルト",
     boss: "アドラグレンド",
     dungeons: [
-      { area: "トートデルベ砂丘", name: "膨張する災禍" },
-      { area: "チャマ霊窟", name: "焔の祭壇" },
-      { area: "バトルート溶岩洞", name: "炎の湖" }
+      { area: "托特德爾貝砂丘", name: "膨脹的災禍" },
+      { area: "查瑪靈窟", name: "焰之祭壇" },
+      { area: "巴特魯特熔岩洞", name: "炎之湖" }
     ]
   },
   "水": {
-    revolt: "ウォータレヴォルト",
+    revolt: "流水革命石",
+    revoltJa: "ウォータレヴォルト",
     boss: "エイルヴェラー",
     dungeons: [
-      { area: "ハンブベル大沼", name: "深淵に潜む大蛇" },
-      { area: "ラータパ地下道", name: "神槍演武" },
-      { area: "プエドワ岩礁", name: "岩城の守り手" }
+      { area: "漢布貝爾大沼", name: "深淵潛伏的大蛇" },
+      { area: "拉塔帕地下道", name: "神槍演武" },
+      { area: "普埃多瓦岩礁", name: "岩城的守護者" }
     ]
   },
   "木": {
-    revolt: "リーフレヴォルト",
+    revolt: "綠葉革命石",
+    revoltJa: "リーフレヴォルト",
     boss: "ベルセデリオ",
     dungeons: [
-      { area: "アンヌトロン樹海", name: "樹海の守り手" },
-      { area: "コプック山麓", name: "大樹の足下" },
-      { area: "ボア湿原", name: "暴れ怪物のねぐら" }
+      { area: "安努特隆樹海", name: "樹海的守護者" },
+      { area: "科普克山麓", name: "大樹之下" },
+      { area: "波亞濕原", name: "暴走怪物的巢穴" }
     ]
   },
   "光": {
-    revolt: "ライトレヴォルト",
+    revolt: "光明革命石",
+    revoltJa: "ライトレヴォルト",
     boss: "ゾンバルディエ",
     dungeons: [
-      { area: "ロアラ結晶殿", name: "月射しの庭" }
+      { area: "洛阿拉結晶殿", name: "月光之庭" }
     ]
   },
   "闇": {
-    revolt: "ダークレヴォルト",
+    revolt: "暗黑革命石",
+    revoltJa: "ダークレヴォルト",
     boss: "フィアドラーク",
     dungeons: [
-      { area: "クエッグ渓谷", name: "昏き奈落の牢" }
+      { area: "庫艾格溪谷", name: "昏暗深淵之牢" }
     ]
   }
 };
@@ -1998,7 +2003,7 @@ function showDetail(name) {
       html += '<div class="ability-stats">';
       if (ab.hp) html += '<div class="ability-stat-box"><div class="ability-stat-label">HP</div><div class="ability-stat-value">' + ab.hp.toLocaleString() + '</div></div>';
       if (ab.atk) html += '<div class="ability-stat-box"><div class="ability-stat-label">ATK</div><div class="ability-stat-value">' + ab.atk + '</div></div>';
-      if (ab.soul_slots) html += '<div class="ability-stat-box"><div class="ability-stat-label">ソウル枠</div><div class="ability-stat-value">' + ab.soul_slots + '</div></div>';
+      if (ab.soul_slots) html += '<div class="ability-stat-box"><div class="ability-stat-label">靈魂格</div><div class="ability-stat-value">' + ab.soul_slots + '</div></div>';
       html += '</div>';
     }
     if (ab.leader_skill) {
@@ -2010,7 +2015,7 @@ function showDetail(name) {
       html += '<div class="ability-section as"><div class="ability-label">主動技能</div>';
       if (ab.active_skill.name) html += '<div class="ability-name">' + ab.active_skill.name + '</div>';
       html += '<div class="ability-effect">' + ab.active_skill.effect + '</div>';
-      if (ab.active_skill.turn) html += '<div class="ability-meta">回合: ' + ab.active_skill.turn + '</div>';
+      if (ab.active_skill.turn) html += '<div class="ability-meta">冷卻: ' + ab.active_skill.turn.replace(/ターン/g, '回合') + '</div>';
       html += '</div>';
     }
     if (ab.tp_skill) {
@@ -2026,9 +2031,10 @@ function showDetail(name) {
       html += '</div>';
     }
     if (ab.potentials && ab.potentials.length) {
-      html += '<div class="ability-section pot"><div class="ability-label">潛在效果</div>';
+      html += '<div class="ability-section pot"><div class="ability-label">潛在效果（開眼）</div>';
       ab.potentials.forEach(p => {
-        html += '<div class="pot-item"><span class="pot-level">' + p.level + '</span> ' + p.effect + '</div>';
+        const lvText = p.level.replace("潜在", "潛在").replace("初期", "初期");
+        html += '<div class="pot-item"><span class="pot-level">' + lvText + '</span> ' + p.effect + '</div>';
       });
       html += '</div>';
     }
@@ -2044,11 +2050,12 @@ function showDetail(name) {
   const aw = m.element && m.rarity >= 7 ? AWAKEN_DATA[m.element] : null;
   if (aw) {
     let awHtml = '<div class="awaken-title">&#9733; 覺醒素材</div>';
-    awHtml += '<div class="awaken-revolt">' + aw.revolt + '</div>';
+    awHtml += '<div class="awaken-revolt">需要：' + aw.revolt + ' <span style="font-size:11px;color:var(--text-dim)">(' + aw.revoltJa + ')</span></div>';
+    awHtml += '<div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">可刷取關卡：</div>';
     aw.dungeons.forEach(d => {
       awHtml += '<div class="awaken-dungeon"><span class="awaken-dungeon-name">' + d.name + '</span><br><span class="awaken-dungeon-area">【' + d.area + '】</span></div>';
     });
-    awHtml += '<div class="awaken-boss">Boss: ' + aw.boss + '</div>';
+    awHtml += '<div class="awaken-boss">首領：' + aw.boss + '</div>';
     awakenEl.innerHTML = awHtml;
     awakenEl.style.display = "";
   } else {

@@ -144,20 +144,28 @@ def parse_detail_page(html):
             result["abilities"] = abilities
 
     # === 潛在效果 ===
+    # Pattern 1: inline text after 特性の効果一覧 or 潜在効果
+    # Format: 潜在効果初期(開眼)...潜在Lv1【効果A】...【効果B】...潜在Lv2...
     pot_match = re.search(
-        r"潜在効果(初期.*?)(?:▶|<h3>.*?入手|<h3>.*?評価)",
+        r"潜在効果(初期.*?)(?:▶|能力能力効果|<h3>|<h2>)",
         html, re.DOTALL
     )
+    if not pot_match:
+        # Pattern 2: try broader match
+        pot_match = re.search(
+            r"潜在効果(初期.*?)(?:▶|<h3>.*?入手|<h3>.*?評価|<h3>.*?能力)",
+            html, re.DOTALL
+        )
     if pot_match:
-        pot_text = pot_match.group(1)
+        pot_text = clean_html(pot_match.group(1))
         potentials = []
-        # 格式: 潜在Lv1【効果A】...【効果B】...
+        # Split by 初期 or 潜在Lv
         for lv_match in re.finditer(
-            r"(初期|潜在Lv\d+)(.*?)(?=初期|潜在Lv\d+|$)",
+            r"(初期(?:\(開眼\)|\(開眼\))?|潜在Lv\d+)(.*?)(?=初期|潜在Lv\d+|※|$)",
             pot_text, re.DOTALL
         ):
-            level = clean_html(lv_match.group(1))
-            content = clean_html(lv_match.group(2))
+            level = lv_match.group(1).strip()
+            content = lv_match.group(2).strip()
             if content:
                 potentials.append({"level": level, "effect": content})
         if potentials:
