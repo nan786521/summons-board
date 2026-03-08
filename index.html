@@ -250,8 +250,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 /* Monster Grid */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
   padding: 12px 20px;
 }
 
@@ -259,29 +259,55 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   position: relative;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  overflow: hidden;
   contain: layout style;
 }
 
+.card-art-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg) 25%, var(--card-hover) 50%, var(--bg) 75%);
+  background-size: 200% 200%;
+  animation: shimmer 1.5s ease infinite;
+}
+.card-art-wrap:has(img) { animation: none; background: var(--bg); }
+
+.card-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.monster-card:hover .card-art { transform: scale(1.05); }
+
 .monster-icon {
+  display: none;
+}
+
+.card-art-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 20px 8px 6px;
+}
+
+.monster-icon-legacy {
   width: 64px;
   height: 64px;
   border-radius: 8px;
   border: 2px solid var(--border);
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--bg) 25%, var(--card-hover) 50%, var(--bg) 75%);
-  background-size: 200% 200%;
-  animation: shimmer 1.5s ease infinite;
+  background: var(--bg);
   object-fit: cover;
 }
-
-.monster-icon[src] { animation: none; background: var(--bg); }
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }
@@ -369,57 +395,66 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .monster-card:hover {
-  background: var(--card-hover);
   border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(79,195,247,0.2);
 }
 
 .monster-card.owned {
-  background: var(--owned-bg);
   border-color: var(--owned-border);
 }
+.monster-card.owned .card-art-wrap {
+  border-bottom: 2px solid var(--owned-border);
+}
 .monster-card.owned:hover {
-  background: var(--owned-bg-hover);
   border-color: var(--owned-border);
+  box-shadow: 0 4px 12px rgba(46,204,113,0.2);
+}
+
+.card-info {
+  padding: 8px 10px 10px;
 }
 
 .monster-info {
-  flex: 1;
   min-width: 0;
 }
 
 .monster-name {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .monster-types {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-dim);
   margin-top: 2px;
 }
 
 .monster-scores {
   display: flex;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .score-badge {
   text-align: center;
-  min-width: 40px;
+  flex: 1;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  padding: 2px 0;
 }
 
 .score-label {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--text-dim);
   text-transform: uppercase;
 }
 
 .score-value {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -611,12 +646,13 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .btn-gw { background: #e67e22; border-color: #e67e22; color: #fff; }
 .btn-gw:hover { background: #d35400; }
 .card-star {
-  font-size: 22px; cursor: pointer; color: var(--border);
-  flex-shrink: 0; transition: all 0.2s; user-select: none;
-  line-height: 1; padding: 4px;
+  position: absolute; top: 6px; left: 6px; z-index: 3;
+  font-size: 20px; cursor: pointer; color: rgba(255,255,255,0.5);
+  transition: all 0.2s; user-select: none;
+  line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-.card-star:hover { transform: scale(1.2); }
-.monster-card.owned .card-star { color: var(--owned-border); }
+.card-star:hover { transform: scale(1.2); color: var(--score-high); }
+.monster-card.owned .card-star { color: var(--owned-border); text-shadow: 0 0 6px rgba(46,204,113,0.5); }
 
 
 .detail-tags {
@@ -756,7 +792,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 
 /* NEW badge for recently added characters */
 .card-new {
-  position: absolute; top: 4px; right: 4px;
+  position: absolute; top: 6px; right: 6px; z-index: 3;
   background: linear-gradient(135deg, #e74c3c, #ff6b6b);
   color: #fff; font-size: 9px; font-weight: 700;
   padding: 1px 5px; border-radius: 3px;
@@ -875,32 +911,58 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 
 .grid.list-mode .monster-card {
+  flex-direction: row;
+  align-items: center;
   padding: 4px 10px;
   border-radius: 4px;
+  gap: 8px;
 }
 
-.grid.list-mode .monster-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 4px;
+.grid.list-mode .card-art-wrap {
+  width: 40px; height: 40px;
+  aspect-ratio: auto;
+  border-radius: 6px;
+  flex-shrink: 0;
+  animation: none;
 }
+
+.grid.list-mode .card-art { border-radius: 6px; }
+
+.grid.list-mode .card-info {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 0; padding: 0;
+}
+
+.grid.list-mode .card-star {
+  position: static;
+  font-size: 16px;
+  text-shadow: none;
+  color: var(--border);
+  order: -1;
+}
+.grid.list-mode .monster-card.owned .card-star { color: var(--owned-border); text-shadow: none; }
+
+.grid.list-mode .card-new {
+  position: static; display: inline-block;
+  margin-right: 4px; animation: none;
+}
+
+.grid.list-mode .el-badge { position: static !important; }
 
 .grid.list-mode .monster-scores {
-  gap: 4px;
+  gap: 4px; margin-top: 0;
 }
 
 .grid.list-mode .score-badge {
-  min-width: 32px;
+  min-width: 32px; background: none; padding: 0;
 }
 
 .grid.list-mode .score-value {
   font-size: 13px;
 }
 
-.grid.list-mode .card-star {
-  font-size: 16px;
-  padding: 2px;
-}
+.grid.list-mode .card-tags { display: none; }
+.grid.list-mode .monster-card.owned .card-art-wrap { border-bottom: none; }
 
 /* Tag count */
 .tag-count {
@@ -1223,15 +1285,13 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .tag { font-size: 11px; padding: 3px 8px; }
   .reset-bar { padding: 4px 8px; }
 
-  .grid { grid-template-columns: 1fr; padding: 8px; gap: 6px; }
-  .monster-card { padding: 6px 8px; gap: 6px; }
-  .monster-icon { width: 48px; height: 48px; border-radius: 6px; }
-  .monster-name { font-size: 13px; }
-  .monster-types { font-size: 10px; }
-  .score-badge { min-width: 32px; }
-  .score-value { font-size: 14px; }
-  .score-label { font-size: 8px; }
-  .card-star { font-size: 18px; padding: 2px; }
+  .grid { grid-template-columns: 1fr 1fr; padding: 8px; gap: 6px; }
+  .monster-name { font-size: 12px; }
+  .monster-types { font-size: 9px; }
+  .score-value { font-size: 12px; }
+  .score-label { font-size: 7px; }
+  .card-info { padding: 6px 8px 8px; }
+  .card-star { font-size: 18px; }
 
   .bulk-bar { padding: 6px 8px; font-size: 12px; }
 
@@ -2294,13 +2354,23 @@ function elClass(e) {
   return map[e] || "";
 }
 
+function getArtUrl(m) {
+  // Large art: remove i_ prefix from icon filename
+  if (!m.icon) return "";
+  const url = m.icon;
+  const idx = url.lastIndexOf("/i_");
+  if (idx >= 0) return url.substring(0, idx + 1) + url.substring(idx + 3);
+  return url; // fallback to icon
+}
+
 function renderCard(m) {
   const isOwned = ownedSet.has(m.name);
-  const iconHtml = m.icon
-    ? '<img class="monster-icon" src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">'
-    : '<div class="monster-icon"></div>';
+  const artUrl = getArtUrl(m);
+  const artHtml = artUrl
+    ? '<img class="card-art" src="' + artUrl + '" alt="' + escAttr(m.name) + '" loading="lazy" onerror="this.src=\'' + (m.icon || '') + '\'">'
+    : '';
   const elBadge = m.element
-    ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>'
+    ? '<span class="el-badge ' + elClass(m.element) + '" style="position:absolute;bottom:8px;right:8px;z-index:2">' + m.element + '</span>'
     : "";
   const rarityHtml = m.rarity ? '<span class="rarity">★' + m.rarity + '</span>' : "";
 
@@ -2315,12 +2385,12 @@ function renderCard(m) {
     extraHtml = '<span class="card-nodata">資料不完整</span>';
   }
 
-  // Key tags for card display (max 4)
+  // Key tags for card display (max 3)
   let tagsHtml = "";
   if (m.tags && m.tags.length > 0) {
     const cardTags = [];
     for (const rule of CARD_TAG_MAP) {
-      if (cardTags.length >= 4) break;
+      if (cardTags.length >= 3) break;
       if (m.tags.some(t => rule.keywords.some(k => t.includes(k)))) {
         cardTags.push(rule);
       }
@@ -2335,23 +2405,27 @@ function renderCard(m) {
   const newBadge = isNewMonster(m) ? '<span class="card-new">NEW</span>' : '';
 
   return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
-    newBadge +
-    '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
-    iconHtml +
-    elBadge +
-    '<div class="monster-info">' +
-      '<div class="monster-name">' + (m.no ? '<span style="color:var(--text-dim);font-size:11px">No.' + m.no + '</span> ' : '') + escHtml(m.name) + '</div>' +
-      '<div class="monster-types">' +
-        rarityHtml +
-        ' <span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span>' +
-        ' / ' + m.type2 +
-        ' ' + extraHtml +
-      '</div>' +
-      tagsHtml +
+    '<div class="card-art-wrap">' +
+      artHtml +
+      '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
+      newBadge +
+      elBadge +
     '</div>' +
-    '<div class="monster-scores">' +
-      '<div class="score-badge"><div class="score-label">隊長</div><div class="score-value ' + scoreClass(m.leader_score) + '">' + m.leader_score + '</div></div>' +
-      '<div class="score-badge"><div class="score-label">副隊</div><div class="score-value ' + scoreClass(m.sub_score) + '">' + m.sub_score + '</div></div>' +
+    '<div class="card-info">' +
+      '<div class="monster-info">' +
+        '<div class="monster-name">' + escHtml(m.name) + '</div>' +
+        '<div class="monster-types">' +
+          rarityHtml +
+          ' <span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span>' +
+          ' / ' + m.type2 +
+          ' ' + extraHtml +
+        '</div>' +
+        tagsHtml +
+      '</div>' +
+      '<div class="monster-scores">' +
+        '<div class="score-badge"><div class="score-label">隊長</div><div class="score-value ' + scoreClass(m.leader_score) + '">' + m.leader_score + '</div></div>' +
+        '<div class="score-badge"><div class="score-label">副隊</div><div class="score-value ' + scoreClass(m.sub_score) + '">' + m.sub_score + '</div></div>' +
+      '</div>' +
     '</div>' +
   '</div>';
 }
