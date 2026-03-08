@@ -18,6 +18,7 @@
   --text-dim: #8899a6;
   --accent: #4fc3f7;
   --owned-bg: #1b3a2a;
+  --owned-bg-hover: #1f4533;
   --owned-border: #2ecc71;
   --score-high: #f1c40f;
   --score-mid: #e67e22;
@@ -377,8 +378,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border-color: var(--owned-border);
 }
 .monster-card.owned:hover {
-  background: #1f4533;
-  border-color: #34d885;
+  background: var(--owned-bg-hover);
+  border-color: var(--owned-border);
 }
 
 .monster-info {
@@ -1196,11 +1197,11 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .controls {
     padding: 8px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
   }
   .search-box {
-    grid-column: 1;
+    grid-column: 1 / -1;
     min-width: 0;
     font-size: 16px;
   }
@@ -3052,6 +3053,8 @@ document.getElementById("resetAll").addEventListener("click", () => {
   });
   _activeTypes.filterType1 = ""; _activeTypes.filterType2 = "";
   document.querySelectorAll(".type-tag.active").forEach(t => t.classList.remove("active"));
+  // Reset sort
+  document.getElementById("sortBy").value = "leader_desc";
   // Clear search and skill search mode
   document.getElementById("searchBox").value = "";
   _skillSearchMode = false;
