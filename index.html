@@ -1226,19 +1226,19 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <option value="6">★6</option>
     <option value="5">★5</option>
   </select>
-  <select id="filterType1">
+  <select id="filterType1" title="1stタイプ篩選：角色的基礎類型分類">
     <option value="">全類型1</option>
-    <option value="攻撃">攻撃</option>
-    <option value="HP">HP</option>
-    <option value="バランス">バランス</option>
+    <option value="攻撃">⚔ 攻撃</option>
+    <option value="HP">♥ HP</option>
+    <option value="バランス">⚖ バランス</option>
   </select>
-  <select id="filterType2">
+  <select id="filterType2" title="2ndタイプ篩選：角色的戰鬥風格分類">
     <option value="">全類型2</option>
-    <option value="アシスト">アシスト</option>
-    <option value="カウンター">カウンター</option>
-    <option value="スキルアタック">スキルアタック</option>
-    <option value="アタック">アタック</option>
-    <option value="ディフェンス">ディフェンス</option>
+    <option value="アシスト">🤝 アシスト</option>
+    <option value="カウンター">🔄 カウンター</option>
+    <option value="スキルアタック">✦ スキルアタック</option>
+    <option value="アタック">👊 アタック</option>
+    <option value="ディフェンス">🛡 ディフェンス</option>
   </select>
   <select id="filterScore">
     <option value="">全評分</option>
@@ -3180,11 +3180,13 @@ function updateFilterCounts() {
   document.querySelectorAll("#filterRarity option[value]").forEach(o => {
     if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
   });
+  const T1_ICONS = {"攻撃":"⚔","HP":"♥","バランス":"⚖"};
+  const T2_ICONS = {"アシスト":"🤝","カウンター":"🔄","スキルアタック":"✦","アタック":"👊","ディフェンス":"🛡"};
   document.querySelectorAll("#filterType1 option[value]").forEach(o => {
-    if (o.value) o.textContent = o.value + " (" + (t1Counts[o.value] || 0) + ")";
+    if (o.value) o.textContent = (T1_ICONS[o.value] || "") + " " + o.value + " (" + (t1Counts[o.value] || 0) + ")";
   });
   document.querySelectorAll("#filterType2 option[value]").forEach(o => {
-    if (o.value) o.textContent = o.value + " (" + (t2Counts[o.value] || 0) + ")";
+    if (o.value) o.textContent = (T2_ICONS[o.value] || "") + " " + o.value + " (" + (t2Counts[o.value] || 0) + ")";
   });
 }
 
