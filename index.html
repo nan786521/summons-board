@@ -592,6 +592,28 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .pot-item:last-child { border-bottom: none; }
 .pot-level { font-weight: 700; color: #2ecc71; font-size: 11px; }
 
+/* Awakening section */
+.awaken-section {
+  margin-top: 16px; padding: 12px;
+  background: var(--bg); border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.awaken-title {
+  font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  color: #e67e22; display: flex; align-items: center; gap: 6px;
+}
+.awaken-revolt {
+  font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px;
+}
+.awaken-dungeon {
+  padding: 6px 10px; margin-bottom: 4px;
+  background: var(--card-bg); border-radius: 6px;
+  font-size: 12px; border-left: 3px solid #e67e22;
+}
+.awaken-dungeon-name { color: var(--accent); font-weight: 500; }
+.awaken-dungeon-area { color: var(--text-dim); font-size: 11px; }
+.awaken-boss { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
 /* Team Recommendation */
 .team-rec { margin-top: 16px; }
 .team-rec-title {
@@ -1042,6 +1064,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .ability-stat-value { font-size: 15px; }
   .ability-stat-label { font-size: 9px; }
   .ability-section { padding: 8px 10px; margin-bottom: 8px; }
+  .awaken-section { padding: 10px; margin-top: 12px; }
+  .awaken-dungeon { padding: 4px 8px; font-size: 11px; }
   .ability-label { font-size: 10px; }
   .ability-name { font-size: 12px; }
   .ability-effect { font-size: 11px; line-height: 1.5; word-break: break-word; }
@@ -1333,6 +1357,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
       <dl class="detail-info-grid" id="detailInfo"></dl>
       <div class="detail-tags" id="detailTags"></div>
       <div class="detail-abilities" id="detailAbilities"></div>
+      <div class="awaken-section" id="detailAwaken" style="display:none"></div>
       <div class="team-rec" id="teamRec" style="display:none"></div>
       <div class="detail-actions">
         <a class="btn btn-gw" id="detailGwLink" href="#" target="_blank">前往 GameWith</a>
@@ -1417,6 +1442,51 @@ const STORAGE_KEY = "sb_owned_monsters";
 const BATCH_SIZE = 100;
 const ICON_PREFIX = "https://img.gamewith.jp/article_tools/summonsboard/gacha/";
 const URL_PREFIX = "https://gamewith.jp/summonsboard/article/show/";
+
+// Awakening dungeon data by element
+const AWAKEN_DATA = {
+  "火": {
+    revolt: "ファイアレヴォルト",
+    boss: "アドラグレンド",
+    dungeons: [
+      { area: "トートデルベ砂丘", name: "膨張する災禍" },
+      { area: "チャマ霊窟", name: "焔の祭壇" },
+      { area: "バトルート溶岩洞", name: "炎の湖" }
+    ]
+  },
+  "水": {
+    revolt: "ウォータレヴォルト",
+    boss: "エイルヴェラー",
+    dungeons: [
+      { area: "ハンブベル大沼", name: "深淵に潜む大蛇" },
+      { area: "ラータパ地下道", name: "神槍演武" },
+      { area: "プエドワ岩礁", name: "岩城の守り手" }
+    ]
+  },
+  "木": {
+    revolt: "リーフレヴォルト",
+    boss: "ベルセデリオ",
+    dungeons: [
+      { area: "アンヌトロン樹海", name: "樹海の守り手" },
+      { area: "コプック山麓", name: "大樹の足下" },
+      { area: "ボア湿原", name: "暴れ怪物のねぐら" }
+    ]
+  },
+  "光": {
+    revolt: "ライトレヴォルト",
+    boss: "ゾンバルディエ",
+    dungeons: [
+      { area: "ロアラ結晶殿", name: "月射しの庭" }
+    ]
+  },
+  "闇": {
+    revolt: "ダークレヴォルト",
+    boss: "フィアドラーク",
+    dungeons: [
+      { area: "クエッグ渓谷", name: "昏き奈落の牢" }
+    ]
+  }
+};
 
 // Leader skill category definitions
 const LS_RULES = [
@@ -1967,6 +2037,22 @@ function showDetail(name) {
   } else {
     abEl.innerHTML = "";
     abEl.style.display = "none";
+  }
+
+  // Awakening info (★7 characters with element)
+  const awakenEl = document.getElementById("detailAwaken");
+  const aw = m.element && m.rarity >= 7 ? AWAKEN_DATA[m.element] : null;
+  if (aw) {
+    let awHtml = '<div class="awaken-title">&#9733; 覺醒素材</div>';
+    awHtml += '<div class="awaken-revolt">' + aw.revolt + '</div>';
+    aw.dungeons.forEach(d => {
+      awHtml += '<div class="awaken-dungeon"><span class="awaken-dungeon-name">' + d.name + '</span><br><span class="awaken-dungeon-area">【' + d.area + '】</span></div>';
+    });
+    awHtml += '<div class="awaken-boss">Boss: ' + aw.boss + '</div>';
+    awakenEl.innerHTML = awHtml;
+    awakenEl.style.display = "";
+  } else {
+    awakenEl.style.display = "none";
   }
 
   // Team recommendation (9+ score only)
