@@ -245,8 +245,65 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border-radius: 8px;
   border: 2px solid var(--border);
   flex-shrink: 0;
-  background: var(--bg);
+  background: linear-gradient(135deg, var(--bg) 25%, var(--card-hover) 50%, var(--bg) 75%);
+  background-size: 200% 200%;
+  animation: shimmer 1.5s ease infinite;
   object-fit: cover;
+}
+
+.monster-icon[src] { animation: none; background: var(--bg); }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Obtain tag on card */
+.card-obtain {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  background: rgba(230,126,34,0.2); color: #e67e22;
+  white-space: nowrap; margin-top: 1px; display: inline-block;
+}
+
+/* No data indicator */
+.card-nodata {
+  font-size: 9px; color: var(--text-dim); opacity: 0.5;
+  margin-top: 1px;
+}
+
+/* Card tags */
+.card-tags {
+  display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px;
+}
+.card-tag {
+  font-size: 9px; padding: 0 4px; border-radius: 3px; line-height: 16px;
+  background: rgba(79,195,247,0.12); color: var(--accent); white-space: nowrap;
+}
+.card-tag.t-chain { background: rgba(46,204,113,0.15); color: #2ecc71; }
+.card-tag.t-speed { background: rgba(241,196,15,0.15); color: #f1c40f; }
+.card-tag.t-dmg { background: rgba(231,76,60,0.15); color: #e74c3c; }
+.card-tag.t-def { background: rgba(52,152,219,0.15); color: #3498db; }
+.card-tag.t-support { background: rgba(155,89,182,0.15); color: #9b59b6; }
+
+/* Soul recommendation section */
+.soul-section { margin-top: 16px; }
+.soul-title {
+  font-size: 13px; font-weight: 600; color: #f1c40f;
+  margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+}
+.soul-item {
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 4px 0; font-size: 12px; border-bottom: 1px solid rgba(45,74,94,0.3);
+}
+.soul-item:last-child { border-bottom: none; }
+.soul-name { color: var(--accent); font-weight: 500; white-space: nowrap; }
+.soul-effect { color: var(--text-dim); flex: 1; }
+
+/* Similar characters section */
+.similar-section { margin-top: 16px; }
+.similar-title {
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
 }
 
 .monster-card.owned .monster-icon {
@@ -1082,6 +1139,20 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   .detail-actions { gap: 6px; }
   .detail-actions .btn { padding: 10px 8px; font-size: 13px; }
 
+  /* Card tags on mobile */
+  .card-tags { gap: 1px; margin-top: 2px; }
+  .card-tag { font-size: 8px; padding: 0 3px; line-height: 14px; }
+
+  /* Soul & similar sections on mobile */
+  .soul-section { margin-top: 12px; }
+  .soul-title { font-size: 12px; margin-bottom: 6px; }
+  .soul-item { font-size: 11px; gap: 6px; }
+  .soul-name { font-size: 11px; }
+  .soul-effect { font-size: 10px; }
+
+  .similar-section { margin-top: 12px; }
+  .similar-title { font-size: 12px; margin-bottom: 6px; }
+
   .status-bar { padding: 6px; font-size: 12px; }
 
   .scroll-top { bottom: 16px; right: 16px; width: 40px; height: 40px; font-size: 18px; }
@@ -1258,6 +1329,30 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   </div>
 </div>
 
+<div class="filter-group" id="roleGroup">
+  <div class="filter-group-header" data-toggle="roleGroup">
+    <span class="filter-group-toggle">▼</span>
+    <span class="filter-group-title">角色定位</span>
+    <span class="filter-group-count" id="roleCount"></span>
+  </div>
+  <div class="filter-tags" id="roleFilterRow">
+    <span class="tag" data-role="連鎖">🔗 連鎖</span>
+    <span class="tag" data-role="無連鎖">⛓ 無連鎖</span>
+    <span class="tag" data-role="速攻">⚡ 速攻</span>
+    <span class="tag" data-role="全體">💥 全體化</span>
+    <span class="tag" data-role="貫通">🎯 貫通</span>
+    <span class="tag" data-role="破盾">💔 護盾破壞</span>
+    <span class="tag" data-role="防貫">🗡 防護貫通</span>
+    <span class="tag" data-role="格擋">🛡 格擋</span>
+    <span class="tag" data-role="減傷">🧱 傷害減輕</span>
+    <span class="tag" data-role="回復">💚 回復</span>
+    <span class="tag" data-role="復活">✨ 復活</span>
+    <span class="tag" data-role="設置">🪤 設置/陷阱</span>
+    <span class="tag" data-role="移動">🏃 盤面移動</span>
+    <span class="tag" data-role="誘爆">💣 誘爆</span>
+  </div>
+</div>
+
 <div class="filter-group collapsed" id="tagGroup">
   <div class="filter-group-header" data-toggle="tagGroup">
     <span class="filter-group-toggle">▼</span>
@@ -1357,6 +1452,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
       <dl class="detail-info-grid" id="detailInfo"></dl>
       <div class="detail-tags" id="detailTags"></div>
       <div class="detail-abilities" id="detailAbilities"></div>
+      <div class="soul-section" id="detailSouls" style="display:none"></div>
+      <div class="similar-section" id="detailSimilar" style="display:none"></div>
       <div class="awaken-section" id="detailAwaken" style="display:none"></div>
       <div class="team-rec" id="teamRec" style="display:none"></div>
       <div class="detail-actions">
@@ -1426,6 +1523,7 @@ let _activeLsFilters = new Set();
 let _activeAsFilters = new Set();
 let _activeTpFilters = new Set();
 let _activeTagFilters = new Set();
+let _activeRoleFilters = new Set();
 let _recentHistory = [];
 let _viewMode = "grid"; // "grid" | "list"
 let _currentDetailName = null;
@@ -1434,6 +1532,7 @@ let _skillSearchIndex = []; // built after init
 let _tbSlots = [null, null, null, null]; // team builder slots
 let _tbSelectedIdx = 0; // which slot is being filled
 let _savedTeams = []; // saved teams from localStorage
+let _skillInvertedIndex = new Map(); // keyword → Set of monster names
 const TEAMS_KEY = "sb_saved_teams";
 const MAX_RECENT = 10;
 const RECENT_KEY = "sb_recent_history";
@@ -1443,12 +1542,84 @@ const BATCH_SIZE = 100;
 const ICON_PREFIX = "https://img.gamewith.jp/article_tools/summonsboard/gacha/";
 const URL_PREFIX = "https://gamewith.jp/summonsboard/article/show/";
 
+// Role filter keyword mapping (role label → tag keywords to match)
+const ROLE_KEYWORDS = {
+  "連鎖": ["有連鎖"],
+  "無連鎖": ["無連鎖"],
+  "速攻": ["速攻"],
+  "全體": ["全體化"],
+  "貫通": ["貫通"],
+  "破盾": ["護盾破壞"],
+  "防貫": ["防護貫通"],
+  "格擋": ["格擋賦予"],
+  "減傷": ["全傷害減輕", "傷害減輕"],
+  "回復": ["回復賦予", "HP回復"],
+  "復活": ["復活"],
+  "設置": ["陷阱", "設置"],
+  "移動": ["盤面移動"],
+  "誘爆": ["誘爆"],
+};
+
+// Card tag mapping (hoisted for performance — avoid re-creation per renderCard call)
+const CARD_TAG_MAP = [
+  { keywords: ["有連鎖"], label: "連鎖", cls: "t-chain" },
+  { keywords: ["無連鎖"], label: "無連鎖", cls: "t-chain" },
+  { keywords: ["速攻"], label: "速攻", cls: "t-speed" },
+  { keywords: ["全體化"], label: "全體", cls: "t-dmg" },
+  { keywords: ["貫通"], label: "貫通", cls: "t-dmg" },
+  { keywords: ["護盾破壞"], label: "破盾", cls: "t-dmg" },
+  { keywords: ["防護貫通"], label: "防貫", cls: "t-dmg" },
+  { keywords: ["格擋賦予"], label: "格擋", cls: "t-def" },
+  { keywords: ["全傷害減輕", "傷害減輕"], label: "減傷", cls: "t-def" },
+  { keywords: ["回復賦予", "HP回復"], label: "回復", cls: "t-def" },
+  { keywords: ["復活"], label: "復活", cls: "t-def" },
+  { keywords: ["陷阱", "設置"], label: "設置", cls: "t-support" },
+  { keywords: ["盤面移動"], label: "移動", cls: "t-support" },
+  { keywords: ["誘爆"], label: "誘爆", cls: "t-support" },
+];
+
+// Soul name translation (Japanese → Chinese)
+const SOUL_TRANSLATE = {
+  "HP強化": "HP強化", "HP％強化": "HP%強化", "HP%強化": "HP%強化",
+  "攻撃力強化": "攻擊力強化", "攻撃力強化2": "攻擊力強化2", "攻撃力％強化": "攻擊力%強化",
+  "攻撃力%強化": "攻擊力%強化",
+  "獲得TPアップ": "TP獲取提升", "TP獲得アップ": "TP獲取提升",
+  "スタンダメージ増加": "暈眩傷害增加",
+  "HP依存ダメージスキル強化": "HP依存傷害技能強化",
+  "ダメージスキル強化": "傷害技能強化",
+  "固定ダメージスキル強化": "固定傷害技能強化",
+  "スキルブースト": "技能加速",
+  "反撃ダメージ増加": "反擊傷害增加",
+  "スキルダメージ軽減": "技能傷害減輕",
+  "全ダメージ軽減": "全傷害減輕",
+  "物理ダメージ軽減": "物理傷害減輕",
+  "HP回復量アップ": "HP回復量提升",
+  "チェイン追撃": "連鎖追擊",
+  "回復量アップ": "回復量提升",
+  "ブロック": "格擋",
+  "ダメージ無効": "傷害無效",
+  "攻撃力アップ": "攻擊力提升",
+  "HPアップ": "HP提升",
+  "護盾破壊": "護盾破壞",
+  "バリア破壊ダメージ": "護盾破壞傷害",
+};
+function translateSoul(name) {
+  if (SOUL_TRANSLATE[name]) return SOUL_TRANSLATE[name];
+  // Auto-translate common patterns
+  return name.replace(/ダメージ/g, "傷害").replace(/スキル/g, "技能")
+    .replace(/アップ/g, "提升").replace(/アタック/g, "攻擊")
+    .replace(/増加/g, "增加").replace(/軽減/g, "減輕")
+    .replace(/強化/g, "強化").replace(/攻撃/g, "攻擊")
+    .replace(/獲得/g, "獲取").replace(/回復/g, "回復");
+}
+
 // Awakening dungeon data by element
 const AWAKEN_DATA = {
   "火": {
     revolt: "火焰革命石",
     revoltJa: "ファイアレヴォルト",
     boss: "アドラグレンド",
+    guideUrl: "https://gamewith.jp/summonsboard/article/show/87497",
     dungeons: [
       { area: "托特德爾貝砂丘", name: "膨脹的災禍" },
       { area: "查瑪靈窟", name: "焰之祭壇" },
@@ -1459,6 +1630,7 @@ const AWAKEN_DATA = {
     revolt: "流水革命石",
     revoltJa: "ウォータレヴォルト",
     boss: "エイルヴェラー",
+    guideUrl: "https://gamewith.jp/summonsboard/article/show/93122",
     dungeons: [
       { area: "漢布貝爾大沼", name: "深淵潛伏的大蛇" },
       { area: "拉塔帕地下道", name: "神槍演武" },
@@ -1469,6 +1641,7 @@ const AWAKEN_DATA = {
     revolt: "綠葉革命石",
     revoltJa: "リーフレヴォルト",
     boss: "ベルセデリオ",
+    guideUrl: "https://gamewith.jp/summonsboard/article/show/93121",
     dungeons: [
       { area: "安努特隆樹海", name: "樹海的守護者" },
       { area: "科普克山麓", name: "大樹之下" },
@@ -1479,6 +1652,7 @@ const AWAKEN_DATA = {
     revolt: "光明革命石",
     revoltJa: "ライトレヴォルト",
     boss: "ゾンバルディエ",
+    guideUrl: "https://gamewith.jp/summonsboard/article/show/93425",
     dungeons: [
       { area: "洛阿拉結晶殿", name: "月光之庭" }
     ]
@@ -1487,6 +1661,7 @@ const AWAKEN_DATA = {
     revolt: "暗黑革命石",
     revoltJa: "ダークレヴォルト",
     boss: "フィアドラーク",
+    guideUrl: "https://gamewith.jp/summonsboard/article/show/93316",
     dungeons: [
       { area: "庫艾格溪谷", name: "昏暗深淵之牢" }
     ]
@@ -1607,18 +1782,36 @@ function expandMonster(c) {
   };
 }
 
+// Expand compact skill entry (n=name, e=effect, u=turn, c=tp_cost)
+function expandSkill(s) {
+  if (!s) return null;
+  const r = {};
+  if (s.n !== undefined) r.name = s.n;
+  else if (s.name !== undefined) r.name = s.name;
+  if (s.e !== undefined) r.effect = s.e;
+  else if (s.effect !== undefined) r.effect = s.effect;
+  if (s.u !== undefined) r.turn = s.u;
+  else if (s.turn !== undefined) r.turn = s.turn;
+  if (s.c !== undefined) r.tp_cost = s.c;
+  else if (s.tp_cost !== undefined) r.tp_cost = s.tp_cost;
+  // Return null if no meaningful data was extracted (avoid empty truthy objects)
+  if (!r.name && !r.effect) return null;
+  return r;
+}
+
 // Expand compact ability entry
 function expandAbility(c) {
   return {
     hp: c.h || 0,
     atk: c.a || 0,
     soul_slots: c.s || 0,
-    leader_skill: c.l || null,
-    active_skill: c.k || null,
-    tp_skill: c.t || null,
+    leader_skill: expandSkill(c.l),
+    active_skill: expandSkill(c.k),
+    tp_skill: expandSkill(c.t),
     potentials: c.p || null,
     abilities: c.b || null,
-    obtain: c.o || null
+    obtain: c.o || null,
+    recommended_souls: c.rs || null
   };
 }
 
@@ -1680,11 +1873,28 @@ async function init() {
     bar.style.width = "100%";
     text.textContent = "完成！";
 
+    // Update filter dropdown counts
+    updateFilterCounts();
+
+    // Mobile: default collapse filter groups
+    if (window.innerWidth <= 600) {
+      ["lsGroup", "asGroup", "tpGroup", "roleGroup"].forEach(id => {
+        document.getElementById(id).classList.add("collapsed");
+      });
+    }
+
     // Render
     requestAnimationFrame(() => {
       renderGrid();
       updateTagCounts();
       renderRecent();
+
+      // Open character from URL hash
+      const hash = location.hash;
+      if (hash.startsWith("#detail=")) {
+        const name = decodeURIComponent(hash.slice(8));
+        if (monsterMap.has(name)) showDetail(name);
+      }
     });
 
   } catch (e) {
@@ -1715,6 +1925,7 @@ function toggleOwned(name) {
   if (ownedSet.has(name)) ownedSet.delete(name);
   else ownedSet.add(name);
   _teamRecCache.clear();
+  invalidateCardCache(name);
   saveOwned();
 }
 
@@ -1730,7 +1941,7 @@ function getFiltered() {
 
   let list;
   if (search && _skillSearchMode) {
-    const matchNames = new Set(_skillSearchIndex.filter(idx => idx.textLower.includes(search)).map(idx => idx.m.name));
+    const matchNames = searchSkillEffects(search);
     list = allMonsters.filter(m => matchNames.has(m.name));
   } else if (search) {
     list = _searchIndex.filter(idx => idx.nameLower.includes(search) || idx.noStr.includes(search)).map(idx => idx.m);
@@ -1784,6 +1995,15 @@ function getFiltered() {
         if (!m.tags.includes(f)) return false;
       }
     }
+    // Role filter (from card tag categories)
+    if (_activeRoleFilters.size > 0) {
+      if (!m.tags) return false;
+      for (const role of _activeRoleFilters) {
+        const kws = ROLE_KEYWORDS[role];
+        if (!kws) return false;
+        if (!m.tags.some(t => kws.some(k => t.includes(k)))) return false;
+      }
+    }
     return true;
   });
 
@@ -1829,6 +2049,34 @@ function renderCard(m) {
     : "";
   const rarityHtml = m.rarity ? '<span class="rarity">★' + m.rarity + '</span>' : "";
 
+  // Obtain tag & data indicator
+  const abKey = String(m.no || m.name);
+  const abData = abilityMap.get(abKey);
+  let extraHtml = "";
+  if (abData && abData.obtain) {
+    const obt = abData.obtain.replace("レアガチャ", "轉蛋").replace("フェス限", "Fes限").replace("コラボ", "聯動").replace("降臨", "降臨").replace("ドロップ", "掉落").replace("交換", "交換").replace("イベント", "活動");
+    extraHtml = '<span class="card-obtain">' + obt.slice(0, 10) + '</span>';
+  } else if (!abData || (!abData.leader_skill && !abData.active_skill)) {
+    extraHtml = '<span class="card-nodata">資料不完整</span>';
+  }
+
+  // Key tags for card display (max 4)
+  let tagsHtml = "";
+  if (m.tags && m.tags.length > 0) {
+    const cardTags = [];
+    for (const rule of CARD_TAG_MAP) {
+      if (cardTags.length >= 4) break;
+      if (m.tags.some(t => rule.keywords.some(k => t.includes(k)))) {
+        cardTags.push(rule);
+      }
+    }
+    if (cardTags.length > 0) {
+      tagsHtml = '<div class="card-tags">' +
+        cardTags.map(t => '<span class="card-tag ' + t.cls + '">' + t.label + '</span>').join("") +
+        '</div>';
+    }
+  }
+
   return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
     '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
     iconHtml +
@@ -1839,13 +2087,31 @@ function renderCard(m) {
         rarityHtml +
         ' <span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span>' +
         ' / ' + m.type2 +
+        ' ' + extraHtml +
       '</div>' +
+      tagsHtml +
     '</div>' +
     '<div class="monster-scores">' +
       '<div class="score-badge"><div class="score-label">隊長</div><div class="score-value ' + scoreClass(m.leader_score) + '">' + m.leader_score + '</div></div>' +
       '<div class="score-badge"><div class="score-label">副隊</div><div class="score-value ' + scoreClass(m.sub_score) + '">' + m.sub_score + '</div></div>' +
     '</div>' +
   '</div>';
+}
+
+// Card HTML cache (keyed by name + owned state)
+const _cardHtmlCache = new Map();
+function getCachedCard(m) {
+  const key = m.name + (ownedSet.has(m.name) ? "_1" : "_0");
+  let html = _cardHtmlCache.get(key);
+  if (!html) {
+    html = renderCard(m);
+    _cardHtmlCache.set(key, html);
+  }
+  return html;
+}
+function invalidateCardCache(name) {
+  _cardHtmlCache.delete(name + "_0");
+  _cardHtmlCache.delete(name + "_1");
 }
 
 function renderGrid() {
@@ -1855,12 +2121,12 @@ function renderGrid() {
 
   document.getElementById("filteredCount").textContent = _currentList.length;
 
-  // Render first batch using DocumentFragment
+  // Render first batch using DocumentFragment + cache
   const batch = _currentList.slice(0, BATCH_SIZE);
   const fragment = document.createDocumentFragment();
   const temp = document.createElement("div");
   for (let i = 0; i < batch.length; i++) {
-    temp.innerHTML = renderCard(batch[i]);
+    temp.innerHTML = getCachedCard(batch[i]);
     fragment.appendChild(temp.firstElementChild);
   }
   grid.innerHTML = "";
@@ -1886,7 +2152,7 @@ function loadMore() {
   const temp = document.createElement("div");
 
   for (let i = _renderedCount; i < end; i++) {
-    temp.innerHTML = renderCard(_currentList[i]);
+    temp.innerHTML = getCachedCard(_currentList[i]);
     fragment.appendChild(temp.firstElementChild);
   }
 
@@ -1937,8 +2203,55 @@ document.getElementById("monsterGrid").addEventListener("click", e => {
   }
   const card = e.target.closest(".monster-card");
   if (!card) return;
+  if (card.dataset.longPressed) { delete card.dataset.longPressed; return; }
+  if (bulkMode) {
+    const name = card.dataset.name;
+    toggleOwned(name);
+    const isOwned = ownedSet.has(name);
+    card.classList.toggle("owned", isOwned);
+    const cs = card.querySelector(".card-star");
+    if (cs) cs.textContent = isOwned ? "★" : "☆";
+    return;
+  }
   showDetail(card.dataset.name);
 });
+
+// Right-click quick toggle owned
+document.getElementById("monsterGrid").addEventListener("contextmenu", e => {
+  const card = e.target.closest(".monster-card");
+  if (!card) return;
+  e.preventDefault();
+  const name = card.dataset.name;
+  toggleOwned(name);
+  const isOwned = ownedSet.has(name);
+  card.classList.toggle("owned", isOwned);
+  const star = card.querySelector(".card-star");
+  if (star) star.textContent = isOwned ? "★" : "☆";
+});
+
+// Mobile long-press quick toggle owned
+let _longPressTimer = null;
+document.getElementById("monsterGrid").addEventListener("touchstart", e => {
+  const card = e.target.closest(".monster-card");
+  if (!card || e.target.closest(".card-star")) return;
+  _longPressTimer = setTimeout(() => {
+    _longPressTimer = null;
+    const name = card.dataset.name;
+    toggleOwned(name);
+    const isOwned = ownedSet.has(name);
+    card.classList.toggle("owned", isOwned);
+    const star = card.querySelector(".card-star");
+    if (star) star.textContent = isOwned ? "★" : "☆";
+    // Prevent click after long press
+    card.dataset.longPressed = "1";
+  }, 500);
+}, { passive: true });
+document.getElementById("monsterGrid").addEventListener("touchend", () => {
+  if (_longPressTimer) { clearTimeout(_longPressTimer); _longPressTimer = null; }
+}, { passive: true });
+document.getElementById("monsterGrid").addEventListener("touchmove", () => {
+  if (_longPressTimer) { clearTimeout(_longPressTimer); _longPressTimer = null; }
+}, { passive: true });
 
 function showDetail(name) {
   const m = monsterMap.get(name);
@@ -1985,7 +2298,10 @@ function showDetail(name) {
   // Tags
   const tagsEl = document.getElementById("detailTags");
   if (m.tags && m.tags.length > 0) {
-    const tagHtml = m.tags.map(t => {
+    const filteredTags = m.tags.filter(t =>
+      !/^Lv\d+$/i.test(t) && t !== "潛在" && t !== "轉蛋取得" && t !== "掉落/獎勵"
+    );
+    const tagHtml = filteredTags.map(t => {
       let cls = "detail-tag";
       if (t.includes("連鎖") || t.includes("速攻")) cls += " chain";
       else if (t.includes("提升") || t.includes("強化") || t.includes("增益")) cls += " buff";
@@ -2015,19 +2331,21 @@ function showDetail(name) {
     if (ab.leader_skill) {
       html += '<div class="ability-section ls"><div class="ability-label">隊長技能</div>';
       if (ab.leader_skill.name) html += '<div class="ability-name">' + ab.leader_skill.name + '</div>';
-      html += '<div class="ability-effect">' + ab.leader_skill.effect + '</div></div>';
+      if (ab.leader_skill.effect) html += '<div class="ability-effect">' + ab.leader_skill.effect + '</div>';
+      html += '</div>';
     }
     if (ab.active_skill) {
-      html += '<div class="ability-section as"><div class="ability-label">主動技能</div>';
+      const turnLabel = ab.active_skill.turn ? ' <span style="font-size:11px;color:var(--score-high)">(' + ab.active_skill.turn.replace(/ターン/g, '回合') + ')</span>' : '';
+      html += '<div class="ability-section as"><div class="ability-label">主動技能' + turnLabel + '</div>';
       if (ab.active_skill.name) html += '<div class="ability-name">' + ab.active_skill.name + '</div>';
-      html += '<div class="ability-effect">' + ab.active_skill.effect + '</div>';
-      if (ab.active_skill.turn) html += '<div class="ability-meta">冷卻: ' + ab.active_skill.turn.replace(/ターン/g, '回合') + '</div>';
+      if (ab.active_skill.effect) html += '<div class="ability-effect">' + ab.active_skill.effect + '</div>';
       html += '</div>';
     }
     if (ab.tp_skill) {
       html += '<div class="ability-section tp"><div class="ability-label">TP 技能' + (ab.tp_skill.tp_cost ? ' (' + ab.tp_skill.tp_cost + 'TP)' : '') + '</div>';
       if (ab.tp_skill.name) html += '<div class="ability-name">' + ab.tp_skill.name + '</div>';
-      html += '<div class="ability-effect">' + ab.tp_skill.effect + '</div></div>';
+      if (ab.tp_skill.effect) html += '<div class="ability-effect">' + ab.tp_skill.effect + '</div>';
+      html += '</div>';
     }
     if (ab.abilities && ab.abilities.length) {
       html += '<div class="ability-section"><div class="ability-label">能力</div>';
@@ -2051,6 +2369,21 @@ function showDetail(name) {
     abEl.style.display = "none";
   }
 
+  // Recommended souls
+  const soulEl = document.getElementById("detailSouls");
+  if (ab && ab.recommended_souls && ab.recommended_souls.length > 0) {
+    let soulHtml = '<div class="soul-title">推薦ソウル裝備</div>';
+    ab.recommended_souls.forEach(s => {
+      const soulName = translateSoul(s.name);
+      const soulEffect = translateSoul(s.effect);
+      soulHtml += '<div class="soul-item"><span class="soul-name">' + escHtml(soulName) + '</span><span class="soul-effect">' + escHtml(soulEffect) + '</span></div>';
+    });
+    soulEl.innerHTML = soulHtml;
+    soulEl.style.display = "";
+  } else {
+    soulEl.style.display = "none";
+  }
+
   // Awakening info (★7 characters with element)
   const awakenEl = document.getElementById("detailAwaken");
   const aw = m.element && m.rarity >= 7 ? AWAKEN_DATA[m.element] : null;
@@ -2062,6 +2395,7 @@ function showDetail(name) {
       awHtml += '<div class="awaken-dungeon"><span class="awaken-dungeon-name">' + d.name + '</span><br><span class="awaken-dungeon-area">【' + d.area + '】</span></div>';
     });
     awHtml += '<div class="awaken-boss">首領：' + aw.boss + '</div>';
+    awHtml += '<a href="' + aw.guideUrl + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:12px;color:var(--accent);text-decoration:underline">查看攻略 →</a>';
     awakenEl.innerHTML = awHtml;
     awakenEl.style.display = "";
   } else {
@@ -2081,6 +2415,58 @@ function showDetail(name) {
     teamRecEl.style.display = "none";
   }
 
+  // Related forms (evolution chain) + similar characters
+  const simEl = document.getElementById("detailSimilar");
+  let simHtml = "";
+
+  // Find related forms by name (覚醒X ↔ X, X(Y) ↔ X, etc.)
+  const baseName = m.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim();
+  const related = allMonsters.filter(s =>
+    s.name !== m.name && (
+      s.name.includes(baseName) && baseName.length >= 2 ||
+      m.name.includes(s.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim()) && s.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim().length >= 2
+    )
+  ).sort((a, b) => (b.no || 0) - (a.no || 0)).slice(0, 6);
+
+  if (related.length > 0) {
+    simHtml += '<div class="similar-title">關聯型態</div><div class="team-slots">';
+    related.forEach(s => {
+      simHtml += '<div class="team-slot" data-name="' + escAttr(s.name) + '">' +
+        (s.icon ? '<img src="' + s.icon + '" alt="' + escAttr(s.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
+        '<div class="team-slot-name">' + escHtml(s.name) + '</div>' +
+        '<div class="team-slot-score">★' + (s.rarity || '?') + ' S:' + s.sub_score + '</div></div>';
+    });
+    simHtml += '</div>';
+  }
+
+  // Similar characters (same element + similar score)
+  const similar = allMonsters.filter(s =>
+    s.name !== m.name && s.element === m.element && s.rarity === m.rarity &&
+    Math.abs(s.sub_score - m.sub_score) <= 1 &&
+    !related.includes(s)
+  ).sort((a, b) => b.sub_score - a.sub_score).slice(0, 6);
+
+  if (similar.length > 0) {
+    simHtml += '<div class="similar-title">相似角色</div><div class="team-slots">';
+    similar.forEach(s => {
+      simHtml += '<div class="team-slot" data-name="' + escAttr(s.name) + '">' +
+        (s.icon ? '<img src="' + s.icon + '" alt="' + escAttr(s.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
+        '<div class="team-slot-name">' + escHtml(s.name) + '</div>' +
+        '<div class="team-slot-score">S:' + s.sub_score + '</div></div>';
+    });
+    simHtml += '</div>';
+  }
+
+  if (simHtml) {
+    simEl.innerHTML = simHtml;
+    simEl.style.display = "";
+    simEl.querySelectorAll(".team-slot[data-name]").forEach(slot => {
+      slot.addEventListener("click", () => showDetail(slot.dataset.name));
+    });
+  } else {
+    simEl.style.display = "none";
+  }
+
   const gwLink = document.getElementById("detailGwLink");
   gwLink.href = m.url || "#";
   gwLink.style.display = m.url ? "" : "none";
@@ -2088,6 +2474,9 @@ function showDetail(name) {
   const overlay = document.getElementById("detailOverlay");
   overlay.classList.add("active");
   overlay.querySelector(".detail-panel").scrollTop = 0;
+
+  // Update URL hash
+  history.replaceState(null, "", "#detail=" + encodeURIComponent(name));
 }
 
 function buildTeamRec(leader) {
@@ -2209,11 +2598,14 @@ document.getElementById("detailStar").addEventListener("click", function() {
 
 document.getElementById("detailClose").addEventListener("click", () => {
   document.getElementById("detailOverlay").classList.remove("active");
+  history.replaceState(null, "", location.pathname + location.search);
 });
 
 document.getElementById("detailOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget)
+  if (e.target === e.currentTarget) {
     document.getElementById("detailOverlay").classList.remove("active");
+    history.replaceState(null, "", location.pathname + location.search);
+  }
 });
 
 // (keyboard shortcuts are in the extended handler below)
@@ -2265,6 +2657,22 @@ setupSkillFilter("asFilterRow", "as", _activeAsFilters, "asCount");
 setupSkillFilter("tpFilterRow", "tp", _activeTpFilters, "tpCount");
 
 // Tag filter
+document.getElementById("roleFilterRow").addEventListener("click", e => {
+  const tag = e.target.closest(".tag[data-role]");
+  if (!tag) return;
+  const val = tag.dataset.role;
+  if (_activeRoleFilters.has(val)) {
+    _activeRoleFilters.delete(val);
+    tag.classList.remove("active");
+  } else {
+    _activeRoleFilters.add(val);
+    tag.classList.add("active");
+  }
+  document.getElementById("roleCount").textContent = _activeRoleFilters.size ? "(" + _activeRoleFilters.size + ")" : "";
+  updateFilterSummary();
+  renderGrid();
+});
+
 document.getElementById("tagFilterRow").addEventListener("click", e => {
   const tag = e.target.closest(".tag[data-tag]");
   if (!tag) return;
@@ -2296,6 +2704,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   _activeAsFilters.clear();
   _activeTpFilters.clear();
   _activeTagFilters.clear();
+  _activeRoleFilters.clear();
   document.querySelectorAll(".filter-tags .tag.active").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".filter-group-count").forEach(c => c.textContent = "");
   // Clear select filters
@@ -2321,10 +2730,12 @@ function updateFilterSummary() {
   _activeAsFilters.forEach(f => chips.push("A:" + f));
   _activeTpFilters.forEach(f => chips.push("T:" + f));
   _activeTagFilters.forEach(f => chips.push(f));
+  _activeRoleFilters.forEach(f => chips.push("R:" + f));
   // Update group counts
   document.getElementById("lsCount").textContent = _activeLsFilters.size ? "(" + _activeLsFilters.size + ")" : "";
   document.getElementById("asCount").textContent = _activeAsFilters.size ? "(" + _activeAsFilters.size + ")" : "";
   document.getElementById("tpCount").textContent = _activeTpFilters.size ? "(" + _activeTpFilters.size + ")" : "";
+  document.getElementById("roleCount").textContent = _activeRoleFilters.size ? "(" + _activeRoleFilters.size + ")" : "";
 
   const bar = document.getElementById("resetBar");
   const hasAny = chips.length > 0 ||
@@ -2361,12 +2772,16 @@ document.getElementById("bulkToggle").addEventListener("click", function() {
 
 document.getElementById("bulkSelectAll").addEventListener("click", () => {
   _currentList.forEach(m => ownedSet.add(m.name));
+  _cardHtmlCache.clear();
+  _teamRecCache.clear();
   saveOwned();
   renderGrid();
 });
 
 document.getElementById("bulkDeselectAll").addEventListener("click", () => {
   _currentList.forEach(m => ownedSet.delete(m.name));
+  _cardHtmlCache.clear();
+  _teamRecCache.clear();
   saveOwned();
   renderGrid();
 });
@@ -2395,6 +2810,8 @@ document.getElementById("modalImport").addEventListener("click", () => {
     const data = JSON.parse(document.getElementById("modalData").value);
     if (Array.isArray(data)) {
       ownedSet = new Set(data);
+      _cardHtmlCache.clear();
+      _teamRecCache.clear();
       saveOwned();
       renderGrid();
       alert("已匯入 " + ownedSet.size + " 個持有角色");
@@ -2595,6 +3012,46 @@ function updateTagCounts() {
     }
     countEl.textContent = count;
   });
+  // Count role filters
+  document.querySelectorAll(".filter-tags .tag[data-role]").forEach(tag => {
+    const role = tag.dataset.role;
+    const kws = ROLE_KEYWORDS[role];
+    if (!kws) return;
+    const count = allMonsters.filter(m => m.tags && m.tags.some(t => kws.some(k => t.includes(k)))).length;
+    let countEl = tag.querySelector(".tag-count");
+    if (!countEl) {
+      countEl = document.createElement("span");
+      countEl.className = "tag-count";
+      tag.appendChild(countEl);
+    }
+    countEl.textContent = count;
+  });
+}
+
+// === Filter dropdown counts ===
+function updateFilterCounts() {
+  const elCounts = {};
+  const rarCounts = {};
+  const t1Counts = {};
+  const t2Counts = {};
+  for (const m of allMonsters) {
+    if (m.element) elCounts[m.element] = (elCounts[m.element] || 0) + 1;
+    if (m.rarity) rarCounts[m.rarity] = (rarCounts[m.rarity] || 0) + 1;
+    if (m.type1) t1Counts[m.type1] = (t1Counts[m.type1] || 0) + 1;
+    if (m.type2) t2Counts[m.type2] = (t2Counts[m.type2] || 0) + 1;
+  }
+  document.querySelectorAll("#filterElement option[value]").forEach(o => {
+    if (o.value) o.textContent = o.value + " (" + (elCounts[o.value] || 0) + ")";
+  });
+  document.querySelectorAll("#filterRarity option[value]").forEach(o => {
+    if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
+  });
+  document.querySelectorAll("#filterType1 option[value]").forEach(o => {
+    if (o.value) o.textContent = o.value + " (" + (t1Counts[o.value] || 0) + ")";
+  });
+  document.querySelectorAll("#filterType2 option[value]").forEach(o => {
+    if (o.value) o.textContent = o.value + " (" + (t2Counts[o.value] || 0) + ")";
+  });
 }
 
 // === Feature 6: Skill search mode ===
@@ -2608,6 +3065,7 @@ document.getElementById("searchModeToggle").addEventListener("click", function()
 
 function buildSkillSearchIndex() {
   _skillSearchIndex = [];
+  _skillInvertedIndex.clear();
   for (const m of allMonsters) {
     const abKey = String(m.no || m.name);
     const ab = abilityMap.get(abKey);
@@ -2619,8 +3077,30 @@ function buildSkillSearchIndex() {
       if (ab.abilities) ab.abilities.forEach(a => { text += (a.name || "") + " " + (a.effect || "") + " "; });
     }
     if (m.tags) text += m.tags.join(" ");
-    _skillSearchIndex.push({ textLower: text.toLowerCase(), m });
+    const lower = text.toLowerCase();
+    _skillSearchIndex.push({ textLower: lower, m });
+    // Build inverted index: extract CJK keywords (2-4 char)
+    const cjk = lower.match(/[\u3000-\u9fff\uff00-\uffef]{2,4}/g);
+    if (cjk) {
+      for (const kw of cjk) {
+        if (!_skillInvertedIndex.has(kw)) _skillInvertedIndex.set(kw, new Set());
+        _skillInvertedIndex.get(kw).add(m.name);
+      }
+    }
   }
+}
+
+// Optimized skill search using inverted index with fallback
+function searchSkillEffects(query) {
+  const q = query.toLowerCase();
+  // Try inverted index first for CJK queries
+  if (_skillInvertedIndex.has(q)) return _skillInvertedIndex.get(q);
+  // Fallback to linear scan
+  const result = new Set();
+  for (const idx of _skillSearchIndex) {
+    if (idx.textLower.includes(q)) result.add(idx.m.name);
+  }
+  return result;
 }
 
 // === Feature 4: Stats modal ===

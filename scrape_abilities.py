@@ -95,12 +95,19 @@ def parse_detail_page(html):
     as_name, as_effect = extract_skill_table(html, "アクティブスキル")
     if as_name or as_effect:
         skill = {"name": as_name, "effect": as_effect}
-        # 技能回合
+        # 技能回合 - from effect text
         turn_match = re.search(r"スキルターン\s*([\d]+ターン\s*→\s*[\d]+ターン)", as_effect)
         if turn_match:
             skill["turn"] = turn_match.group(1)
             skill["effect"] = as_effect[:as_effect.find("スキルターン")].strip()
         result["active_skill"] = skill
+
+    # === スキルターン (separate table) ===
+    st_name, st_effect = extract_skill_table(html, "スキルターン")
+    if st_effect and "active_skill" in result and not result["active_skill"].get("turn"):
+        turn_text = clean_html(st_effect).strip()
+        if turn_text:
+            result["active_skill"]["turn"] = turn_text
 
     # === TPスキル ===
     tp_name, tp_effect = extract_skill_table(html, "TPスキル")
@@ -152,6 +159,25 @@ def parse_detail_page(html):
         obtain_text = clean_html(obtain_match.group(1)).strip()
         if obtain_text:
             result["obtain"] = obtain_text
+
+    # === おすすめソウル (Recommended Souls) ===
+    soul_match = re.search(
+        r"<h3>おすすめソウル</h3>(.*?)(?:▶|サモンズボード攻略)",
+        html, re.DOTALL
+    )
+    if soul_match:
+        soul_section = soul_match.group(1)
+        soul_rows = re.findall(r"<tr[^>]*>(.*?)</tr>", soul_section, re.DOTALL)
+        souls = []
+        for row in soul_rows:
+            cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.DOTALL)
+            if len(cells) >= 2:
+                sname = clean_html(cells[0]).strip()
+                seffect = clean_html(cells[1]).strip()
+                if sname and "ソウル名" not in sname:
+                    souls.append({"name": sname, "effect": seffect})
+        if souls:
+            result["recommended_souls"] = souls
 
     # === 潛在效果 ===
     # Pattern 1: inline text after 特性の効果一覧 or 潜在効果
