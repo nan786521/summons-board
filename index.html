@@ -2158,6 +2158,7 @@ function buildTeamRec(leader) {
       (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
       elBadge +
       (isLeader ? '<span class="team-slot-role">L</span>' : '') +
+      (m.no ? '<div class="team-slot-score">No.' + m.no + '</div>' : '') +
       '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
       '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
       '</div>';
