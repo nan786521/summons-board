@@ -187,7 +187,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   display: inline-flex; align-items: center; gap: 3px;
   padding: 3px 8px; border-radius: 12px; cursor: pointer;
   border: 1px solid var(--border); background: var(--bg);
-  color: var(--text-dim); font-size: 12px; transition: all 0.15s;
+  color: var(--text-dim); font-size: 12px; transition: all 0.2s;
   white-space: nowrap;
 }
 .type-tag:hover { border-color: var(--accent); color: var(--text); }
@@ -261,7 +261,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border-radius: 8px;
   padding: 8px 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -322,7 +322,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 .soul-item {
   display: flex; gap: 8px; align-items: center;
-  padding: 4px 0; font-size: 12px; border-bottom: 1px solid rgba(45,74,94,0.3);
+  padding: 4px 0; font-size: 12px; border-bottom: 1px solid var(--border);
 }
 .soul-item:last-child { border-bottom: none; }
 .soul-icon { width: 24px; height: 24px; flex-shrink: 0; border-radius: 4px; vertical-align: middle; }
@@ -375,6 +375,10 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .monster-card.owned {
   background: var(--owned-bg);
   border-color: var(--owned-border);
+}
+.monster-card.owned:hover {
+  background: #1f4533;
+  border-color: #34d885;
 }
 
 .monster-info {
@@ -528,7 +532,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   overflow-y: auto;
 }
 
-.modal h2 { font-size: 18px; margin-bottom: 12px; }
+.modal h2 { font-size: 18px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 
 .modal textarea {
   width: 100%;
@@ -607,7 +611,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .btn-gw:hover { background: #d35400; }
 .card-star {
   font-size: 22px; cursor: pointer; color: var(--border);
-  flex-shrink: 0; transition: all 0.15s; user-select: none;
+  flex-shrink: 0; transition: all 0.2s; user-select: none;
   line-height: 1; padding: 4px;
 }
 .card-star:hover { transform: scale(1.2); }
@@ -721,7 +725,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .team-slot {
   position: relative; flex-shrink: 0; width: 72px; text-align: center;
   cursor: pointer; border-radius: 8px; padding: 4px;
-  border: 1px solid transparent; transition: all 0.15s;
+  border: 1px solid transparent; transition: all 0.2s;
 }
 .team-slot:hover { border-color: var(--accent); background: var(--card-hover); }
 .team-slot img {
@@ -788,7 +792,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   padding: 6px 14px; border-radius: 8px; cursor: pointer;
   border: 2px solid var(--border); background: var(--bg);
   color: var(--text); font-size: 13px; font-weight: 600;
-  transition: all 0.15s;
+  transition: all 0.2s;
 }
 .dungeon-el-btn:hover { border-color: var(--accent); }
 .dungeon-el-btn.active { border-color: var(--accent); background: var(--accent); color: #000; }
@@ -796,7 +800,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .dungeon-gimmick {
   padding: 4px 10px; border-radius: 12px; cursor: pointer;
   border: 1px solid var(--border); background: var(--bg);
-  color: var(--text-dim); font-size: 12px; transition: all 0.15s;
+  color: var(--text-dim); font-size: 12px; transition: all 0.2s;
 }
 .dungeon-gimmick:hover { border-color: var(--accent); color: var(--text); }
 .dungeon-gimmick.active { background: var(--accent); color: #000; border-color: var(--accent); }
@@ -828,7 +832,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .update-log-item {
   display: flex; gap: 10px; align-items: center;
   padding: 10px 0; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background 0.15s;
+  cursor: pointer; transition: background 0.2s;
 }
 .update-log-item:hover { background: var(--card-hover); }
 .update-log-item img {
@@ -937,7 +941,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   border-radius: 6px;
   padding: 2px;
   border: 1px solid transparent;
-  transition: all 0.15s;
+  transition: all 0.2s;
 }
 
 .recent-item:hover {
@@ -1075,7 +1079,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .tb-slot {
   width: 72px; height: 90px; border: 2px dashed var(--border); border-radius: 8px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s; position: relative;
+  cursor: pointer; transition: all 0.2s; position: relative;
 }
 .tb-slot:hover { border-color: var(--accent); background: var(--card-hover); }
 .tb-slot.filled { border-style: solid; }
@@ -1111,7 +1115,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 .tb-result-item {
   display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-  cursor: pointer; transition: background 0.15s; font-size: 13px;
+  cursor: pointer; transition: background 0.2s; font-size: 13px;
 }
 .tb-result-item:hover { background: var(--card-hover); }
 .tb-result-item img { width: 32px; height: 32px; border-radius: 4px; object-fit: cover; }
@@ -1123,7 +1127,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 .tb-saved-team {
   display: flex; align-items: center; gap: 6px; padding: 8px;
   background: var(--bg); border-radius: 8px; margin-bottom: 6px;
-  cursor: pointer; transition: background 0.15s;
+  cursor: pointer; transition: background 0.2s;
 }
 .tb-saved-team:hover { background: var(--card-hover); }
 .tb-saved-team img {
@@ -2365,6 +2369,8 @@ function getCachedCard(m) {
 function invalidateCardCache(name) {
   _cardHtmlCache.delete(name + "_0");
   _cardHtmlCache.delete(name + "_1");
+  _cardHtmlCache.delete(name + "_0_n");
+  _cardHtmlCache.delete(name + "_1_n");
 }
 
 function renderGrid() {
@@ -2515,6 +2521,7 @@ function showDetail(name) {
   if (m.no && _knownNos.size > 0 && !_knownNos.has(m.no)) {
     _knownNos.add(m.no);
     saveKnownNos();
+    invalidateCardCache(name);
     updateNewBadge();
   }
   const isOwned = ownedSet.has(name);
@@ -3724,6 +3731,11 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
   const gimmicks = [...document.querySelectorAll("#dungeonGimmicks .dungeon-gimmick.active")].map(g => g.dataset.gm);
   const counterEl = ELEMENT_COUNTER[enemyEl] || "";
 
+  if (!enemyEl && gimmicks.length === 0) {
+    document.getElementById("dungeonResult").innerHTML = '<div class="dungeon-no-result">請選擇敵方屬性或勾選副本機關，以獲得針對性推薦</div>';
+    return;
+  }
+
   // Score each owned character
   const owned = allMonsters.filter(m => ownedSet.has(m.name) && m.sub_score >= 5);
   if (owned.length === 0) {
@@ -3857,8 +3869,16 @@ const NEW_THRESHOLD = 50; // show top N newest as potentially new
 function loadKnownNos() {
   try {
     const data = localStorage.getItem(KNOWN_NOS_KEY);
-    if (data) _knownNos = new Set(JSON.parse(data));
-  } catch {}
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) _knownNos = new Set(parsed);
+      else { localStorage.removeItem(KNOWN_NOS_KEY); _knownNos = new Set(); }
+    }
+  } catch (e) {
+    console.warn("sb_known_nos corrupted, resetting:", e);
+    localStorage.removeItem(KNOWN_NOS_KEY);
+    _knownNos = new Set();
+  }
 }
 
 function saveKnownNos() {
@@ -3894,8 +3914,11 @@ function renderUpdateLog() {
     container.innerHTML = '<div class="update-log-empty">目前沒有新增的角色</div>';
     return;
   }
-  let html = '<div style="font-size:12px;color:var(--accent);margin-bottom:8px">新增 ' + newOnes.length + ' 隻角色</div>';
-  for (const m of newOnes.slice(0, 50)) {
+  const maxShow = 50;
+  const truncated = newOnes.length > maxShow;
+  let html = '<div style="font-size:12px;color:var(--accent);margin-bottom:8px">新增 ' + newOnes.length + ' 隻角色' +
+    (truncated ? '<span style="color:var(--text-dim)"> (顯示前 ' + maxShow + ' 隻)</span>' : '') + '</div>';
+  for (const m of newOnes.slice(0, maxShow)) {
     const elBadge = m.element ? '<span class="el-badge ' + elClass(m.element) + '" style="display:inline-block;width:16px;height:16px;line-height:16px;font-size:9px;text-align:center;border-radius:50%;margin-right:4px">' + m.element + '</span>' : '';
     html += '<div class="update-log-item" data-name="' + escAttr(m.name) + '">' +
       (m.icon ? '<img src="' + m.icon + '" alt="" loading="lazy">' : '<div style="width:40px;height:40px;background:var(--bg);border-radius:6px"></div>') +
