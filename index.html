@@ -2759,6 +2759,28 @@ setupSkillFilter("lsFilterRow", "ls", _activeLsFilters, "lsCount");
 setupSkillFilter("asFilterRow", "as", _activeAsFilters, "asCount");
 setupSkillFilter("tpFilterRow", "tp", _activeTpFilters, "tpCount");
 
+// Role filter tooltips
+const ROLE_TIPS = {
+  "連鎖": "篩選具有連鎖攻擊能力的角色\n攻擊時可觸發連鎖傷害",
+  "無連鎖": "篩選不需連鎖也能發揮的角色\n無連鎖型攻擊",
+  "速攻": "篩選速攻型角色\n低回合數快速輸出",
+  "全體": "篩選具有全體化能力的角色\n攻擊可作用於全體敵人",
+  "貫通": "篩選具有貫通能力的角色\n攻擊可穿透敵人",
+  "破盾": "篩選具有護盾破壞能力的角色\n可破壞敵方護盾",
+  "防貫": "篩選具有防護貫通能力的角色\n無視敵方防禦效果",
+  "格擋": "篩選具有格擋賦予能力的角色\n可為隊伍提供格擋效果",
+  "減傷": "篩選具有傷害減輕能力的角色\n降低隊伍受到的傷害",
+  "回復": "篩選具有回復能力的角色\n可恢復隊伍HP",
+  "復活": "篩選具有復活能力的角色\n可讓倒下的隊員復活",
+  "設置": "篩選具有設置/陷阱能力的角色\n可在盤面放置陷阱",
+  "移動": "篩選具有盤面移動能力的角色\n可移動敵人或我方位置",
+  "誘爆": "篩選具有誘爆能力的角色\n可引爆盤面上的設置物",
+};
+document.querySelectorAll("#roleFilterRow .tag[data-role]").forEach(tag => {
+  const tip = ROLE_TIPS[tag.dataset.role];
+  if (tip) tag.title = tip;
+});
+
 // Tag filter
 document.getElementById("roleFilterRow").addEventListener("click", e => {
   const tag = e.target.closest(".tag[data-role]");
