@@ -2079,7 +2079,9 @@ function showDetail(name) {
   gwLink.href = m.url || "#";
   gwLink.style.display = m.url ? "" : "none";
 
-  document.getElementById("detailOverlay").classList.add("active");
+  const overlay = document.getElementById("detailOverlay");
+  overlay.classList.add("active");
+  overlay.querySelector(".detail-panel").scrollTop = 0;
 }
 
 function buildTeamRec(leader) {
