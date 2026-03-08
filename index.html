@@ -204,10 +204,10 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 /* 遊戲風格角色圖示 */
 .role-icon {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  vertical-align: middle;
-  margin-right: 3px;
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  margin-right: 2px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1254,13 +1254,14 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
     <button class="type-btn" data-val="HP" title="HP"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,21 C12,21 4,15 4,9 C4,6 6,4 9,4 C10.5,4 11.5,5 12,6 C12.5,5 13.5,4 15,4 C18,4 20,6 20,9 C20,15 12,21 12,21 Z" fill="#e44"/></svg><span>HP</span></button>
     <button class="type-btn" data-val="バランス" title="バランス"><svg viewBox="0 0 24 24" width="20" height="20"><line x1="12" y1="4" x2="12" y2="18" stroke="#4af" stroke-width="2"/><line x1="5" y1="9" x2="19" y2="9" stroke="#4af" stroke-width="2"/><circle cx="5" cy="13" r="3" fill="none" stroke="#4af" stroke-width="1.5"/><circle cx="19" cy="13" r="3" fill="none" stroke="#4af" stroke-width="1.5"/><line x1="10" y1="18" x2="14" y2="18" stroke="#4af" stroke-width="2"/></svg><span>バランス</span></button>
   </div>
-  <div class="type-btn-group" id="filterType2">
-    <button class="type-btn" data-val="アシスト" title="アシスト"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,4 C8,4 6,7 6,10 L6,14 L8,16 L8,12 C8,9 10,6 12,6 C14,6 16,9 16,12 L16,16 L18,14 L18,10 C18,7 16,4 12,4 Z" fill="#4c6"/><circle cx="12" cy="18" r="3" fill="#4c6"/></svg><span>アシスト</span></button>
-    <button class="type-btn" data-val="カウンター" title="カウンター"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,3 L5,7 L5,13 C5,17 8,20 12,21 C16,20 19,17 19,13 L19,7 Z" fill="none" stroke="#f90" stroke-width="2"/><polygon points="12,8 9,14 15,14" fill="#f90"/></svg><span>カウンター</span></button>
-    <button class="type-btn" data-val="スキルアタック" title="スキルアタック"><svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12,2 14.5,9 22,9 16,13.5 18,21 12,16.5 6,21 8,13.5 2,9 9.5,9" fill="#c4f"/></svg><span>スキルアタック</span></button>
-    <button class="type-btn" data-val="アタック" title="アタック"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="10" r="6" fill="none" stroke="#e55" stroke-width="2"/><line x1="12" y1="16" x2="8" y2="22" stroke="#e55" stroke-width="2"/><line x1="12" y1="16" x2="16" y2="22" stroke="#e55" stroke-width="2"/><line x1="12" y1="4" x2="12" y2="2" stroke="#e55" stroke-width="2"/></svg><span>アタック</span></button>
-    <button class="type-btn" data-val="ディフェンス" title="ディフェンス"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,3 L4,7 L4,13 C4,17.4 7.6,21 12,22 C16.4,21 20,17.4 20,13 L20,7 Z" fill="#4a8" stroke="#6cb" stroke-width="1.5"/></svg><span>ディフェンス</span></button>
-  </div>
+  <select id="filterType2">
+    <option value="">全類型2</option>
+    <option value="アシスト">アシスト</option>
+    <option value="カウンター">カウンター</option>
+    <option value="スキルアタック">スキルアタック</option>
+    <option value="アタック">アタック</option>
+    <option value="ディフェンス">ディフェンス</option>
+  </select>
   <select id="filterScore">
     <option value="">全評分</option>
     <option value="10">10 分</option>
@@ -1566,6 +1567,7 @@ let _activeTagFilters = new Set();
 let _activeRoleFilters = new Set();
 let _recentHistory = [];
 let _viewMode = "grid"; // "grid" | "list"
+let _cachedType1Val = "";
 let _currentDetailName = null;
 let _skillSearchMode = false; // false=name search, true=skill effect search
 let _skillSearchIndex = []; // built after init
@@ -1974,8 +1976,8 @@ function getFiltered() {
   const search = document.getElementById("searchBox").value.trim().toLowerCase();
   const element = document.getElementById("filterElement").value;
   const rarity = document.getElementById("filterRarity").value;
-  const type1 = (document.querySelector("#filterType1 .type-btn.active") || {}).dataset?.val || "";
-  const type2 = (document.querySelector("#filterType2 .type-btn.active") || {}).dataset?.val || "";
+  const type1 = _cachedType1Val;
+  const type2 = document.getElementById("filterType2").value;
   const scoreFilter = document.getElementById("filterScore").value;
   const sortBy = document.getElementById("sortBy").value;
 
@@ -2681,23 +2683,21 @@ document.getElementById("detailOverlay").addEventListener("click", e => {
 function renderAndSummary() { updateFilterSummary(); renderGrid(); }
 const _debouncedRender = debounce(renderAndSummary, 200);
 document.getElementById("searchBox").addEventListener("input", _debouncedRender);
-["filterElement", "filterRarity", "filterScore"].forEach(id => {
+["filterElement", "filterRarity", "filterScore", "filterType2"].forEach(id => {
   document.getElementById(id).addEventListener("change", renderAndSummary);
 });
-// Type icon buttons
-["filterType1", "filterType2"].forEach(groupId => {
-  document.getElementById(groupId).addEventListener("click", e => {
-    const btn = e.target.closest(".type-btn");
-    if (!btn) return;
-    btn.classList.toggle("active");
-    // Only one active per group (radio-style)
-    if (btn.classList.contains("active")) {
-      btn.parentElement.querySelectorAll(".type-btn").forEach(b => {
-        if (b !== btn) b.classList.remove("active");
-      });
-    }
-    renderAndSummary();
-  });
+// Type1 icon buttons
+document.getElementById("filterType1").addEventListener("click", e => {
+  const btn = e.target.closest(".type-btn");
+  if (!btn) return;
+  btn.classList.toggle("active");
+  if (btn.classList.contains("active")) {
+    btn.parentElement.querySelectorAll(".type-btn").forEach(b => {
+      if (b !== btn) b.classList.remove("active");
+    });
+  }
+  _cachedType1Val = (document.querySelector("#filterType1 .type-btn.active") || {}).dataset?.val || "";
+  renderAndSummary();
 });
 document.getElementById("sortBy").addEventListener("change", renderGrid);
 
@@ -2790,11 +2790,12 @@ document.getElementById("resetAll").addEventListener("click", () => {
   document.querySelectorAll(".filter-tags .tag.active").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".filter-group-count").forEach(c => c.textContent = "");
   // Clear select filters
-  ["filterElement", "filterRarity", "filterScore"].forEach(id => {
+  ["filterElement", "filterRarity", "filterScore", "filterType2"].forEach(id => {
     document.getElementById(id).value = "";
   });
-  // Clear type buttons
+  // Clear type1 buttons
   document.querySelectorAll(".type-btn.active").forEach(b => b.classList.remove("active"));
+  _cachedType1Val = "";
   // Clear search and skill search mode
   document.getElementById("searchBox").value = "";
   _skillSearchMode = false;
@@ -2825,8 +2826,8 @@ function updateFilterSummary() {
   const hasAny = chips.length > 0 ||
     document.getElementById("filterElement").value ||
     document.getElementById("filterRarity").value ||
-    document.querySelector("#filterType1 .type-btn.active") ||
-    document.querySelector("#filterType2 .type-btn.active") ||
+    _cachedType1Val ||
+    document.getElementById("filterType2").value ||
     document.getElementById("filterScore").value ||
     document.getElementById("searchBox").value.trim() ||
     filterOwned !== "all";
@@ -2837,6 +2838,15 @@ function updateFilterSummary() {
     if (document.getElementById("searchBox").value.trim()) parts.push("搜尋");
     if (document.getElementById("filterElement").value) parts.push(document.getElementById("filterElement").value + "屬");
     if (document.getElementById("filterRarity").value) parts.push("★" + document.getElementById("filterRarity").value);
+    // Type1 filter
+    const activeT1 = document.querySelector("#filterType1 .type-btn.active");
+    if (activeT1) parts.push("類型1:" + activeT1.dataset.val);
+    // Type2 filter
+    const t2Val = document.getElementById("filterType2").value;
+    if (t2Val) parts.push("類型2:" + t2Val);
+    // Score filter
+    const scoreVal = document.getElementById("filterScore").value;
+    if (scoreVal) parts.push("評分:" + (scoreVal === "low" ? "≤6.9" : scoreVal));
     if (filterOwned === "owned") parts.push("已持有");
     if (filterOwned === "unowned") parts.push("未持有");
     chips.forEach(c => parts.push(c));
@@ -3134,9 +3144,8 @@ function updateFilterCounts() {
     const v = b.dataset.val;
     b.querySelector("span").textContent = v + "(" + (t1Counts[v] || 0) + ")";
   });
-  document.querySelectorAll("#filterType2 .type-btn").forEach(b => {
-    const v = b.dataset.val;
-    b.querySelector("span").textContent = v + "(" + (t2Counts[v] || 0) + ")";
+  document.querySelectorAll("#filterType2 option[value]").forEach(o => {
+    if (o.value) o.textContent = o.value + " (" + (t2Counts[o.value] || 0) + ")";
   });
 }
 
