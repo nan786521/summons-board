@@ -307,7 +307,7 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
   margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
 }
 .soul-item {
-  display: flex; gap: 8px; align-items: baseline;
+  display: flex; gap: 8px; align-items: center;
   padding: 4px 0; font-size: 12px; border-bottom: 1px solid rgba(45,74,94,0.3);
 }
 .soul-item:last-child { border-bottom: none; }
@@ -730,8 +730,8 @@ select:focus, .btn:focus { outline: none; border-color: var(--accent); }
 }
 .team-slot-role {
   position: absolute; top: 2px; right: 6px;
-  font-size: 8px; background: rgba(0,0,0,0.7); color: #fff;
-  padding: 1px 3px; border-radius: 3px;
+  font-size: 9px; font-weight: 700; background: rgba(0,0,0,0.7); color: #fff;
+  padding: 1px 4px; border-radius: 3px; line-height: 1.3;
 }
 .team-note { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
 
@@ -1662,16 +1662,25 @@ const SOUL_ICONS = {
   "回避率強化": "soul_kaihiritsu.gif",
 };
 // Variant matching: 攻撃力強化2 → 攻撃力強化, HP依存ダメージスキル強化 → ダメージスキル強化
+const _SOUL_ICON_KEYS = Object.keys(SOUL_ICONS);
+const _soulIconCache = new Map();
 function getSoulIcon(name) {
-  if (SOUL_ICONS[name]) return SOUL_BASE + SOUL_ICONS[name];
-  // Try removing trailing numbers/Lv
-  const base = name.replace(/[2２Ⅱ]$/, "").replace(/ ?Lv\d+$/, "").trim();
-  if (SOUL_ICONS[base]) return SOUL_BASE + SOUL_ICONS[base];
-  // Try partial match for compound names
-  for (const k of Object.keys(SOUL_ICONS)) {
-    if (name.includes(k)) return SOUL_BASE + SOUL_ICONS[k];
+  if (_soulIconCache.has(name)) return _soulIconCache.get(name);
+  let result = null;
+  if (SOUL_ICONS[name]) { result = SOUL_BASE + SOUL_ICONS[name]; }
+  else {
+    // Try removing trailing numbers/Lv
+    const base = name.replace(/[2２Ⅱ]$/, "").replace(/ ?Lv\d+$/, "").trim();
+    if (SOUL_ICONS[base]) { result = SOUL_BASE + SOUL_ICONS[base]; }
+    else {
+      // Try partial match for compound names
+      for (const k of _SOUL_ICON_KEYS) {
+        if (name.includes(k)) { result = SOUL_BASE + SOUL_ICONS[k]; break; }
+      }
+    }
   }
-  return null;
+  _soulIconCache.set(name, result);
+  return result;
 }
 
 // Awakening dungeon data by element
@@ -2438,7 +2447,7 @@ function showDetail(name) {
       const soulName = translateSoul(s.name);
       const soulEffect = translateSoul(s.effect);
       const iconUrl = getSoulIcon(s.name);
-      const iconHtml = iconUrl ? '<img class="soul-icon" src="' + iconUrl + '" alt="" loading="lazy">' : '';
+      const iconHtml = iconUrl ? '<img class="soul-icon" src="' + iconUrl + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '';
       soulHtml += '<div class="soul-item">' + iconHtml + '<span class="soul-name">' + escHtml(soulName) + '</span><span class="soul-effect">' + escHtml(soulEffect) + '</span></div>';
     });
     soulEl.innerHTML = soulHtml;
@@ -2632,7 +2641,7 @@ function buildTeamRec(leader) {
   const farmTeam = pickTeam(leader, candidates, "farm");
   const manualTeam = pickTeam(leader, candidates, "manual");
 
-  const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999"};
+  const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999","L":"#f1c40f"};
   function renderSlot(m, roleLabel) {
     const owned = ownedSet.has(m.name);
     const isLeader = roleLabel === "L";
@@ -2644,7 +2653,8 @@ function buildTeamRec(leader) {
         (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
       : "";
     const roleColor = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
-    const roleBadge = '<span class="team-slot-role" style="background:' + roleColor + '">' + roleLabel + '</span>';
+    const roleTextColor = roleLabel === "L" ? "#000" : "#fff";
+    const roleBadge = '<span class="team-slot-role" style="background:' + roleColor + ';color:' + roleTextColor + '">' + roleLabel + '</span>';
     return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '">' +
       (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
       elBadge + roleBadge +
