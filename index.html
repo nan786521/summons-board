@@ -585,6 +585,7 @@ select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); out
   max-height: 90vh; overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  contain: layout style paint;
 }
 .detail-handle {
   display: none;
@@ -952,11 +953,13 @@ select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); out
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
+  background: var(--bg);
+}
+.grid.big-card-mode .card-art-wrap:not(:has(img.loaded)) {
   background: linear-gradient(135deg, var(--bg) 25%, var(--card-hover) 50%, var(--bg) 75%);
   background-size: 200% 200%;
   animation: shimmer 1.5s ease infinite;
 }
-.grid.big-card-mode .card-art-wrap:has(img.loaded) { animation: none; background: var(--bg); }
 
 .grid.big-card-mode .card-art-img {
   width: 100%; height: 100%; object-fit: cover; display: block;
@@ -2313,6 +2316,7 @@ async function init() {
     // Build skill categories and search index
     buildLsCategories();
     buildSkillSearchIndex();
+    buildTagRoleCounts();
 
     // Update log: detect new characters, then save all as known
     updateNewBadge();
@@ -2514,65 +2518,38 @@ function getArtUrl(m) {
 
 function renderCard(m) {
   const isOwned = ownedSet.has(m.name);
-  const elBadge = m.element
-    ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>'
-    : "";
-  const rarityHtml = m.rarity ? '<span class="rarity">★' + m.rarity + '</span>' : "";
+  const elBadge = m.element ? `<span class="el-badge ${elClass(m.element)}">${m.element}</span>` : "";
+  const rarityHtml = m.rarity ? `<span class="rarity">★${m.rarity}</span>` : "";
 
-  // Obtain tag & data indicator
   const abKey = String(m.no || m.name);
   const abData = abilityMap.get(abKey);
   let extraHtml = "";
   if (abData && abData.obtain) {
-    const obt = abData.obtain.replace("レアガチャ", "轉蛋").replace("フェス限", "Fes限").replace("コラボ", "聯動").replace("降臨", "降臨").replace("ドロップ", "掉落").replace("交換", "交換").replace("イベント", "活動");
-    extraHtml = '<span class="card-obtain">' + obt.slice(0, 10) + '</span>';
+    const obt = abData.obtain.replace("レアガチャ","轉蛋").replace("フェス限","Fes限").replace("コラボ","聯動").replace("降臨","降臨").replace("ドロップ","掉落").replace("交換","交換").replace("イベント","活動");
+    extraHtml = `<span class="card-obtain">${obt.slice(0,10)}</span>`;
   } else if (!abData || (!abData.leader_skill && !abData.active_skill)) {
     extraHtml = '<span class="card-nodata">資料不完整</span>';
   }
 
-  // Key tags for card display (max 3)
   let tagsHtml = "";
   if (m.tags && m.tags.length > 0) {
     const cardTags = [];
     for (const rule of CARD_TAG_MAP) {
       if (cardTags.length >= 3) break;
-      if (m.tags.some(t => rule.keywords.some(k => t.includes(k)))) {
-        cardTags.push(rule);
-      }
+      if (m.tags.some(t => rule.keywords.some(k => t.includes(k)))) cardTags.push(rule);
     }
     if (cardTags.length > 0) {
-      tagsHtml = '<div class="card-tags">' +
-        cardTags.map(t => '<span class="card-tag ' + t.cls + '">' + t.label + '</span>').join("") +
-        '</div>';
+      tagsHtml = `<div class="card-tags">${cardTags.map(t => `<span class="card-tag ${t.cls}">${t.label}</span>`).join("")}</div>`;
     }
   }
 
   const newBadge = isNewMonster(m) ? '<span class="card-new">NEW</span>' : '';
   const artUrl = getArtUrl(m);
   const artSrc = artUrl || m.icon || '';
-  const artFallback = (artUrl && m.icon) ? ' onerror="this.src=\'' + m.icon.replace(/'/g, "\\'").replace(/"/g, "&quot;") + '\';this.onerror=null"' : '';
+  const eName = escAttr(m.name);
+  const artFb = (artUrl && m.icon) ? ` data-fallback="${escAttr(m.icon)}"` : '';
 
-  return '<div class="monster-card' + (isOwned ? " owned" : "") + '" data-name="' + escAttr(m.name) + '">' +
-    (artSrc ? '<div class="card-art-wrap"><img class="card-art-img" src="' + artSrc + '" alt="" loading="lazy" onload="this.classList.add(\'loaded\')"' + artFallback + '></div>' : '') +
-    '<div class="card-star" data-star="' + escAttr(m.name) + '">' + (isOwned ? "★" : "☆") + '</div>' +
-    newBadge +
-    (m.icon ? '<img class="monster-icon" src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '') +
-    '<div class="monster-info">' +
-      '<div class="monster-name">' + escHtml(m.name) + '</div>' +
-      '<div class="monster-types">' +
-        rarityHtml +
-        ' ' + elBadge +
-        ' <span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span>' +
-        ' / ' + m.type2 +
-        ' ' + extraHtml +
-      '</div>' +
-      tagsHtml +
-    '</div>' +
-    '<div class="monster-scores">' +
-      '<div class="score-badge"><div class="score-label">隊長</div><div class="score-value ' + scoreClass(m.leader_score) + '">' + m.leader_score + '</div></div>' +
-      '<div class="score-badge"><div class="score-label">副隊</div><div class="score-value ' + scoreClass(m.sub_score) + '">' + m.sub_score + '</div></div>' +
-    '</div>' +
-  '</div>';
+  return `<div class="monster-card${isOwned ? " owned" : ""}" data-name="${eName}">${artSrc ? `<div class="card-art-wrap"><img class="card-art-img" src="${artSrc}" alt="" loading="lazy" onload="this.classList.add('loaded')"${artFb}></div>` : ''}<div class="card-star" data-star="${eName}">${isOwned ? "★" : "☆"}</div>${newBadge}${m.icon ? `<img class="monster-icon" src="${m.icon}" alt="${eName}" loading="lazy">` : ''}<div class="monster-info"><div class="monster-name">${escHtml(m.name)}</div><div class="monster-types">${rarityHtml} ${elBadge} <span class="type-badge ${typeClass(m.type1)}">${m.type1}</span> / ${m.type2} ${extraHtml}</div>${tagsHtml}</div><div class="monster-scores"><div class="score-badge"><div class="score-label">隊長</div><div class="score-value ${scoreClass(m.leader_score)}">${m.leader_score}</div></div><div class="score-badge"><div class="score-label">副隊</div><div class="score-value ${scoreClass(m.sub_score)}">${m.sub_score}</div></div></div></div>`;
 }
 
 // Card HTML cache (keyed by name + owned state)
@@ -2608,12 +2585,15 @@ function renderGrid() {
     temp.innerHTML = getCachedCard(batch[i]);
     fragment.appendChild(temp.firstElementChild);
   }
-  // Preserve min-height during swap to prevent layout shift
-  const prevHeight = grid.offsetHeight;
-  grid.style.minHeight = prevHeight + "px";
-  grid.innerHTML = "";
-  grid.appendChild(fragment);
-  requestAnimationFrame(() => { grid.style.minHeight = ""; });
+  if (grid.children.length > 0) {
+    const prevHeight = grid.offsetHeight;
+    grid.style.minHeight = prevHeight + "px";
+    grid.innerHTML = "";
+    grid.appendChild(fragment);
+    requestAnimationFrame(() => { grid.style.minHeight = ""; });
+  } else {
+    grid.appendChild(fragment);
+  }
   _renderedCount = batch.length;
 
   if (_currentList.length === 0) {
@@ -2676,6 +2656,14 @@ scrollTopBtn.addEventListener("click", () => {
 });
 
 // === Events ===
+// Delegated art fallback handler
+document.getElementById("monsterGrid").addEventListener("error", e => {
+  if (e.target.matches(".card-art-img") && e.target.dataset.fallback) {
+    e.target.src = e.target.dataset.fallback;
+    e.target.removeAttribute("data-fallback");
+  }
+}, true);
+
 document.getElementById("monsterGrid").addEventListener("click", e => {
   const star = e.target.closest(".card-star");
   if (star) {
@@ -3651,59 +3639,63 @@ document.addEventListener("keydown", e => {
 });
 
 // === Tag count preview ===
+// Pre-computed tag/role counts (built once on init)
+const _preTagCounts = new Map();
+const _preRoleCounts = new Map();
+
+function buildTagRoleCounts() {
+  _preTagCounts.clear();
+  _preRoleCounts.clear();
+  for (const m of allMonsters) {
+    if (!m.tags) continue;
+    for (const tag of m.tags) {
+      _preTagCounts.set(tag, (_preTagCounts.get(tag) || 0) + 1);
+    }
+    for (const [role, kws] of Object.entries(ROLE_KEYWORDS)) {
+      if (m.tags.some(t => kws.some(k => t.includes(k)))) {
+        _preRoleCounts.set(role, (_preRoleCounts.get(role) || 0) + 1);
+      }
+    }
+  }
+}
+
 function updateTagCounts() {
-  // Count how many monsters match each tag filter option
   document.querySelectorAll(".filter-tags .tag[data-tag]").forEach(tag => {
     const val = tag.dataset.tag;
-    const count = allMonsters.filter(m => m.tags && m.tags.includes(val)).length;
     let countEl = tag.querySelector(".tag-count");
-    if (!countEl) {
-      countEl = document.createElement("span");
-      countEl.className = "tag-count";
-      tag.appendChild(countEl);
-    }
-    countEl.textContent = count;
+    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
+    countEl.textContent = _preTagCounts.get(val) || 0;
   });
-  // Count role filters
   document.querySelectorAll(".filter-tags .tag[data-role]").forEach(tag => {
-    const role = tag.dataset.role;
-    const kws = ROLE_KEYWORDS[role];
-    if (!kws) return;
-    const count = allMonsters.filter(m => m.tags && m.tags.some(t => kws.some(k => t.includes(k)))).length;
     let countEl = tag.querySelector(".tag-count");
-    if (!countEl) {
-      countEl = document.createElement("span");
-      countEl.className = "tag-count";
-      tag.appendChild(countEl);
-    }
-    countEl.textContent = count;
+    if (!countEl) { countEl = document.createElement("span"); countEl.className = "tag-count"; tag.appendChild(countEl); }
+    countEl.textContent = _preRoleCounts.get(tag.dataset.role) || 0;
   });
 }
 
 // === Filter dropdown counts ===
+// Cache filter option elements (built once)
+const _filterOpts = {};
+function _cacheFilterOpts() {
+  _filterOpts.el = document.querySelectorAll("#filterElement option[value]");
+  _filterOpts.rar = document.querySelectorAll("#filterRarity option[value]");
+  _filterOpts.t1 = document.querySelectorAll("#filterType1 option[value]");
+  _filterOpts.t2 = document.querySelectorAll("#filterType2 option[value]");
+}
+
 function updateFilterCounts() {
-  const elCounts = {};
-  const rarCounts = {};
-  const t1Counts = {};
-  const t2Counts = {};
+  if (!_filterOpts.el) _cacheFilterOpts();
+  const elCounts = {}, rarCounts = {}, t1Counts = {}, t2Counts = {};
   for (const m of allMonsters) {
     if (m.element) elCounts[m.element] = (elCounts[m.element] || 0) + 1;
     if (m.rarity) rarCounts[m.rarity] = (rarCounts[m.rarity] || 0) + 1;
     if (m.type1) t1Counts[m.type1] = (t1Counts[m.type1] || 0) + 1;
     if (m.type2) t2Counts[m.type2] = (t2Counts[m.type2] || 0) + 1;
   }
-  document.querySelectorAll("#filterElement option[value]").forEach(o => {
-    if (o.value) o.textContent = o.value + " (" + (elCounts[o.value] || 0) + ")";
-  });
-  document.querySelectorAll("#filterRarity option[value]").forEach(o => {
-    if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")";
-  });
-  document.querySelectorAll("#filterType1 option[value]").forEach(o => {
-    if (o.value) o.textContent = o.value + " (" + (t1Counts[o.value] || 0) + ")";
-  });
-  document.querySelectorAll("#filterType2 option[value]").forEach(o => {
-    if (o.value) o.textContent = o.value + " (" + (t2Counts[o.value] || 0) + ")";
-  });
+  _filterOpts.el.forEach(o => { if (o.value) o.textContent = o.value + " (" + (elCounts[o.value] || 0) + ")"; });
+  _filterOpts.rar.forEach(o => { if (o.value) o.textContent = "★" + o.value + " (" + (rarCounts[parseInt(o.value)] || 0) + ")"; });
+  _filterOpts.t1.forEach(o => { if (o.value) o.textContent = o.value + " (" + (t1Counts[o.value] || 0) + ")"; });
+  _filterOpts.t2.forEach(o => { if (o.value) o.textContent = o.value + " (" + (t2Counts[o.value] || 0) + ")"; });
 }
 
 // === Feature 6: Skill search mode ===
@@ -3771,36 +3763,28 @@ document.getElementById("statsOverlay").addEventListener("click", e => {
 
 function renderStats() {
   const total = allMonsters.length;
-  const owned = allMonsters.filter(m => ownedSet.has(m.name));
-  const ownedCount = owned.length;
+  const elColors = { "火": "var(--el-fire)", "水": "var(--el-water)", "木": "var(--el-wood)", "光": "var(--el-light)", "闇": "var(--el-dark)" };
+  const t1Colors = { "攻撃": "var(--type-atk)", "HP": "var(--type-hp)", "バランス": "var(--type-bal)" };
+  const rColors = { 7: "#f1c40f", 6: "#e67e22", 5: "#95a5a6" };
+
+  // Single pass: compute all stats
+  const s = { el: {}, t1: {}, r: {} };
+  let ownedCount = 0;
+  for (const m of allMonsters) {
+    const o = ownedSet.has(m.name) ? 1 : 0;
+    ownedCount += o;
+    if (m.element) { const k = m.element; if (!s.el[k]) s.el[k] = [0,0]; s.el[k][0]++; s.el[k][1] += o; }
+    if (m.type1) { const k = m.type1; if (!s.t1[k]) s.t1[k] = [0,0]; s.t1[k][0]++; s.t1[k][1] += o; }
+    if (m.rarity) { const k = m.rarity; if (!s.r[k]) s.r[k] = [0,0]; s.r[k][0]++; s.r[k][1] += o; }
+  }
   const pct = total > 0 ? (ownedCount / total * 100).toFixed(1) : 0;
 
-  // By element
-  const elements = ["火", "水", "木", "光", "闇"];
-  const elColors = { "火": "var(--el-fire)", "水": "var(--el-water)", "木": "var(--el-wood)", "光": "var(--el-light)", "闇": "var(--el-dark)" };
-  const elStats = elements.map(el => {
-    const t = allMonsters.filter(m => m.element === el).length;
-    const o = owned.filter(m => m.element === el).length;
-    return { label: el, total: t, owned: o, color: elColors[el] };
-  });
-
-  // By type1
-  const types1 = ["攻撃", "HP", "バランス"];
-  const t1Colors = { "攻撃": "var(--type-atk)", "HP": "var(--type-hp)", "バランス": "var(--type-bal)" };
-  const t1Stats = types1.map(t => {
-    const tot = allMonsters.filter(m => m.type1 === t).length;
-    const o = owned.filter(m => m.type1 === t).length;
-    return { label: t, total: tot, owned: o, color: t1Colors[t] };
-  });
-
-  // By rarity
-  const rarities = [7, 6, 5];
-  const rColors = { 7: "#f1c40f", 6: "#e67e22", 5: "#95a5a6" };
-  const rStats = rarities.map(r => {
-    const tot = allMonsters.filter(m => m.rarity === r).length;
-    const o = owned.filter(m => m.rarity === r).length;
-    return { label: "★" + r, total: tot, owned: o, color: rColors[r] };
-  });
+  const toStats = (keys, data, colors, prefix) => keys.map(k => ({
+    label: (prefix || "") + k, total: (data[k] || [0,0])[0], owned: (data[k] || [0,0])[1], color: colors[k]
+  }));
+  const elStats = toStats(["火","水","木","光","闇"], s.el, elColors);
+  const t1Stats = toStats(["攻撃","HP","バランス"], s.t1, t1Colors);
+  const rStats = toStats([7,6,5], s.r, rColors, "★");
 
   function renderBars(stats) {
     const maxTotal = Math.max(...stats.map(s => s.total), 1);
