@@ -2598,7 +2598,7 @@ function renderGrid() {
 
   if (_currentList.length === 0) {
     const emptyHint = _skillSearchMode && document.getElementById("searchBox").value.trim()
-      ? '目前為技能搜尋模式，搜尋的是技能效果而非角色名稱'
+      ? '目前為技能搜尋模式，可用「+」組合多條件（如：貫通 + 全體化）'
       : '試試調整篩選條件或清除篩選';
     grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">( ´_ゝ`)</div><div class="empty-state-text">沒有符合條件的角色</div><div class="empty-state-hint">' + emptyHint + '</div></div>';
   }
@@ -3301,6 +3301,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   _skillSearchMode = false;
   document.getElementById("searchModeToggle").classList.remove("active");
   document.getElementById("searchBox").placeholder = "搜尋角色名稱或編號...";
+  document.getElementById("searchModeToggle").title = "切換技能效果搜尋（支援組合：貫通 + 全體化）";
   // Clear owned filter
   filterOwned = "all";
   document.getElementById("filterOwned").classList.remove("active");
@@ -3335,7 +3336,13 @@ function updateFilterSummary() {
   if (hasAny) {
     const summary = document.getElementById("filterSummary");
     const parts = [];
-    if (document.getElementById("searchBox").value.trim()) parts.push("搜尋");
+    const sv = document.getElementById("searchBox").value.trim();
+    if (sv && _skillSearchMode) {
+      const terms = sv.split(/[+＋\s]+/).filter(Boolean);
+      parts.push("技能:" + terms.join("+"));
+    } else if (sv) {
+      parts.push("搜尋");
+    }
     if (document.getElementById("filterElement").value) parts.push(document.getElementById("filterElement").value + "屬");
     if (document.getElementById("filterRarity").value) parts.push("★" + document.getElementById("filterRarity").value);
     // Type1 filter
@@ -3703,7 +3710,7 @@ document.getElementById("searchModeToggle").addEventListener("click", function()
   _skillSearchMode = !_skillSearchMode;
   this.classList.toggle("active", _skillSearchMode);
   const box = document.getElementById("searchBox");
-  box.placeholder = _skillSearchMode ? "搜尋技能效果（如：防護貫通、全體化）..." : "搜尋角色名稱或編號...";
+  box.placeholder = _skillSearchMode ? "搜尋技能效果（如：貫通 + 全體化）..." : "搜尋角色名稱或編號...";
   if (box.value.trim()) renderAndSummary();
 });
 
@@ -3735,16 +3742,47 @@ function buildSkillSearchIndex() {
 }
 
 // Optimized skill search using inverted index with fallback
+// Supports combination search: "貫通 + 全體化" or "貫通 全體化" (AND logic)
 function searchSkillEffects(query) {
-  const q = query.toLowerCase();
-  // Try inverted index first for CJK queries
-  if (_skillInvertedIndex.has(q)) return _skillInvertedIndex.get(q);
-  // Fallback to linear scan
-  const result = new Set();
-  for (const idx of _skillSearchIndex) {
-    if (idx.textLower.includes(q)) result.add(idx.m.name);
+  const q = query.toLowerCase().trim();
+  // Split by + or whitespace to get multiple terms
+  const terms = q.split(/[+＋\s]+/).map(t => t.trim()).filter(Boolean);
+  if (terms.length === 0) return new Set();
+
+  if (terms.length === 1) {
+    // Single term: use inverted index first
+    const t = terms[0];
+    if (_skillInvertedIndex.has(t)) return _skillInvertedIndex.get(t);
+    const result = new Set();
+    for (const idx of _skillSearchIndex) {
+      if (idx.textLower.includes(t)) result.add(idx.m.name);
+    }
+    return result;
   }
-  return result;
+
+  // Multiple terms: AND logic — character must match ALL terms
+  // Get candidates from first term, then intersect
+  let candidates = null;
+  for (const t of terms) {
+    let matches;
+    if (_skillInvertedIndex.has(t)) {
+      matches = _skillInvertedIndex.get(t);
+    } else {
+      matches = new Set();
+      for (const idx of _skillSearchIndex) {
+        if (idx.textLower.includes(t)) matches.add(idx.m.name);
+      }
+    }
+    if (candidates === null) {
+      candidates = new Set(matches);
+    } else {
+      for (const name of candidates) {
+        if (!matches.has(name)) candidates.delete(name);
+      }
+    }
+    if (candidates.size === 0) break;
+  }
+  return candidates || new Set();
 }
 
 // === Feature 4: Stats modal ===
