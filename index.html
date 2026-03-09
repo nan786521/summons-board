@@ -1495,7 +1495,7 @@ select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); out
 
 <div class="controls">
   <input type="text" class="search-box" id="searchBox" placeholder="搜尋角色名稱或編號...">
-  <button class="search-mode-toggle" id="searchModeToggle" title="切換技能效果搜尋">技能搜尋</button>
+  <button class="search-mode-toggle" id="searchModeToggle" title="切換技能效果搜尋（支援組合：貫通 + 全體化）">技能搜尋</button>
   <select id="filterElement">
     <option value="">全屬性</option>
     <option value="火">火</option>
@@ -3301,7 +3301,6 @@ document.getElementById("resetAll").addEventListener("click", () => {
   _skillSearchMode = false;
   document.getElementById("searchModeToggle").classList.remove("active");
   document.getElementById("searchBox").placeholder = "搜尋角色名稱或編號...";
-  document.getElementById("searchModeToggle").title = "切換技能效果搜尋（支援組合：貫通 + 全體化）";
   // Clear owned filter
   filterOwned = "all";
   document.getElementById("filterOwned").classList.remove("active");
@@ -3338,7 +3337,7 @@ function updateFilterSummary() {
     const parts = [];
     const sv = document.getElementById("searchBox").value.trim();
     if (sv && _skillSearchMode) {
-      const terms = sv.split(/[+＋\s]+/).filter(Boolean);
+      const terms = sv.split(SKILL_TERM_SPLIT).filter(Boolean);
       parts.push("技能:" + terms.join("+"));
     } else if (sv) {
       parts.push("搜尋");
@@ -3741,48 +3740,33 @@ function buildSkillSearchIndex() {
   }
 }
 
-// Optimized skill search using inverted index with fallback
-// Supports combination search: "貫通 + 全體化" or "貫通 全體化" (AND logic)
+// Shared regex for splitting skill search terms
+const SKILL_TERM_SPLIT = /[+＋\s]+/;
+
+// Helper: find all monsters matching a single term
+function _matchTerm(term) {
+  const cached = _skillInvertedIndex.get(term);
+  if (cached) return cached;
+  const result = new Set();
+  for (const idx of _skillSearchIndex) {
+    if (idx.textLower.includes(term)) result.add(idx.m.name);
+  }
+  return result;
+}
+
+// Skill search with combination support: "貫通 + 全體化" (AND logic)
 function searchSkillEffects(query) {
-  const q = query.toLowerCase().trim();
-  // Split by + or whitespace to get multiple terms
-  const terms = q.split(/[+＋\s]+/).map(t => t.trim()).filter(Boolean);
+  const terms = query.toLowerCase().trim().split(SKILL_TERM_SPLIT).filter(Boolean);
   if (terms.length === 0) return new Set();
+  if (terms.length === 1) return _matchTerm(terms[0]);
 
-  if (terms.length === 1) {
-    // Single term: use inverted index first
-    const t = terms[0];
-    if (_skillInvertedIndex.has(t)) return _skillInvertedIndex.get(t);
-    const result = new Set();
-    for (const idx of _skillSearchIndex) {
-      if (idx.textLower.includes(t)) result.add(idx.m.name);
-    }
-    return result;
+  // Multiple terms: intersect results (start with first match set)
+  let candidates = new Set(_matchTerm(terms[0]));
+  for (let i = 1; i < terms.length && candidates.size > 0; i++) {
+    const matches = _matchTerm(terms[i]);
+    candidates = new Set([...candidates].filter(n => matches.has(n)));
   }
-
-  // Multiple terms: AND logic — character must match ALL terms
-  // Get candidates from first term, then intersect
-  let candidates = null;
-  for (const t of terms) {
-    let matches;
-    if (_skillInvertedIndex.has(t)) {
-      matches = _skillInvertedIndex.get(t);
-    } else {
-      matches = new Set();
-      for (const idx of _skillSearchIndex) {
-        if (idx.textLower.includes(t)) matches.add(idx.m.name);
-      }
-    }
-    if (candidates === null) {
-      candidates = new Set(matches);
-    } else {
-      for (const name of candidates) {
-        if (!matches.has(name)) candidates.delete(name);
-      }
-    }
-    if (candidates.size === 0) break;
-  }
-  return candidates || new Set();
+  return candidates;
 }
 
 // === Feature 4: Stats modal ===
