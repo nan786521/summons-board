@@ -60595,5 +60595,340 @@
         "effect": "通常攻撃時、敵のスタンゲージが溜まりやすくなる。(効果：中)"
       }
     ]
+  },
+  "5080": {
+    "hp": 11231,
+    "atk": "401×3(4)",
+    "soul_slots": 4,
+    "active_skill": {
+      "name": "ツヴァイヴレイバー",
+      "effect": "[エリア ･フェーズ移動速攻]自身除く光属性またはアタックタイプの味方全体が4ターンの間攻撃力7倍&スキル ･ 物理ダメージスキルを50%軽減し20倍で反射&自身が2ターンの間攻撃力50倍&ダメージ無効&自身から1マスおきの敵に水属性攻撃力×20倍×5連続防護貫通かつ特定軽減効果貫通ダメージ連鎖追撃状態"
+    },
+    "tp_skill": {
+      "name": "氷魔狼の契",
+      "effect": "1回目のスキル使用時、味方全体に1ターンの間攻撃力シールを付与。2回目以降で、自身から1マスおきの敵に1000ポイントのスタンダメージ",
+      "tp_cost": 20
+    },
+    "leader_skill": {
+      "name": "ほら、早くしなさい。遅れるわよ",
+      "effect": "光属性またはアタックタイプの味方は、攻撃力が35倍&HPが3.5倍&スキルダメージを40%軽減&8コンボ以上でダメージの10%吸収"
+    },
+    "obtain": "季節レアガチャ(エルガーディア)",
+    "recommended_souls": [
+      {
+        "name": "攻撃力強化",
+        "effect": "攻撃力が50アップする"
+      },
+      {
+        "name": "攻撃力強化2",
+        "effect": "攻撃力が60アップする"
+      },
+      {
+        "name": "攻撃力％強化",
+        "effect": "攻撃力が15％アップする"
+      },
+      {
+        "name": "物理ダメージスキル強化",
+        "effect": "攻撃力依存または固定物理ダメージスキルで与えたダメージの30％の追加ダメージを与える"
+      },
+      {
+        "name": "物理ダメージスキル強化2",
+        "effect": "攻撃力依存または固定物理ダメージスキルで与えたダメージの20％の追加ダメージを与える"
+      },
+      {
+        "name": "獲得TPアップ",
+        "effect": "確率でTPの獲得量がアップする(効果大)"
+      },
+      {
+        "name": "スタンダメージ増加",
+        "effect": "与えるスタンダメージが100％の確率で70％アップする"
+      }
+    ],
+    "name": "アリーズ"
+  },
+  "3624": {
+    "hp": 11414,
+    "atk": "131×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "せっかくの休息、ゆっくりしたいですね",
+      "effect": "HPタイプの味方は、攻撃力が2倍&HPが2倍&2ターンに1回HPが500回復"
+    },
+    "abilities": [
+      {
+        "name": "6.5 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "『アニバーサリー』SPガチャ",
+    "name": "水着メリッサ"
+  },
+  "3593": {
+    "hp": 8852,
+    "atk": "169×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "祓い拾え清め給え･･････",
+      "effect": "攻撃タイプの味方は、攻撃力が2.5倍&ダメージを30%軽減"
+    },
+    "abilities": [
+      {
+        "name": "6.0 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "ブライダルSPガチャ",
+    "name": "神前式プネヴマ"
+  },
+  "1879": {
+    "hp": 11601,
+    "atk": "207×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "私は天竜となります",
+      "effect": "バランスタイプの味方は、攻撃力が3倍&HPが1.6倍"
+    },
+    "abilities": [
+      {
+        "name": "5.0 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "入手方法は現在調査中です。",
+    "recommended_souls": [
+      {
+        "name": "6323",
+        "effect": "142×3"
+      },
+      {
+        "name": "全体化",
+        "effect": "この能力を持っているモンスターがフィールドアイテムを取ると効果範囲が味方全体になる。"
+      }
+    ],
+    "name": "ウェンディ"
+  },
+  "1862": {
+    "hp": 13856,
+    "atk": "174×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "悪夢を食べる",
+      "effect": "HPタイプの味方は、6コンボ以上で攻撃力が2.2倍&HPが2倍"
+    },
+    "abilities": [
+      {
+        "name": "5.5 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "新年の夢世界",
+    "name": "バクウ"
+  },
+  "1133": {
+    "hp": 8420,
+    "atk": "252×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "俺の怒りを受け取れ・・・!!",
+      "effect": "攻撃タイプの味方は、攻撃力が3.2倍&HPが1.3倍"
+    },
+    "abilities": [
+      {
+        "name": "6.0 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "『七つの大罪』コラボガチャ",
+    "recommended_souls": [
+      {
+        "name": "4981",
+        "effect": "184×3"
+      },
+      {
+        "name": "貫通 Lv1",
+        "effect": "攻撃時、攻撃方向に隣接した敵にもダメージを与えられる。(威力：小)"
+      }
+    ],
+    "name": "ギルサンダー"
+  },
+  "1131": {
+    "hp": 10132,
+    "atk": "224×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "まあ、そう渋い顔をするな、団長殿",
+      "effect": "バランスタイプの味方は、攻撃力が2.8倍&HPが1.7倍&攻撃時のスタンゲージの増加量が少し上昇"
+    },
+    "abilities": [
+      {
+        "name": "6.0 /10点",
+        "effect": "6.5 /10点"
+      }
+    ],
+    "obtain": "『七つの大罪』コラボガチャ",
+    "recommended_souls": [
+      {
+        "name": "6823",
+        "effect": "159×3"
+      },
+      {
+        "name": "全体化",
+        "effect": "この能力を持っているモンスターがフィールドアイテムを取ると効果範囲が味方全体になる。"
+      }
+    ],
+    "name": "マーリン"
+  },
+  "1529": {
+    "hp": 14899,
+    "atk": "161×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "こんなの絶対おかしいよ",
+      "effect": "木属性の味方は、攻撃力が2.6倍&HPが1.8倍"
+    },
+    "abilities": [
+      {
+        "name": "5.5 /10点",
+        "effect": "6.0 /10点"
+      }
+    ],
+    "obtain": "『まどか☆マギカ』コラボガチャ",
+    "recommended_souls": [
+      {
+        "name": "9551",
+        "effect": "101×3"
+      },
+      {
+        "name": "全体化",
+        "effect": "この能力を持っているモンスターがフィールドアイテムを取ると効果範囲が味方全体になる。"
+      }
+    ],
+    "name": "鹿目まどか"
+  },
+  "1503": {
+    "hp": 13800,
+    "atk": "180×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "トゥーラーンの戦歌",
+      "effect": "スキルアタックタイプの味方は、ダメージスキルの威力が5.5倍&火・水属性のダメージを40%軽減"
+    },
+    "abilities": [
+      {
+        "name": "5.0 /10点",
+        "effect": "6.0 /10点"
+      }
+    ],
+    "obtain": "トゥーラーンの戦い【極・冥】",
+    "recommended_souls": [
+      {
+        "name": "5309",
+        "effect": "155×3"
+      },
+      {
+        "name": "防御アップ Lv3",
+        "effect": "自身と周囲8マスの味方の防御力がアップする。"
+      }
+    ],
+    "name": "ソフラーブ"
+  },
+  "2189": {
+    "hp": 11000,
+    "atk": "218×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "鋭い格闘スタイル",
+      "effect": "レアリティ6以下の味方は、5コンボ以上で攻撃力が4倍&物理ダメージを50%軽減&攻撃後に追撃"
+    },
+    "abilities": [
+      {
+        "name": "6.0 /10点",
+        "effect": "5.5 /10点"
+      }
+    ],
+    "obtain": "『進撃の巨人』コラボ",
+    "name": "女型の巨人"
+  },
+  "2137": {
+    "hp": 13485,
+    "atk": "178×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "耐撃の鋼体",
+      "effect": "HPタイプの味方は、攻撃力が2.4倍&7コンボ以上で攻撃力が1.8倍&火・闇属性のダメージを40%軽減"
+    },
+    "abilities": [
+      {
+        "name": "5.0 /10点",
+        "effect": "5.5 /10点"
+      }
+    ],
+    "obtain": "ローヌウッズ【極・冥】",
+    "recommended_souls": [
+      {
+        "name": "10430",
+        "effect": "138×3"
+      },
+      {
+        "name": "防御アップ Lv3",
+        "effect": "自身と周囲8マスの味方の防御力がアップする。"
+      }
+    ],
+    "name": "タラスク"
+  },
+  "1799": {
+    "hp": 10338,
+    "atk": "232×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "樹狐の号哭",
+      "effect": "バランスタイプの味方は攻撃力が2.5倍&HPが1.5倍&アシストタイプの味方はバインド状態の敵に対し攻撃力が2倍"
+    },
+    "abilities": [
+      {
+        "name": "5.5 /10点",
+        "effect": "5.0 /10点"
+      }
+    ],
+    "obtain": "古樹島【極・冥】【★5】ルナアード基本ステータス矢印属性タイプ1タイプ2バランスアシスト最大HP最大攻撃力初期ソウル枠8032189×32枠能力能力効果飛来ダメージ吸収 Lv1自身の飛来ダメージを無効化し、スキルターンを1ターン減少する。スキルブランチケージ[回数制限:2]敵全体に対して、3ターンの間一重矢印のみの全方向バインドをかけるスキルターン14ターン &rarr; 6ターンリーダースキル樹狐のざわめきバランスタイプの味方は攻撃力が2.2倍&HPが1.5倍&アシストタイプの味方はバインド状態の敵に対し攻撃力が2倍他のサモンズボード攻略記事サモンズボード攻略TOP\",\n    \n            \n\"image\": \n        [\n                {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://img.gamewith.jp/article/thumbnail/rectangle/90271.jpg?date=1563863901\"\n                            ,\n                \"width\": 600,\n                \"height\": 315                    }\n                    ,\n                    {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://img.gamewith.jp/article/thumbnail/rectangle_l/90271.jpg?date=1563863901\"\n                            ,\n                \"width\": 1200,\n                \"height\": 630                    }\n                    ]\n    ,\n    \n    \n    \"datePublished\": \"2018-01-31T22:49:40+09:00\",\n    \"dateModified\": \"2019-07-23T15:38:17+09:00\",\n            \"author\": {\n            \"@type\": \"Person\",\n            \"name\": \"サモンズ攻略班\"\n        },\n        \"publisher\": {\n        \"@type\": \"Organization\",\n        \"name\": \"GameWith\",\n        \"logo\": {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://assets.gamewith.jp/assets/img/logo.png\",\n            \"width\": 276,\n            \"height\": 46\n        }\n    }\n    }\n\n        \n    .table_hyoka table{table-layout: fixed;text-align: center;}.table_sozai tr td:nth-child(1){text-align: center;}.table_nouryoku tr th:nth-child(1){text-align: center;width: 25%;}.summons-table table{text-align: center;table-layout: fixed;}サモンズボードにおけるルナアード",
+    "name": "ルナアード"
+  },
+  "2459": {
+    "hp": 8148,
+    "atk": "184×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "決札・桜に姫",
+      "effect": "ダンジョンで入手できるコイン量が3倍になる"
+    },
+    "abilities": [
+      {
+        "name": "アニバ桜姫",
+        "effect": "学園桜姫"
+      },
+      {
+        "name": "クリスマス桜姫",
+        "effect": "正月桜姫"
+      }
+    ],
+    "obtain": "【神】新春の奥座敷他のサモンズボード攻略記事サモンズボード攻略TOP\",\n    \n                                \n    \n    \"datePublished\": \"2018-02-01T17:19:21+09:00\",\n    \"dateModified\": \"2024-01-24T15:53:07+09:00\",\n            \"author\": {\n            \"@type\": \"Person\",\n            \"name\": \"サモンズ攻略班\"\n        },\n        \"publisher\": {\n        \"@type\": \"Organization\",\n        \"name\": \"GameWith\",\n        \"logo\": {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://assets.gamewith.jp/assets/img/logo.png\",\n            \"width\": 276,\n            \"height\": 46\n        }\n    }\n    }\n\n        \n    .table_hyoka table{table-layout: fixed;text-align: center;}.table_sozai tr td:nth-child(1){text-align: center;}.table_nouryoku tr th:nth-child(1){text-align: center;width: 30%;}hr{margin: 3px;}.summons-table table{text-align: center;table-layout: fixed;}.sb_deck table{text-align: center;table-layout: fixed;}.sb_deck table td{font-size: 85%!important;padding: 3px!important;}.sb_deck table th{font-size: 85%!important;padding: 3px!important;}.aa_checkpoint ul {border: solid 3px #808080;padding: 0 12px;border-radius: 3px;}.aa_checkpoint ul li {list-style-type: none !important;background-image: url(\"https://img.gamewith.jp/img/1fa8c227c0f7208ba101d7df1b04871c.jpg\") !important ;background-size: 14px !important;padding: 7px 0 7px 20px !important;font-weight: bold;border-bottom: dashed 1px #A0A0A0 !important;}.aa_checkpoint ul li:first-of-type {margin-top: 6px;}.aa_checkpoint ul li:last-of-type {border-bottom: none !important;}サモンズボードにおける爛漫桜姫",
+    "name": "正月桜姫"
+  },
+  "2117": {
+    "hp": 7683,
+    "atk": "195×3",
+    "soul_slots": 2,
+    "leader_skill": {
+      "name": "コットンボンネット",
+      "effect": "バランスタイプの味方は、攻撃力が1.5倍&スキルダメージを30%軽減"
+    },
+    "abilities": [
+      {
+        "name": "4.0 /10点",
+        "effect": "3.5 /10点"
+      }
+    ],
+    "obtain": "入手方法は現在調査中です。他のサモンズボード攻略記事サモンズボード攻略TOP\",\n    \n            \n\"image\": \n        [\n                {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://img.gamewith.jp/article/thumbnail/rectangle/89301.jpg?date=1559023354\"\n                            ,\n                \"width\": 600,\n                \"height\": 315                    }\n                    ,\n                    {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://img.gamewith.jp/article/thumbnail/rectangle_l/89301.jpg?date=1559023354\"\n                            ,\n                \"width\": 1200,\n                \"height\": 630                    }\n                    ]\n    ,\n    \n    \n    \"datePublished\": \"2018-01-30T18:01:45+09:00\",\n    \"dateModified\": \"2019-05-28T15:02:31+09:00\",\n            \"author\": {\n            \"@type\": \"Person\",\n            \"name\": \"サモンズ攻略班\"\n        },\n        \"publisher\": {\n        \"@type\": \"Organization\",\n        \"name\": \"GameWith\",\n        \"logo\": {\n            \"@type\": \"ImageObject\",\n            \"url\": \"https://assets.gamewith.jp/assets/img/logo.png\",\n            \"width\": 276,\n            \"height\": 46\n        }\n    }\n    }\n\n        \n    .table_hyoka table{table-layout: fixed;text-align: center;}.table_sozai tr td:nth-child(1){text-align: center;}.table_nouryoku tr th:nth-child(1){text-align: center;width: 25%;}.summons-table table{text-align: center;table-layout: fixed;}サモンズボードにおけるウィザード女",
+    "name": "ウィザード女"
   }
 }
