@@ -781,6 +781,22 @@ select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); out
 }
 .team-note { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
 
+/* Awakened badge */
+.card-awaken {
+  display: inline-block;
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  color: #fff; font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 3px;
+  letter-spacing: 0.5px; margin-left: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.awaken-scores {
+  display: flex; gap: 6px; margin-top: 2px;
+}
+.awaken-scores .score-badge {
+  background: rgba(230,126,34,0.15);
+}
+
 /* NEW badge for recently added characters */
 .card-new {
   display: inline-block;
@@ -1770,6 +1786,7 @@ select:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); out
       <div class="team-rec" id="teamRec" style="display:none"></div>
       <div class="detail-actions">
         <a class="btn btn-gw" id="detailGwLink" href="#" target="_blank">前往 GameWith</a>
+        <a class="btn btn-gw" id="detailGwLinkAwaken" href="#" target="_blank" style="display:none;background:#e67e22">覚醒 GameWith</a>
         <button class="btn" id="detailClose">關閉</button>
       </div>
     </div>
@@ -2234,6 +2251,41 @@ function expandAbility(c) {
   };
 }
 
+// === Merge awakened pairs (覚醒前 + 覚醒後 → single card) ===
+function mergeAwakenedPairs() {
+  const byName = new Map(allMonsters.map(m => [m.name, m]));
+  const toRemove = new Set();
+  for (const m of allMonsters) {
+    if (!m.name.startsWith("覚醒")) continue;
+    const baseName = m.name.slice(2); // remove "覚醒"
+    const base = byName.get(baseName);
+    if (!base) continue; // no matching base → keep as standalone
+    // Attach awakened data to base monster
+    base._awakened = {
+      name: m.name,
+      no: m.no,
+      element: m.element,
+      rarity: m.rarity,
+      type1: m.type1,
+      type2: m.type2,
+      leader_score: m.leader_score,
+      sub_score: m.sub_score,
+      icon: m.icon,
+      url: m.url,
+      tags: m.tags
+    };
+    // Transfer owned status: if user owned 覚醒 version, transfer to base
+    if (ownedSet.has(m.name) && !ownedSet.has(base.name)) {
+      ownedSet.add(base.name);
+      ownedSet.delete(m.name);
+    }
+    toRemove.add(m.name);
+  }
+  if (toRemove.size > 0) {
+    allMonsters = allMonsters.filter(m => !toRemove.has(m.name));
+  }
+}
+
 // === Load data via fetch (parallel) ===
 async function init() {
   const bar = document.getElementById("loadingBar");
@@ -2284,12 +2336,19 @@ async function init() {
 
     // Expand compact monsters
     allMonsters = mData.map(expandMonster);
+
+    // Merge 覚醒 (awakened) pairs: attach awakened data to base, remove awakened entry
+    mergeAwakenedPairs();
+
     monsterMap = new Map(allMonsters.map(m => [m.name, m]));
-    _searchIndex = allMonsters.map(m => ({
-      nameLower: m.name.toLowerCase(),
-      noStr: m.no ? String(m.no) : "",
-      m
-    }));
+    _searchIndex = [];
+    for (const m of allMonsters) {
+      _searchIndex.push({ nameLower: m.name.toLowerCase(), noStr: m.no ? String(m.no) : "", m });
+      // Index awakened name so searching "覚醒X" still finds base X
+      if (m._awakened) {
+        _searchIndex.push({ nameLower: m._awakened.name.toLowerCase(), noStr: String(m._awakened.no || ""), m });
+      }
+    }
 
     // Expand compact abilities
     if (aData) {
@@ -2347,7 +2406,12 @@ async function init() {
       // Open character from URL hash
       const hash = location.hash;
       if (hash.startsWith("#detail=")) {
-        const name = decodeURIComponent(hash.slice(8));
+        let name = decodeURIComponent(hash.slice(8));
+        // Resolve awakened name → base name
+        if (!monsterMap.has(name) && name.startsWith("覚醒")) {
+          const base = monsterMap.get(name.slice(2));
+          if (base && base._awakened) name = base.name;
+        }
         if (monsterMap.has(name)) showDetail(name);
       }
     });
@@ -2399,7 +2463,8 @@ function getFiltered() {
     const matchNames = searchSkillEffects(search);
     list = allMonsters.filter(m => matchNames.has(m.name));
   } else if (search) {
-    list = _searchIndex.filter(idx => idx.nameLower.includes(search) || idx.noStr.includes(search)).map(idx => idx.m);
+    const seen = new Set();
+    list = _searchIndex.filter(idx => idx.nameLower.includes(search) || idx.noStr.includes(search)).filter(idx => { if (seen.has(idx.m)) return false; seen.add(idx.m); return true; }).map(idx => idx.m);
   } else {
     list = allMonsters;
   }
@@ -2591,12 +2656,20 @@ function renderCard(m) {
   }
 
   const newBadge = isNewMonster(m) ? '<span class="card-new">NEW</span>' : '';
+  const awakenBadge = m._awakened ? '<span class="card-awaken">覚醒</span>' : '';
   const artUrl = getArtUrl(m);
   const artSrc = artUrl || m.icon || '';
   const eName = escAttr(m.name);
   const artFb = (artUrl && m.icon) ? ` data-fallback="${escAttr(m.icon)}"` : '';
 
-  return `<div class="monster-card${isOwned ? " owned" : ""}" data-name="${eName}">${artSrc ? `<div class="card-art-wrap"><img class="card-art-img" src="${artSrc}" alt="" loading="lazy" onload="this.classList.add('loaded')"${artFb}></div>` : ''}<div class="card-star" data-star="${eName}">${isOwned ? "★" : "☆"}</div>${newBadge}${m.icon ? `<img class="monster-icon" src="${m.icon}" alt="${eName}" loading="lazy">` : ''}<div class="monster-info"><div class="monster-name">${escHtml(m.name)}</div><div class="monster-types">${rarityHtml} ${elBadge} <span class="type-badge ${typeClass(m.type1)}">${m.type1}</span> / ${m.type2} ${extraHtml}</div>${tagsHtml}</div><div class="monster-scores"><div class="score-badge"><div class="score-label">隊長</div><div class="score-value ${scoreClass(m.leader_score)}">${m.leader_score}</div></div><div class="score-badge"><div class="score-label">副隊</div><div class="score-value ${scoreClass(m.sub_score)}">${m.sub_score}</div></div></div></div>`;
+  // Awakened scores row (shown below normal scores)
+  let awakenScoresHtml = '';
+  if (m._awakened) {
+    const aw = m._awakened;
+    awakenScoresHtml = `<div class="awaken-scores"><div class="score-badge"><div class="score-label">覚醒L</div><div class="score-value ${scoreClass(aw.leader_score)}">${aw.leader_score}</div></div><div class="score-badge"><div class="score-label">覚醒S</div><div class="score-value ${scoreClass(aw.sub_score)}">${aw.sub_score}</div></div></div>`;
+  }
+
+  return `<div class="monster-card${isOwned ? " owned" : ""}" data-name="${eName}">${artSrc ? `<div class="card-art-wrap"><img class="card-art-img" src="${artSrc}" alt="" loading="lazy" onload="this.classList.add('loaded')"${artFb}></div>` : ''}<div class="card-star" data-star="${eName}">${isOwned ? "★" : "☆"}</div>${newBadge}${awakenBadge}${m.icon ? `<img class="monster-icon" src="${m.icon}" alt="${eName}" loading="lazy">` : ''}<div class="monster-info"><div class="monster-name">${escHtml(m.name)}</div><div class="monster-types">${rarityHtml} ${elBadge} <span class="type-badge ${typeClass(m.type1)}">${m.type1}</span> / ${m.type2} ${extraHtml}</div>${tagsHtml}</div><div class="monster-scores"><div class="score-badge"><div class="score-label">隊長</div><div class="score-value ${scoreClass(m.leader_score)}">${m.leader_score}</div></div><div class="score-badge"><div class="score-label">副隊</div><div class="score-value ${scoreClass(m.sub_score)}">${m.sub_score}</div></div></div>${awakenScoresHtml}</div>`;
 }
 
 // Card HTML cache (keyed by name + owned state)
@@ -2848,7 +2921,7 @@ function showDetail(name) {
   const ab2 = abilityMap.get(abKey2);
   const obtainText = ab2 && ab2.obtain ? ab2.obtain : null;
 
-  document.getElementById("detailInfo").innerHTML =
+  let infoHtml =
     (m.no ? '<dt>編號</dt><dd>No.' + m.no + '</dd>' : '') +
     (obtainText ? '<dt>取得方法</dt><dd>' + escHtml(obtainText) + '</dd>' : '') +
     '<dt>類型1</dt><dd><span class="type-badge ' + typeClass(m.type1) + '">' + m.type1 + '</span></dd>' +
@@ -2856,6 +2929,19 @@ function showDetail(name) {
     '<dt>屬性</dt><dd>' + (m.element ? '<span class="el-badge ' + elClass(m.element) + '">' + m.element + '</span>' : "—") + '</dd>' +
     '<dt>稀有度</dt><dd>' + (m.rarity ? "★".repeat(Math.min(m.rarity, 7)) : "—") + '</dd>' +
     '<dt>狀態</dt><dd style="color:' + (isOwned ? 'var(--owned-border)' : 'var(--text-dim)') + '">' + (isOwned ? "已持有" : "未持有") + '</dd>';
+
+  // Awakened form info
+  if (m._awakened) {
+    const aw = m._awakened;
+    infoHtml += '<dt style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;color:#e67e22;font-weight:700;text-align:left">覚醒後</dt><dd style="display:none"></dd>' +
+      '<dt>編號</dt><dd>No.' + aw.no + '</dd>' +
+      '<dt>屬性</dt><dd>' + (aw.element ? '<span class="el-badge ' + elClass(aw.element) + '">' + aw.element + '</span>' : "—") + '</dd>' +
+      '<dt>稀有度</dt><dd>' + (aw.rarity ? "★".repeat(Math.min(aw.rarity, 7)) : "—") + '</dd>' +
+      '<dt>類型</dt><dd><span class="type-badge ' + typeClass(aw.type1) + '">' + aw.type1 + '</span> / ' + (aw.type2 || "無") + '</dd>' +
+      '<dt>隊長評分</dt><dd class="' + scoreClass(aw.leader_score) + '" style="font-weight:700">' + aw.leader_score + '</dd>' +
+      '<dt>副隊評分</dt><dd class="' + scoreClass(aw.sub_score) + '" style="font-weight:700">' + aw.sub_score + '</dd>';
+  }
+  document.getElementById("detailInfo").innerHTML = infoHtml;
 
   // Tags
   const tagsEl = document.getElementById("detailTags");
@@ -2924,6 +3010,51 @@ function showDetail(name) {
       });
       html += '</div>';
     }
+    // Awakened form abilities
+    if (m._awakened) {
+      const awKey = String(m._awakened.no || m._awakened.name);
+      const awAb = abilityMap.get(awKey);
+      html += '<div style="border-top:2px solid #e67e22;margin-top:12px;padding-top:10px"><div style="color:#e67e22;font-weight:700;font-size:14px;margin-bottom:8px">覚醒後技能</div>';
+      if (awAb) {
+        if (awAb.hp || awAb.atk) {
+          html += '<div class="ability-stats">';
+          if (awAb.hp) html += '<div class="ability-stat-box"><div class="ability-stat-label">HP</div><div class="ability-stat-value">' + awAb.hp.toLocaleString() + '</div></div>';
+          if (awAb.atk) html += '<div class="ability-stat-box"><div class="ability-stat-label">ATK</div><div class="ability-stat-value">' + awAb.atk + '</div></div>';
+          if (awAb.soul_slots) html += '<div class="ability-stat-box"><div class="ability-stat-label">靈魂格</div><div class="ability-stat-value">' + awAb.soul_slots + '</div></div>';
+          html += '</div>';
+        }
+        if (awAb.leader_skill) {
+          html += '<div class="ability-section ls"><div class="ability-label">隊長技能</div>';
+          if (awAb.leader_skill.name) html += '<div class="ability-name">' + awAb.leader_skill.name + '</div>';
+          if (awAb.leader_skill.effect) html += '<div class="ability-effect">' + awAb.leader_skill.effect + '</div>';
+          html += '</div>';
+        }
+        if (awAb.active_skill) {
+          const turnLabel = awAb.active_skill.turn ? ' <span style="font-size:11px;color:var(--score-high)">(' + awAb.active_skill.turn.replace(/ターン/g, '回合') + ')</span>' : '';
+          html += '<div class="ability-section as"><div class="ability-label">主動技能' + turnLabel + '</div>';
+          if (awAb.active_skill.name) html += '<div class="ability-name">' + awAb.active_skill.name + '</div>';
+          if (awAb.active_skill.effect) html += '<div class="ability-effect">' + awAb.active_skill.effect + '</div>';
+          html += '</div>';
+        }
+        if (awAb.tp_skill) {
+          html += '<div class="ability-section tp"><div class="ability-label">TP 技能' + (awAb.tp_skill.tp_cost ? ' (' + awAb.tp_skill.tp_cost + 'TP)' : '') + '</div>';
+          if (awAb.tp_skill.name) html += '<div class="ability-name">' + awAb.tp_skill.name + '</div>';
+          if (awAb.tp_skill.effect) html += '<div class="ability-effect">' + awAb.tp_skill.effect + '</div>';
+          html += '</div>';
+        }
+        if (awAb.abilities && awAb.abilities.length) {
+          html += '<div class="ability-section"><div class="ability-label">能力</div>';
+          awAb.abilities.forEach(a => {
+            html += '<div class="ability-effect"><strong>' + a.name + '</strong>: ' + a.effect + '</div>';
+          });
+          html += '</div>';
+        }
+      } else {
+        html += '<div style="color:var(--text-dim);font-size:12px">技能資料不可用</div>';
+      }
+      html += '</div>';
+    }
+
     abEl.innerHTML = html;
     abEl.style.display = "";
   } else {
@@ -3030,6 +3161,14 @@ function showDetail(name) {
   const gwLink = document.getElementById("detailGwLink");
   gwLink.href = m.url || "#";
   gwLink.style.display = m.url ? "" : "none";
+
+  const gwLinkAw = document.getElementById("detailGwLinkAwaken");
+  if (m._awakened && m._awakened.url) {
+    gwLinkAw.href = m._awakened.url;
+    gwLinkAw.style.display = "";
+  } else {
+    gwLinkAw.style.display = "none";
+  }
 
   const overlay = document.getElementById("detailOverlay");
   if (!overlay.classList.contains("active")) lockScroll();
