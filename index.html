@@ -1917,6 +1917,19 @@ function unlockScroll() {
   window.scrollTo(0, _scrollLockY);
 }
 
+// Pre-computed base name for related character matching (avoids 9000 regex ops per detail open)
+const _PREFIX_RE = /^覚醒|^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/;
+const _SUFFIX_RE = /\(.+\)$/;
+const _baseNameCache = new Map();
+function getBaseName(name) {
+  let b = _baseNameCache.get(name);
+  if (b === undefined) {
+    b = name.replace(/^覚醒/, "").replace(_PREFIX_RE, "").replace(_SUFFIX_RE, "").trim();
+    _baseNameCache.set(name, b);
+  }
+  return b;
+}
+
 // Role filter keyword mapping (role label → tag keywords to match)
 const ROLE_KEYWORDS = {
   "連鎖": ["有連鎖"],
@@ -2137,28 +2150,8 @@ const SKILL_RULES = [
   { id: "提升/強化", test: e => e.includes("提升") || e.includes("強化") },
 ];
 
-// Active skill category definitions
-const AS_RULES = [
-  { id: "貫通", test: e => e.includes("貫通") },
-  { id: "護盾", test: e => e.includes("護盾") || e.includes("バリア") },
-  { id: "傷害", test: e => (e.includes("傷害") && (e.includes("倍") || e.includes("威力"))) },
-  { id: "連鎖", test: e => e.includes("連鎖") },
-  { id: "全體化", test: e => e.includes("全體") },
-  { id: "回復", test: e => e.includes("回復") },
-  { id: "設置/陷阱", test: e => e.includes("設置") || e.includes("トラップ") },
-  { id: "移動", test: e => e.includes("移動") },
-  { id: "復活", test: e => e.includes("復活") },
-  { id: "反擊", test: e => e.includes("反擊") || e.includes("カウンター") },
-  { id: "毒", test: e => e.includes("毒") },
-  { id: "誘爆", test: e => e.includes("誘爆") },
-  { id: "柵", test: e => e.includes("柵") },
-  { id: "迴避", test: e => e.includes("迴避") },
-  { id: "減輕", test: e => e.includes("減輕") },
-  { id: "格擋", test: e => e.includes("格擋") },
-  { id: "AE", test: e => e.includes("AE") },
-  { id: "解除/無效", test: e => e.includes("解除") || e.includes("無效") },
-  { id: "暈眩", test: e => e.includes("暈眩") || e.includes("スタン") },
-];
+// Active skill uses same rules as shared skill rules
+const AS_RULES = SKILL_RULES;
 
 function classifyEffect(effect, rules) {
   const cats = new Set();
@@ -2507,6 +2500,60 @@ function elClass(e) {
   return map[e] || "";
 }
 
+// === Hoisted shared constants & helpers ===
+const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999","L":"#f1c40f"};
+const EL_CSS_NAME = {"火":"fire","水":"water","木":"wood","光":"light","闇":"dark"};
+
+function hasTags(m, keywords) {
+  if (!m.tags) return false;
+  return m.tags.some(t => keywords.some(k => t.includes(k)));
+}
+function hasChain(m) { return hasTags(m, ["有連鎖"]); }
+function hasSpeed(m) { return hasTags(m, ["速攻"]); }
+function hasAoe(m) { return hasTags(m, ["全體化"]); }
+function hasDmg(m) { return hasTags(m, ["傷害", "攻擊", "貫通", "殺手"]); }
+function hasBuff(m) { return hasTags(m, ["提升", "強化"]); }
+function hasDef(m) { return hasTags(m, ["減輕", "護盾", "格擋", "回復"]); }
+function hasSupport(m) { return hasTags(m, ["柵", "設置", "移動", "誘爆"]); }
+
+function getRoles(m) {
+  const roles = [];
+  if (hasDmg(m)) roles.push("攻");
+  if (hasBuff(m)) roles.push("輔");
+  if (hasDef(m)) roles.push("防");
+  if (hasSupport(m)) roles.push("援");
+  return roles.length ? roles : ["泛"];
+}
+
+function renderTeamSlot(m, roleLabel, opts) {
+  const owned = ownedSet.has(m.name);
+  const isLeader = roleLabel === "L";
+  const cls = "team-slot" + (isLeader ? " is-leader" : "") + (owned ? " is-owned" : "");
+  const elCss = m.element ? EL_CSS_NAME[m.element] || "dark" : "";
+  const elBadge = m.element
+    ? '<span class="team-slot-badge ' + elClass(m.element) + '" style="background:var(--el-' + elCss + ');color:' + (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
+    : "";
+  const roleColor = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
+  const roleTextColor = roleLabel === "L" ? "#000" : "#fff";
+  const roleBadge = '<span class="team-slot-role" style="background:' + roleColor + ';color:' + roleTextColor + '">' + roleLabel + '</span>';
+  const extraAttr = opts && opts.dgClick ? ' data-dg-click="1"' : '';
+  const noHtml = (!opts || opts.showNo !== false) && m.no ? '<div class="team-slot-score">No.' + m.no + '</div>' : '';
+  return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '"' + extraAttr + '>' +
+    (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
+    elBadge + roleBadge + noHtml +
+    '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
+    '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
+    '</div>';
+}
+
+// Generic modal close helper
+function makeModalCloseable(overlayId, closeId) {
+  const overlay = document.getElementById(overlayId);
+  const closeBtn = document.getElementById(closeId);
+  if (closeBtn) closeBtn.addEventListener("click", () => { overlay.classList.remove("active"); unlockScroll(); });
+  if (overlay) overlay.addEventListener("click", e => { if (e.target === e.currentTarget) { overlay.classList.remove("active"); unlockScroll(); } });
+}
+
 function getArtUrl(m) {
   // Large art: remove i_ prefix from icon filename
   if (!m.icon) return "";
@@ -2588,8 +2635,7 @@ function renderGrid() {
   if (grid.children.length > 0) {
     const prevHeight = grid.offsetHeight;
     grid.style.minHeight = prevHeight + "px";
-    grid.innerHTML = "";
-    grid.appendChild(fragment);
+    grid.replaceChildren(fragment);
     requestAnimationFrame(() => { grid.style.minHeight = ""; });
   } else {
     grid.appendChild(fragment);
@@ -2749,6 +2795,7 @@ function showDetail(name) {
   const m = monsterMap.get(name);
   if (!m) return;
   _currentDetailName = name;
+  _currentDetailIdx = _currentList.findIndex(m => m.name === name);
   addToRecent(name);
   // Auto-mark as viewed for update log
   if (m.no && _knownNos.size > 0 && !_knownNos.has(m.no)) {
@@ -2925,9 +2972,6 @@ function showDetail(name) {
   if (maxScore >= 9) {
     teamRecEl.style.display = "";
     teamRecEl.innerHTML = buildTeamRec(m);
-    teamRecEl.querySelectorAll(".team-slot[data-name]").forEach(slot => {
-      slot.addEventListener("click", () => showDetail(slot.dataset.name));
-    });
   } else {
     teamRecEl.style.display = "none";
   }
@@ -2937,13 +2981,13 @@ function showDetail(name) {
   let simHtml = "";
 
   // Find related forms by name (覚醒X ↔ X, X(Y) ↔ X, etc.)
-  const baseName = m.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim();
-  const related = allMonsters.filter(s =>
-    s.name !== m.name && (
-      s.name.includes(baseName) && baseName.length >= 2 ||
-      m.name.includes(s.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim()) && s.name.replace(/^覚醒/, "").replace(/^水着|^クリスマス|^正月|^ハロウィン|^バレンタイン|^劇場版|^アニバ/, "").replace(/\(.+\)$/, "").trim().length >= 2
-    )
-  ).sort((a, b) => (b.no || 0) - (a.no || 0)).slice(0, 6);
+  const baseName = getBaseName(m.name);
+  const related = allMonsters.filter(s => {
+    if (s.name === m.name) return false;
+    const sBase = getBaseName(s.name);
+    return (s.name.includes(baseName) && baseName.length >= 2) ||
+           (m.name.includes(sBase) && sBase.length >= 2);
+  }).sort((a, b) => (b.no || 0) - (a.no || 0)).slice(0, 6);
 
   if (related.length > 0) {
     simHtml += '<div class="similar-title">關聯型態</div><div class="team-slots">';
@@ -2951,6 +2995,7 @@ function showDetail(name) {
       simHtml += '<div class="team-slot" data-name="' + escAttr(s.name) + '">' +
         (s.icon ? '<img src="' + s.icon + '" alt="' + escAttr(s.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
         '<div class="team-slot-name">' + escHtml(s.name) + '</div>' +
+        (s.no ? '<div class="team-slot-score">No.' + s.no + '</div>' : '') +
         '<div class="team-slot-score">★' + (s.rarity || '?') + ' S:' + s.sub_score + '</div></div>';
     });
     simHtml += '</div>';
@@ -2969,6 +3014,7 @@ function showDetail(name) {
       simHtml += '<div class="team-slot" data-name="' + escAttr(s.name) + '">' +
         (s.icon ? '<img src="' + s.icon + '" alt="' + escAttr(s.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
         '<div class="team-slot-name">' + escHtml(s.name) + '</div>' +
+        (s.no ? '<div class="team-slot-score">No.' + s.no + '</div>' : '') +
         '<div class="team-slot-score">S:' + s.sub_score + '</div></div>';
     });
     simHtml += '</div>';
@@ -2977,9 +3023,6 @@ function showDetail(name) {
   if (simHtml) {
     simEl.innerHTML = simHtml;
     simEl.style.display = "";
-    simEl.querySelectorAll(".team-slot[data-name]").forEach(slot => {
-      slot.addEventListener("click", () => showDetail(slot.dataset.name));
-    });
   } else {
     simEl.style.display = "none";
   }
@@ -3001,18 +3044,6 @@ function buildTeamRec(leader) {
   const cached = _teamRecCache.get(leader.name);
   if (cached) return cached;
 
-  function hasTags(m, keywords) {
-    if (!m.tags) return false;
-    return m.tags.some(t => keywords.some(k => t.includes(k)));
-  }
-  function hasChain(m) { return hasTags(m, ["有連鎖"]); }
-  function hasSpeed(m) { return hasTags(m, ["速攻"]); }
-  function hasAoe(m) { return hasTags(m, ["全體化"]); }
-  function hasDmg(m) { return hasTags(m, ["傷害", "攻擊", "貫通", "殺手"]); }
-  function hasBuff(m) { return hasTags(m, ["提升", "強化"]); }
-  function hasDef(m) { return hasTags(m, ["減輕", "護盾", "格擋", "回復"]); }
-  function hasSupport(m) { return hasTags(m, ["柵", "設置", "移動", "誘爆"]); }
-
   const candidates = allMonsters.filter(m =>
     m.name !== leader.name && ownedSet.has(m.name) && m.sub_score >= 7
   );
@@ -3027,13 +3058,11 @@ function buildTeamRec(leader) {
       if (hasChain(m)) s += 10;
       if (hasDmg(m)) s += 8;
     } else {
-      // 只加目標角色的獎勵分，避免多角色角色累加所有獎勵
       if (targetRole === "攻" && hasDmg(m)) s += 10;
       else if (targetRole === "輔" && hasBuff(m)) s += 12;
       else if (targetRole === "防" && hasDef(m)) s += 10;
       else if (targetRole === "援" && hasSupport(m)) s += 8;
       else {
-        // 無指定角色時給予最高匹配的單一獎勵
         if (hasDmg(m)) s += 10;
         else if (hasBuff(m)) s += 12;
         else if (hasDef(m)) s += 10;
@@ -3041,15 +3070,6 @@ function buildTeamRec(leader) {
       }
     }
     return s;
-  }
-
-  function getRoles(m) {
-    const roles = [];
-    if (hasDmg(m)) roles.push("攻");
-    if (hasBuff(m)) roles.push("輔");
-    if (hasDef(m)) roles.push("防");
-    if (hasSupport(m)) roles.push("援");
-    return roles.length ? roles : ["泛"];
   }
 
   function pickTeam(leader, candidates, teamType) {
@@ -3087,35 +3107,12 @@ function buildTeamRec(leader) {
   const farmTeam = pickTeam(leader, candidates, "farm");
   const manualTeam = pickTeam(leader, candidates, "manual");
 
-  const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999","L":"#f1c40f"};
-  function renderSlot(m, roleLabel) {
-    const owned = ownedSet.has(m.name);
-    const isLeader = roleLabel === "L";
-    const cls = "team-slot" + (isLeader ? " is-leader" : "") + (owned ? " is-owned" : "");
-    const elBadge = m.element
-      ? '<span class="team-slot-badge ' + elClass(m.element) + '" style="background:var(--el-' +
-        (m.element === "火" ? "fire" : m.element === "水" ? "water" : m.element === "木" ? "wood" :
-         m.element === "光" ? "light" : "dark") + ');color:' +
-        (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
-      : "";
-    const roleColor = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
-    const roleTextColor = roleLabel === "L" ? "#000" : "#fff";
-    const roleBadge = '<span class="team-slot-role" style="background:' + roleColor + ';color:' + roleTextColor + '">' + roleLabel + '</span>';
-    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '">' +
-      (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
-      elBadge + roleBadge +
-      (m.no ? '<div class="team-slot-score">No.' + m.no + '</div>' : '') +
-      '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
-      '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
-      '</div>';
-  }
-
   function renderTeam(team, leader, label, icon) {
     if (team.length === 0) return '<div class="team-note">持有角色不足，無法推薦</div>';
     let html = '<div class="team-label"><span class="team-label-icon">' + icon + '</span>' + label + '</div>';
     html += '<div class="team-slots">';
-    html += renderSlot(leader, "L");
-    for (const c of team) html += renderSlot(c.m, c.role);
+    html += renderTeamSlot(leader, "L");
+    for (const c of team) html += renderTeamSlot(c.m, c.role);
     html += '</div>';
     return html;
   }
@@ -3160,6 +3157,12 @@ document.getElementById("detailOverlay").addEventListener("click", e => {
 });
 
 // (keyboard shortcuts are in the extended handler below)
+
+// Delegated click for team-slot navigation inside detail panel (avoids listener leaks)
+document.querySelector(".detail-panel").addEventListener("click", e => {
+  const slot = e.target.closest(".team-slot[data-name]");
+  if (slot) showDetail(slot.dataset.name);
+});
 
 // === Filter controls ===
 function renderAndSummary() { updateFilterSummary(); renderGrid(); window.scrollTo({ top: 0 }); }
@@ -3436,17 +3439,7 @@ document.getElementById("modalImport").addEventListener("click", () => {
   }
 });
 
-document.getElementById("modalClose").addEventListener("click", () => {
-  document.getElementById("modal").classList.remove("active");
-  unlockScroll();
-});
-
-document.getElementById("modal").addEventListener("click", e => {
-  if (e.target === e.currentTarget) {
-    document.getElementById("modal").classList.remove("active");
-    unlockScroll();
-  }
-});
+makeModalCloseable("modal", "modalClose");
 
 function debounce(fn, ms) {
   let t;
@@ -3541,15 +3534,18 @@ document.getElementById("recentItems").addEventListener("click", e => {
 });
 
 // === Detail navigation (prev/next) ===
-function getDetailIndex() {
-  if (!_currentDetailName || _currentList.length === 0) return -1;
-  return _currentList.findIndex(m => m.name === _currentDetailName);
-}
+let _currentDetailIdx = -1;
 
 function navDetail(dir) {
-  const idx = getDetailIndex();
-  if (idx < 0) return;
-  const next = idx + dir;
+  // Revalidate cached index (list may have changed)
+  if (_currentDetailIdx >= 0 && _currentDetailIdx < _currentList.length &&
+      _currentList[_currentDetailIdx].name === _currentDetailName) {
+    // Cache valid
+  } else {
+    _currentDetailIdx = _currentList.findIndex(m => m.name === _currentDetailName);
+  }
+  if (_currentDetailIdx < 0) return;
+  const next = _currentDetailIdx + dir;
   if (next >= 0 && next < _currentList.length) {
     showDetail(_currentList[next].name);
   }
@@ -3760,11 +3756,13 @@ function searchSkillEffects(query) {
   if (terms.length === 0) return new Set();
   if (terms.length === 1) return _matchTerm(terms[0]);
 
-  // Multiple terms: intersect results (start with first match set)
-  let candidates = new Set(_matchTerm(terms[0]));
+  // Multiple terms: intersect results in-place (no intermediate arrays)
+  const candidates = new Set(_matchTerm(terms[0]));
   for (let i = 1; i < terms.length && candidates.size > 0; i++) {
     const matches = _matchTerm(terms[i]);
-    candidates = new Set([...candidates].filter(n => matches.has(n)));
+    for (const name of candidates) {
+      if (!matches.has(name)) candidates.delete(name);
+    }
   }
   return candidates;
 }
@@ -3775,13 +3773,7 @@ document.getElementById("statsBtn").addEventListener("click", () => {
   document.getElementById("statsOverlay").classList.add("active");
   lockScroll();
 });
-document.getElementById("statsClose").addEventListener("click", () => {
-  document.getElementById("statsOverlay").classList.remove("active");
-  unlockScroll();
-});
-document.getElementById("statsOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) { e.target.classList.remove("active"); unlockScroll(); }
-});
+makeModalCloseable("statsOverlay", "statsClose");
 
 function renderStats() {
   const total = allMonsters.length;
@@ -3852,14 +3844,7 @@ document.getElementById("teamBuilderBtn").addEventListener("click", () => {
   lockScroll();
 });
 
-document.getElementById("tbClose").addEventListener("click", () => {
-  document.getElementById("teamBuilderOverlay").classList.remove("active");
-  unlockScroll();
-});
-
-document.getElementById("teamBuilderOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) { e.target.classList.remove("active"); unlockScroll(); }
-});
+makeModalCloseable("teamBuilderOverlay", "tbClose");
 
 function renderTbSlots() {
   const container = document.getElementById("tbSlots");
@@ -4009,13 +3994,7 @@ document.getElementById("dungeonAdvisorBtn").addEventListener("click", () => {
   document.getElementById("dungeonOverlay").classList.add("active");
   lockScroll();
 });
-document.getElementById("dungeonClose").addEventListener("click", () => {
-  document.getElementById("dungeonOverlay").classList.remove("active");
-  unlockScroll();
-});
-document.getElementById("dungeonOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) { e.currentTarget.classList.remove("active"); unlockScroll(); }
-});
+makeModalCloseable("dungeonOverlay", "dungeonClose");
 
 // Element buttons — radio
 document.getElementById("dungeonElGroup").addEventListener("click", e => {
@@ -4094,20 +4073,14 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
   // Ensure role diversity for boss content
   const team = [];
   const usedNames = new Set();
-  // Try to fill: attacker, support/buffer, defender
   const rolePriority = gimmicks.length > 0 ? ["攻", "輔", "防"] : ["攻", "攻", "輔"];
   for (const role of rolePriority) {
     let best = null, bestScore = -1;
     for (const c of subs) {
       if (usedNames.has(c.m.name)) continue;
-      const roles = [];
-      if (c.m.tags) {
-        if (c.m.tags.some(t => ["傷害","攻擊","貫通","殺手"].some(k => t.includes(k)))) roles.push("攻");
-        if (c.m.tags.some(t => ["提升","強化"].some(k => t.includes(k)))) roles.push("輔");
-        if (c.m.tags.some(t => ["減輕","護盾","格擋","回復"].some(k => t.includes(k)))) roles.push("防");
-      }
-      if (!roles.length) roles.push("泛");
-      if (roles.includes(role) && c.score > bestScore) { bestScore = c.score; best = c; }
+      const roles = getRoles(c.m);
+      if (!roles.includes(role)) continue;
+      if (c.score > bestScore) { bestScore = c.score; best = c; }
     }
     if (best) { team.push({ ...best, role }); usedNames.add(best.m.name); }
   }
@@ -4115,43 +4088,16 @@ document.getElementById("dungeonCalc").addEventListener("click", () => {
   for (const c of subs) {
     if (team.length >= 3) break;
     if (!usedNames.has(c.m.name)) {
-      const roles = [];
-      if (c.m.tags) {
-        if (c.m.tags.some(t => ["傷害","攻擊","貫通","殺手"].some(k => t.includes(k)))) roles.push("攻");
-        if (c.m.tags.some(t => ["提升","強化"].some(k => t.includes(k)))) roles.push("輔");
-        if (c.m.tags.some(t => ["減輕","護盾","格擋","回復"].some(k => t.includes(k)))) roles.push("防");
-      }
-      team.push({ ...c, role: roles[0] || "泛" });
+      team.push({ ...c, role: getRoles(c.m)[0] });
       usedNames.add(c.m.name);
     }
-  }
-
-  // Render result
-  const ROLE_COLORS = {"攻":"#e55","輔":"#4af","防":"#4c6","援":"#f90","泛":"#999","L":"#f1c40f"};
-  function renderDgSlot(m, roleLabel) {
-    const cls = "team-slot" + (ownedSet.has(m.name) ? " is-owned" : "") + (roleLabel === "L" ? " is-leader" : "");
-    const elBadge = m.element
-      ? '<span class="team-slot-badge ' + elClass(m.element) + '" style="background:var(--el-' +
-        (m.element === "火" ? "fire" : m.element === "水" ? "water" : m.element === "木" ? "wood" :
-         m.element === "光" ? "light" : "dark") + ');color:' +
-        (m.element === "光" ? "#000" : "#fff") + '">' + m.element + '</span>'
-      : "";
-    const rc = ROLE_COLORS[roleLabel] || "rgba(0,0,0,0.7)";
-    const rtc = roleLabel === "L" ? "#000" : "#fff";
-    return '<div class="' + cls + '" data-name="' + escAttr(m.name) + '" data-dg-click="1">' +
-      (m.icon ? '<img src="' + m.icon + '" alt="' + escAttr(m.name) + '" loading="lazy">' : '<div style="width:56px;height:56px;background:var(--bg);border-radius:8px"></div>') +
-      elBadge +
-      '<span class="team-slot-role" style="background:' + rc + ';color:' + rtc + '">' + roleLabel + '</span>' +
-      '<div class="team-slot-name">' + escHtml(m.name) + '</div>' +
-      '<div class="team-slot-score">S:' + m.sub_score + '</div>' +
-    '</div>';
   }
 
   let html = '<div class="dungeon-result-title">推薦隊伍</div>';
   if (counterEl) html += '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">剋屬：' + counterEl + '屬</div>';
   html += '<div class="team-slots">';
-  html += renderDgSlot(leader, "L");
-  for (const c of team) html += renderDgSlot(c.m, c.role);
+  html += renderTeamSlot(leader, "L", { dgClick: true, showNo: false });
+  for (const c of team) html += renderTeamSlot(c.m, c.role, { dgClick: true, showNo: false });
   html += '</div>';
 
   // Show gimmick coverage
@@ -4259,13 +4205,7 @@ document.getElementById("updateLogBtn").addEventListener("click", () => {
   document.getElementById("updateLogOverlay").classList.add("active");
   lockScroll();
 });
-document.getElementById("updateLogClose").addEventListener("click", () => {
-  document.getElementById("updateLogOverlay").classList.remove("active");
-  unlockScroll();
-});
-document.getElementById("updateLogOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) { e.currentTarget.classList.remove("active"); unlockScroll(); }
-});
+makeModalCloseable("updateLogOverlay", "updateLogClose");
 document.getElementById("updateLogMarkRead").addEventListener("click", () => {
   // Mark all current monsters as known
   for (const m of allMonsters) {
